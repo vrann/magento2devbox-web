@@ -290,7 +290,7 @@ abstract class AbstractCommand extends Command
      *
      * @return array
      */
-    protected function getOptionsConfig()
+    public function getOptionsConfig()
     {
         return [];
     }

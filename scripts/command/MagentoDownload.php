@@ -204,7 +204,7 @@ class MagentoDownload extends AbstractCommand
     /**
      * {@inheritdoc}
      */
-    protected function getOptionsConfig()
+    public function getOptionsConfig()
     {
         return [
             'use-existing-sources' => [

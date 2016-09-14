@@ -86,7 +86,7 @@ class MagentoPrepare extends AbstractCommand
     /**
      * {@inheritdoc}
      */
-    protected function getOptionsConfig()
+    public function getOptionsConfig()
     {
         return [
             'static-deploy' => [

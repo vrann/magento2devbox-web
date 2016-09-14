@@ -97,7 +97,7 @@ class MagentoSetupRedis extends AbstractCommand
     /**
      * {@inheritdoc}
      */
-    protected function getOptionsConfig()
+    public function getOptionsConfig()
     {
         return [
             'as-cache' => [
