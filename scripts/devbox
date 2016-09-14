@@ -1,0 +1,25 @@
+#!/usr/bin/env php
+<?php
+/**
+ * Copyright © 2016 Magento. All rights reserved.
+ * See COPYING.txt for license details.
+ */
+namespace MagentoDevBox;
+
+require_once __DIR__ . '/vendor/autoload.php';
+
+use Symfony\Component\Console\Application;
+
+$application = new Application();
+$commands = [];
+
+foreach (glob(__DIR__ . '/command/*.php') as $command)
+{
+    require_once $command;
+
+    $className = 'MagentoDevBox\\Command\\' . basename($command, '.php');
+    $commands[] = new $className;
+}
+
+$application->addCommands($commands);
+$application->run();

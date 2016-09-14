@@ -1,0 +1,1 @@
+# Dockerfile that installs needed extensions for Magento 2 and bunch of commands to install and setup Magento 2 Application
