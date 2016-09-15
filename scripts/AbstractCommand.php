@@ -97,7 +97,9 @@ abstract class AbstractCommand extends Command
     protected function initialize(InputInterface $input, OutputInterface $output)
     {
         foreach($this->getOptionsConfig() as $name => $config) {
-            if ($input->hasParameterOption('--' . $name)) {
+            if (!$input->isInteractive() && $this->getConfigValue('default', $config) !== null
+                || $input->hasParameterOption('--' . $name)
+            ) {
                 $this->valueSetStates[$name] = true;
 
                 if ($this->getConfigValue('boolean', $config, static::OPTION_DEFAULT_BOOLEAN)) {
@@ -115,7 +117,7 @@ abstract class AbstractCommand extends Command
         foreach($this->getOptionsConfig() as $name => $config) {
             if ($this->getConfigValue('initial', $config, static::OPTION_DEFAULT_INITIAL)
                 && !$this->getConfigValue('virtual', $config, static::OPTION_DEFAULT_VIRTUAL)
-                && !$this->getConfigValue($name, $this->valueSetStates, false)
+                && !$this->getConfigValue($name, $this->getValueSetStates(), false)
             ) {
                 $this->requestOption($name, $input, $output);
             }
@@ -155,7 +157,7 @@ abstract class AbstractCommand extends Command
         $defaultValue = $this->getConfigValue('default', $config);
 
         if ((!$input->isInteractive() && $defaultValue !== null
-            || $this->getConfigValue($name, $this->valueSetStates, false))
+            || $this->getConfigValue($name, $this->getValueSetStates(), false))
             && !$overwrite
         ) {
             return $input->getOption($name);
@@ -198,6 +200,16 @@ abstract class AbstractCommand extends Command
         $output->writeln($isBoolean ? ($value ? static::WORD_BOOLEAN_TRUE : static::WORD_BOOLEAN_FALSE) : $value);
 
         return $value;
+    }
+
+    /**
+     * Return values set states
+     *
+     * @return array
+     */
+    public function getValueSetStates()
+    {
+        return $this->valueSetStates;
     }
 
     /**

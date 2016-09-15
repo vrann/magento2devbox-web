@@ -35,35 +35,38 @@ class MagentoDownload extends AbstractCommand
      */
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-        $useExistingSources = $input->getOption('use-existing-sources');
+        $useExistingSources = $this->requestOption('magento-sources-reuse', $input, $output);
 
-        if (!$useExistingSources && $this->requestOption('install-from-cloud', $input, $output)) {
+        if (!$useExistingSources && $this->requestOption('magento-cloud-install', $input, $output)) {
             $this->installFromCloud($input, $output);
         }
 
+        $magentoPath = $this->requestOption('magento-path', $input, $output);
         $authFile = '/home/magento2/.composer/auth.json';
-        $rootAuth = '/var/www/magento2/auth.json';
+        $rootAuth = sprintf('%s/auth.json', $magentoPath);
+
         if (!file_exists($authFile) && !(file_exists($rootAuth))) {
             $this->generateAuthFile($authFile, $input, $output);
         }
 
         if (!$useExistingSources
-            && !$this->requestOption('install-from-cloud', $input, $output)
-            && !file_exists('/var/www/magento2/composer.json')
+            && !$this->requestOption('magento-cloud-install', $input, $output)
+            && !file_exists(sprintf('%s/composer.json', $magentoPath))
         ) {
             $version = strtolower($this->requestOption('magento-edition', $input, $output)) == 'ee'
                 ? 'enterprise'
                 : 'community';
             $this->executeCommands(
                 sprintf(
-                    'cd /var/www/magento2 && composer create-project --repository-url=""https://repo.magento.com/""'
+                    'cd %s && composer create-project --repository-url=""https://repo.magento.com/""'
                         . ' magento/project-%s-edition .',
+                    $magentoPath,
                     $version
                 ),
                 $output
             );
         } else {
-            $this->executeCommands('cd /var/www/magento2 && composer install', $output);
+            $this->executeCommands(sprintf('cd %s && composer install', $magentoPath), $output);
         }
 
         $output->writeln('To setup magento run <info>m2init magento:setup</info> command next');
@@ -82,18 +85,19 @@ class MagentoDownload extends AbstractCommand
         if (!$this->commandExist('magento-cloud')) {
             $this->executeCommands('php /home/magento2/installer', $output);
         }
+
         $this->executeCommands('magento-cloud', $output);
 
-        if ($this->requestOption('cloud-use-existing-key', $input, $output)) {
-            $keyName = $this->requestOption('cloud-key-name', $input, $output);
+        if ($this->requestOption('magento-cloud-key-reuse', $input, $output)) {
+            $keyName = $this->requestOption('magento-cloud-key-name', $input, $output);
 
             while (!file_exists(sprintf('/home/magento2/.ssh/%s', $keyName))) {
-                if ($this->requestOption('cloud-try-different-key', $input, $output, true)) {
-                    $keyName = $this->requestOption('cloud-key-name', $input, $output, true);
+                if ($this->requestOption('magento-cloud-key-switch', $input, $output, true)) {
+                    $keyName = $this->requestOption('magento-cloud-key-name', $input, $output, true);
                 } else {
-                    if ($this->requestOption('cloud-create-new-key', $input, $output)) {
+                    if ($this->requestOption('magento-cloud-key-create', $input, $output)) {
                         $keyName = $this->requestOption(
-                            'cloud-key-name',
+                            'magento-cloud-key-name',
                             $input,
                             $output,
                             true,
@@ -110,7 +114,7 @@ class MagentoDownload extends AbstractCommand
             }
         } else {
             $keyName = $this->requestOption(
-                'cloud-key-name',
+                'magento-cloud-key-name',
                 $input,
                 $output,
                 false,
@@ -122,7 +126,7 @@ class MagentoDownload extends AbstractCommand
         chmod(sprintf('/home/magento2/.ssh/%s', $keyName), 0600);
         $this->executeCommands(sprintf('echo "IdentityFile /home/magento2/.ssh/%s" >> /etc/ssh/ssh_config', $keyName), $output);
 
-        if ($this->requestOption('cloud-add-key', $input, $output)) {
+        if ($this->requestOption('magento-cloud-key-add', $input, $output)) {
             $this->executeCommands(sprintf('magento-cloud ssh-key:add /home/magento2/.ssh/%s.pub', $keyName), $output);
         }
 
@@ -143,24 +147,25 @@ class MagentoDownload extends AbstractCommand
         }
 
         $this->executeCommands('magento-cloud project:list', $output);
-        $project = $this->requestOption('cloud-project', $input, $output);
+        $project = $this->requestOption('magento-cloud-project-name', $input, $output);
 
         while (!$project) {
-            if ($this->requestOption('cloud-continue-with-no-project', $input, $output, true)) {
-                $project = $this->requestOption('cloud-project', $input, $output, true);
+            if ($this->requestOption('magento-cloud-project-skip', $input, $output, true)) {
+                $project = $this->requestOption('magento-cloud-project-name', $input, $output, true);
             } else {
                 throw new \Exception(
                     'You selected to init project from the Magento Cloud, but haven\'t provided project name.'
-                    . ' Please start from the beginning.'
+                        . ' Please start from the beginning.'
                 );
             }
         }
 
         $this->executeCommands('magento-cloud environment:list --project=' . $project, $output);
-        $branch = $this->requestOption('cloud-branch', $input, $output);
+        $branch = $this->requestOption('magento-cloud-branch', $input, $output);
+
         while (!$branch) {
-            if ($this->requestOption('cloud-continue-with-no-branch', $input, $output, true)) {
-                $project = $this->requestOption('cloud-branch', $input, $output, true);
+            if ($this->requestOption('magento-cloud-branch-skip', $input, $output, true)) {
+                $project = $this->requestOption('magento-cloud-branch', $input, $output, true);
             } else {
                 throw new \Exception(
                     'You selected to init project from the Magento Cloud, but haven\'t provided branch name.'
@@ -171,10 +176,11 @@ class MagentoDownload extends AbstractCommand
 
         $this->executeCommands(
             sprintf(
-                'git clone --branch %s %s@git.us.magento.cloud:%s.git /var/www/magento2',
+                'git clone --branch %s %s@git.us.magento.cloud:%s.git %s',
                 $branch,
                 $project,
-                $project
+                $project,
+                $this->requestOption('magento-path', $input, $output)
             ),
             $output
         );
@@ -190,8 +196,8 @@ class MagentoDownload extends AbstractCommand
      */
     private function generateAuthFile($authFile, InputInterface $input, OutputInterface $output)
     {
-        $publicKey = $this->requestOption('magento-public-key', $input, $output);
-        $privateKey = $this->requestOption('magento-private-key', $input, $output);
+        $publicKey = $this->requestOption('composer-public-key', $input, $output);
+        $privateKey = $this->requestOption('composer-private-key', $input, $output);
         $output->writeln('Writing auth.json');
         $json = sprintf(
             '{"http-basic": {"repo.magento.com": {"username": "%s", "password": "%s"}}}',
@@ -207,74 +213,80 @@ class MagentoDownload extends AbstractCommand
     public function getOptionsConfig()
     {
         return [
-            'use-existing-sources' => [
+            'magento-path' => [
+                'initial' => true,
+                'default' => '/var/www/magento2',
+                'description' => 'Path to source folder for Magento',
+                'question' => 'Please enter path to source folder for Magento %default%'
+            ],
+            'magento-sources-reuse' => [
                 'initial' => true,
                 'boolean' => true,
                 'default' => false,
                 'description' => 'Whether to use existing sources.',
                 'question' => 'Do you want to use existing sources? %default%'
             ],
-            'install-from-cloud' => [
+            'magento-cloud-install' => [
                 'boolean' => true,
                 'default' => false,
                 'description' => 'Whether to get sources from Magento Cloud.',
                 'question' => 'Do you want to initialize from Magento Cloud? %default%'
             ],
-            'cloud-branch' => [
+            'magento-cloud-branch' => [
                 'default' => 'master',
                 'description' => 'Magento Cloud branch to clone from.',
                 'question' => 'What branch do you want to clone from? %default%'
             ],
-            'cloud-use-existing-key' => [
+            'magento-cloud-key-reuse' => [
                 'boolean' => true,
                 'default' => true,
                 'description' => 'Whether to use existing SSH key for Magento Cloud.',
                 'question' => 'Do you want to use existing SSH key? %default%'
             ],
-            'cloud-create-new-key' => [
+            'magento-cloud-key-create' => [
                 'boolean' => true,
                 'default' => true,
                 'description' => 'Do you want to create new SSH key?',
                 'question' => 'Do you want to create new SSH key? %default%'
             ],
-            'cloud-key-name' => [
+            'magento-cloud-key-name' => [
                 'default' => 'id_rsa',
                 'description' => 'Name of the SSH key to use with Magento Cloud.',
                 'question' => 'What is the name of the SSH key to use with the Magento Cloud? %default%'
             ],
-            'cloud-try-different-key' => [
+            'magento-cloud-key-switch' => [
                 'virtual' => true,
                 'boolean' => true,
                 'default' => true,
                 'question' => 'File with the key does not exists, do you want to enter different name? %default%'
             ],
-            'cloud-add-key' => [
+            'magento-cloud-key-add' => [
                 'boolean' => true,
                 'default' => true,
                 'description' => 'Whether to add SSH key to Magento Cloud.',
                 'question' => 'Do you want to add key to the Magento Cloud? %default%'
             ],
-            'cloud-project' => [
+            'magento-cloud-project-name' => [
                 'description' => 'Magento Cloud project to clone.',
                 'question' => 'Please select project to clone'
             ],
-            'cloud-continue-with-no-project' => [
+            'magento-cloud-project-skip' => [
                 'virtual' => true,
                 'boolean' => true,
                 'default' => true,
                 'question' => 'You haven\'t entered project name. Do you want to continue? %default%'
             ],
-            'cloud-continue-with-no-branch' => [
+            'magento-cloud-branch-skip' => [
                 'virtual' => true,
                 'boolean' => true,
                 'default' => true,
                 'question' => 'You haven\'t entered branch name. Do you want to continue? %default%'
             ],
-            'magento-public-key' => [
+            'composer-public-key' => [
                 'description' => 'Composer public key for Magento.',
                 'question' => 'Enter your Magento public key'
             ],
-            'magento-private-key' => [
+            'composer-private-key' => [
                 'description' => 'Composer private key for Magento.',
                 'question' => 'Enter your Magento private key'
             ],

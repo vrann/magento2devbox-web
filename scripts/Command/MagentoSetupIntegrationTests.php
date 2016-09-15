@@ -40,8 +40,9 @@ class MagentoSetupIntegrationTests extends AbstractCommand
             $output
         );
 
-        $sourceFile = '/var/www/magento2/dev/tests/integration/etc/install-config-mysql.php.dist';
-        $targetFile = '/var/www/magento2/dev/tests/integration/etc/install-config-mysql.php';
+        $magentoPath = $this->requestOption('magento-path', $input, $output);
+        $sourceFile = sprintf('%s/dev/tests/integration/etc/install-config-mysql.php.dist', $magentoPath);
+        $targetFile = sprintf('%s/dev/tests/integration/etc/install-config-mysql.php', $magentoPath);
 
         if (file_exists($sourceFile) && !file_exists($targetFile)) {
             $config = file_get_contents($sourceFile);
@@ -73,5 +74,20 @@ class MagentoSetupIntegrationTests extends AbstractCommand
         }
 
         return $config;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getOptionsConfig()
+    {
+        return [
+            'magento-path' => [
+                'initial' => true,
+                'default' => '/var/www/magento2',
+                'description' => 'Path to source folder for Magento',
+                'question' => 'Please enter path to source folder for Magento %default%'
+            ]
+        ];
     }
 }

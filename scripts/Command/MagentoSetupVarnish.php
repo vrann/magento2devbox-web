@@ -42,7 +42,7 @@ class MagentoSetupVarnish extends AbstractCommand
     {
         $this->saveConfig($input, $output);
 
-        require $input->getOption('magento-dir') . '/app/bootstrap.php';
+        require $input->getOption('magento-path') . '/app/bootstrap.php';
         $bootstrap = Bootstrap::create(BP, $_SERVER);
 
         $om = $bootstrap->getObjectManager();
@@ -51,7 +51,7 @@ class MagentoSetupVarnish extends AbstractCommand
         $config = $om->get(Config::class);
         $content = $config->getVclFile(Config::VARNISH_4_CONFIGURATION_PATH);
 
-        file_put_contents($input->getOption('out-file-path'), $content);
+        file_put_contents($input->getOption('varnish-config-path'), $content);
 
         return null;
     }
@@ -64,7 +64,7 @@ class MagentoSetupVarnish extends AbstractCommand
         $this->getPDOConnection($input)->exec(
             'DELETE FROM core_config_data'
                 . ' WHERE path = "system/full_page_cache/caching_application" '
-                    . ' OR path like "system/full_page_cache/varnish/%";'
+                . ' OR path like "system/full_page_cache/varnish/%";'
         );
 
         $config = [
@@ -78,20 +78,20 @@ class MagentoSetupVarnish extends AbstractCommand
                 'scope' => 'default',
                 'scope_id' => 0,
                 'path' => 'system/full_page_cache/varnish/access_list',
-                'value' => $input->getOption('backend-host')
+                'value' => $input->getOption('webserver-host-host')
             ],
             [
                 'scope' => 'default',
                 'scope_id' => 0,
                 'path' => 'system/full_page_cache/varnish/backend_host',
-                'value' => $input->getOption('backend-host')
+                'value' => $input->getOption('webserver-host')
             ],
             [
                 'scope' => 'default',
                 'scope_id' => 0,
                 'path' => 'system/full_page_cache/varnish/backend_port',
-                'value' => $input->getOption('backend-port')
-            ],
+                'value' => $input->getOption('webserver-port')
+            ]
         ];
 
         $stmt = $this->getPDOConnection($input)->prepare(
@@ -106,7 +106,7 @@ class MagentoSetupVarnish extends AbstractCommand
             $stmt->execute();
         }
 
-        $this->executeCommands('cd ' . $input->getOption('magento-dir') . ' && php bin/magento cache:clean config');
+        $this->executeCommands('cd ' . $input->getOption('magento-path') . ' && php bin/magento cache:clean config');
     }
 
     /**
@@ -128,6 +128,24 @@ class MagentoSetupVarnish extends AbstractCommand
     public function getOptionsConfig()
     {
         return [
+            'magento-path' => [
+                'initial' => true,
+                'default' => '/var/www/magento2',
+                'description' => 'Path to source folder for Magento',
+                'question' => 'Please enter path to source folder for Magento %default%'
+            ],
+            'webserver-host' => [
+                'initial' => true,
+                'default' => 'web',
+                'description' => 'Varnish Backend Host',
+                'question' => 'Please enter Varnish Backend Host %default%'
+            ],
+            'webserver-port' => [
+                'initial' => true,
+                'default' => 80,
+                'description' => 'Varnish Backend Port',
+                'question' => 'Please enter Varnish Backend Port %default%'
+            ],
             'db-host' => [
                 'initial' => true,
                 'default' => 'db',
@@ -158,30 +176,12 @@ class MagentoSetupVarnish extends AbstractCommand
                 'description' => 'Magento Mysql database',
                 'question' => 'Please enter magento Mysql database %default%'
             ],
-            'backend-host' => [
-                'initial' => true,
-                'default' => 'web',
-                'description' => 'Varnish Backend Host',
-                'question' => 'Please enter Varnish Backend Host %default%'
-            ],
-            'backend-port' => [
-                'initial' => true,
-                'default' => 80,
-                'description' => 'Varnish Backend Port',
-                'question' => 'Please enter Varnish Backend Port %default%'
-            ],
-            'magento-dir' => [
-                'initial' => true,
-                'default' => '/var/www/magento2',
-                'description' => 'Magento root directory',
-                'question' => 'Please enter Magento root directory %default%'
-            ],
-            'out-file-path' => [
+            'varnish-config-path' => [
                 'initial' => true,
                 'default' => '/home/magento2/scripts/default.vcl',
                 'description' => 'Magento root directory',
                 'question' => 'Please enter output configuration file path %default%'
-            ],
+            ]
         ];
     }
 }

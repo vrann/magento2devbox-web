@@ -24,6 +24,11 @@ class MagentoInstall extends AbstractCommand
     private $optionsConfig;
 
     /**
+     * @var array
+     */
+    private $sharedData = [];
+
+    /**
      * {@inheritdoc}
      */
     protected function configure()
@@ -123,15 +128,25 @@ class MagentoInstall extends AbstractCommand
         $arguments = [null, $commandName];
 
         foreach ($command->getOptionsConfig() as $optionName => $optionConfig) {
-            if (!$this->getConfigValue('virtual', $optionConfig, false)
-                && $input->hasParameterOption('--' . $optionName)
-            ) {
-                $arguments[] = sprintf('--%s=%s', $optionName, $input->getOption($optionName));
+            if (!$this->getConfigValue('virtual', $optionConfig, false)) {
+                $optionValue = array_key_exists($optionName, $this->sharedData)
+                    ? $this->sharedData[$optionName]
+                    : $input->getOption($optionName);
+
+                if ($optionValue !== null) {
+                    $arguments[] = sprintf('--%s=%s', $optionName, $input->getOption($optionName));
+                }
             }
         }
 
         $commandInput = new ArgvInput($arguments);
         $commandInput->setInteractive($input->isInteractive());
         $command->run($commandInput, $output);
+
+        foreach ($command->getValueSetStates() as $optionName => $optionState) {
+            if ($optionState) {
+                $this->sharedData[$optionName] = $commandInput->getOption($optionName);
+            }
+        }
     }
 }

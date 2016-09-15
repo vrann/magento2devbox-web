@@ -33,22 +33,28 @@ class MagentoSetup extends AbstractCommand
      */
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-        $this->cleanupSystem();
+        $magentoPath = $this->requestOption('magento-path', $input, $output);
+        $this->executeCommands(
+            sprintf('cd %s && rm -rf var/* pub/static/* app/etc/env.php app/etc/config.php', $magentoPath)
+        );
 
         $command = sprintf(
-            'cd /var/www/magento2 && php bin/magento setup:install'
+            'cd %s && php bin/magento setup:install'
                 . ' --base-url=http://localhost:1748/ --db-host=db --db-name=magento2'
                 . ' --db-user=root --db-password=root --admin-firstname=Magento --admin-lastname=User'
                 . ' --admin-email=user@example.com --admin-user=%s --admin-password=%s'
                 . ' --language=en_US --currency=USD --timezone=America/Chicago --use-rewrites=1'
                 . ' --backend-frontname=%s',
-            $input->getOption('admin-user'),
-            $input->getOption('admin-password'),
-            $input->getOption('backend-path')
+            $magentoPath,
+            $input->getOption('magento-admin-user'),
+            $input->getOption('magento-admin-password'),
+            $input->getOption('magento-backend-path')
         );
 
-        if ($input->getOption('rabbitmq-install')) {
-            $amqpModuleExist = exec('cd /var/www/magento2 && php bin/magento module:status | grep Magento_Amqp');
+        if ($input->getOption('rabbitmq-setup')) {
+            $amqpModuleExist = exec(
+                sprintf('cd %s && php bin/magento module:status | grep Magento_Amqp', $magentoPath)
+            );
 
             if ($amqpModuleExist) {
                 $rabbitmqHost = $this->requestOption('rabbitmq-host', $input, $output);
@@ -64,18 +70,20 @@ class MagentoSetup extends AbstractCommand
 
         $this->executeCommands($command, $output);
 
-        if (!$input->getOption('use-existing-sources')) {
-            if (!file_exists('/var/www/magento2/var/composer_home')) {
-                mkdir('/var/www/magento2/var/composer_home', 0777, true);
+        if (!$input->getOption('magento-sources-reuse')) {
+            $composerHomePath = sprintf('%s/var/composer_home', $magentoPath);
+
+            if (!file_exists($composerHomePath)) {
+                mkdir($composerHomePath, 0777, true);
             }
 
-            copy('/home/magento2/.composer/auth.json', '/var/www/magento2/var/composer_home/auth.json');
+            copy('/home/magento2/.composer/auth.json', sprintf('%s/auth.json', $composerHomePath));
 
-            if ($this->requestOption('magento-sample-data', $input, $output)) {
+            if ($this->requestOption('magento-sample-data-install', $input, $output)) {
                 $this->executeCommands(
                     [
-                        'cd /var/www/magento2 && php bin/magento sampledata:deploy',
-                        'cd /var/www/magento2 && php bin/magento setup:upgrade'
+                        sprintf('cd %s && php bin/magento sampledata:deploy', $magentoPath),
+                        sprintf('cd %s && php bin/magento setup:upgrade', $magentoPath)
                     ],
                     $output
                 );
@@ -86,47 +94,43 @@ class MagentoSetup extends AbstractCommand
     }
 
     /**
-     * Cleanup system
-     *
-     * @return void
-     */
-    private function cleanupSystem()
-    {
-        $this->executeCommands('cd /var/www/magento2 && rm -rf var/* pub/static/* app/etc/env.php app/etc/config.php');
-    }
-
-    /**
      * {@inheritdoc}
      */
     public function getOptionsConfig()
     {
         return [
-            'use-existing-sources' => [
+            'magento-path' => [
+                'initial' => true,
+                'default' => '/var/www/magento2',
+                'description' => 'Path to source folder for Magento',
+                'question' => 'Please enter path to source folder for Magento %default%'
+            ],
+            'magento-sources-reuse' => [
                 'initial' => true,
                 'boolean' => true,
                 'default' => false,
                 'description' => 'Whether to use existing sources.',
                 'question' => 'Do you want to use existing sources? %default%'
             ],
-            'backend-path' => [
+            'magento-backend-path' => [
                 'initial' => true,
                 'default' => 'admin',
                 'description' => 'Magento backend path.',
                 'question' => 'Please enter backend admin path %default%'
             ],
-            'admin-user' => [
+            'magento-admin-user' => [
                 'initial' => true,
                 'default' => 'admin',
                 'description' => 'Admin username.',
                 'question' => 'Please enter backend admin username %default%'
             ],
-            'admin-password' => [
+            'magento-admin-password' => [
                 'initial' => true,
                 'default' => 'admin123',
                 'description' => 'Admin password.',
                 'question' => 'Please enter backend admin password %default%'
             ],
-            'rabbitmq-install' => [
+            'rabbitmq-setup' => [
                 'initial' => true,
                 'boolean' => true,
                 'default' => false,
@@ -145,7 +149,7 @@ class MagentoSetup extends AbstractCommand
                 'description' => 'RabbitMQ port.',
                 'question' => 'Please specify RabbitMQ port %default%'
             ],
-            'magento-sample-data' => [
+            'magento-sample-data-install' => [
                 'boolean' => true,
                 'default' => false,
                 'description' => 'Whether to install Sample Data.',

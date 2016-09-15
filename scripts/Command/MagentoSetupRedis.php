@@ -34,10 +34,10 @@ class MagentoSetupRedis extends AbstractCommand
     protected function execute(InputInterface $input, OutputInterface $output)
     {
         $host = $input->getOption('redis-host');
-        $configPath = sprintf('%s/app/etc/env.php', $input->getOption('magento-path'));
+        $configPath = sprintf('%s/app/etc/env.php', $this->requestOption('magento-path', $input, $output));
         $config = include $configPath;
 
-        if ($input->getOption('redis-session')) {
+        if ($input->getOption('redis-session-setup')) {
             $config['session'] = [
                 'save' => 'redis',
                 'redis' => [
@@ -65,7 +65,7 @@ class MagentoSetupRedis extends AbstractCommand
             $config['session'] = ['save' => 'files'];
         }
 
-        if ($input->getOption('redis-fpc')) {
+        if ($input->getOption('redis-fpc-setup')) {
             $config['cache']['frontend']['page_cache'] = [
                 'backend' => 'Cm_Cache_Backend_Redis',
                 'backend_options' => [
@@ -79,7 +79,7 @@ class MagentoSetupRedis extends AbstractCommand
             unset($config['cache']['frontend']['page_cache']);
         }
 
-        if ($input->getOption('redis-cache')) {
+        if ($input->getOption('redis-cache-setup')) {
             $config['cache']['frontend']['default'] = [
                 'backend' => 'Cm_Cache_Backend_Redis',
                 'backend_options' => [
@@ -100,21 +100,28 @@ class MagentoSetupRedis extends AbstractCommand
     public function getOptionsConfig()
     {
         return [
-            'redis-fpc' => [
+            'magento-path' => [
+                'initial' => true,
+                'default' => '/var/www/magento2',
+                'requireValue' => false,
+                'description' => 'Path to Magento.',
+                'question' => 'Please enter Magento path %default%'
+            ],
+            'redis-fpc-setup' => [
                 'initial' => true,
                 'boolean' => true,
                 'default' => false,
                 'description' => 'Whether to use Redis as Magento full page cache.',
                 'question' => 'Do you want to use Redis as Magento full page cache? %default%'
             ],
-            'redis-cache' => [
+            'redis-cache-setup' => [
                 'initial' => true,
                 'boolean' => true,
                 'default' => true,
                 'description' => 'Whether to use Redis as Magento default cache.',
                 'question' => 'Do you want to use Redis as Magento default cache? %default%'
             ],
-            'redis-session' => [
+            'redis-session-setup' => [
                 'initial' => true,
                 'boolean' => true,
                 'default' => false,
@@ -127,13 +134,6 @@ class MagentoSetupRedis extends AbstractCommand
                 'requireValue' => false,
                 'description' => 'Redis host.',
                 'question' => 'Please enter Redis host %default%'
-            ],
-            'magento-path' => [
-                'initial' => true,
-                'default' => '/var/www/magento2',
-                'requireValue' => false,
-                'description' => 'Path to Magento.',
-                'question' => 'Please enter Magento path %default%'
             ]
         ];
     }

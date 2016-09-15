@@ -33,34 +33,50 @@ class MagentoFinalize extends AbstractCommand
      */
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-        $this->executeCommands('cd /var/www/magento2 && php bin/magento deploy:mode:set developer', $output);
+        $magentoPath = $this->requestOption('magento-path', $input, $output);
+        $this->executeCommands(sprintf('cd %s && php bin/magento deploy:mode:set developer', $magentoPath), $output);
 
-        if ($this->requestOption('static-deploy', $input, $output)) {
-            $this->executeCommands('cd /var/www/magento2 && php bin/magento setup:static-content:deploy', $output);
-        } elseif ($this->requestOption('static-grunt-compile', $input, $output)) {
+        if ($this->requestOption('magento-static-deploy', $input, $output)) {
+            $this->executeCommands(
+                sprintf('cd %s && php bin/magento setup:static-content:deploy', $magentoPath),
+                $output
+            );
+        } elseif ($this->requestOption('magento-grunt-compile', $input, $output)) {
             $this->executeCommands(
                 [
-                    'cd /var/www/magento2 && cp Gruntfile.js.sample Gruntfile.js'
-                        . ' && cp package.json.sample package.json',
-                    'cd /var/www/magento2 && npm install && grunt refresh'
+                    sprintf(
+                        'cd %s && cp Gruntfile.js.sample Gruntfile.js && cp package.json.sample package.json',
+                        $magentoPath
+                    ),
+                    sprintf('cd %s && npm install && grunt refresh', $magentoPath)
                 ],
                 $output
             );
         }
 
-        if ($this->requestOption('di-compile', $input, $output)) {
-            $this->executeCommands('cd /var/www/magento2 && php bin/magento setup:di:compile', $output);
+        if ($this->requestOption('magento-di-compile', $input, $output)) {
+            $this->executeCommands(sprintf('cd %s && php bin/magento setup:di:compile', $magentoPath), $output);
         }
 
         $crontab = implode(
             "\n",
             [
-                '* * * * * /usr/local/bin/php /var/www/magento2/bin/magento cron:run | grep -v "Ran jobs by schedule"'
-                    . ' >> /var/www/magento2/var/log/magento.cron.log',
-                '* * * * * /usr/local/bin/php /var/www/magento2/update/cron.php'
-                    . ' >> /var/www/magento2/var/log/update.cron.log',
-                '* * * * * /usr/local/bin/php /var/www/magento2/bin/magento setup:cron:run'
-                    . ' >> /var/www/magento2/var/log/setup.cron.log'
+                sprintf(
+                    '* * * * * /usr/local/bin/php %s/bin/magento cron:run | grep -v "Ran jobs by schedule"'
+                        . ' >> %s/var/log/magento.cron.log',
+                    $magentoPath,
+                    $magentoPath
+                ),
+                sprintf(
+                    '* * * * * /usr/local/bin/php %s/update/cron.php >> %s/var/log/update.cron.log',
+                    $magentoPath,
+                    $magentoPath
+                ),
+                sprintf(
+                    '* * * * * /usr/local/bin/php %s/bin/magento setup:cron:run >> %s/var/log/setup.cron.log',
+                    $magentoPath,
+                    $magentoPath
+                )
             ]
         );
         file_put_contents("/home/magento2/crontab.sample", $crontab . "\n");
@@ -68,16 +84,16 @@ class MagentoFinalize extends AbstractCommand
 
         // setup configs for integration tests
         copy(
-            '/var/www/magento2/dev/tests/integration/phpunit.xml.dist',
-            '/var/www/magento2/dev/tests/integration/phpunit.xml'
+            sprintf('%s/dev/tests/integration/phpunit.xml.dist', $magentoPath),
+            sprintf('%s/dev/tests/integration/phpunit.xml', $magentoPath)
         );
         copy(
-            '/var/www/magento2/dev/tests/integration/etc/config-global.php.dist',
-            '/var/www/magento2/dev/tests/integration/etc/config-global.php'
+            sprintf('%s/dev/tests/integration/etc/config-global.php.dist', $magentoPath),
+            sprintf('%s/dev/tests/integration/etc/config-global.php', $magentoPath)
         );
         copy(
-            '/var/www/magento2/dev/tests/integration/etc/install-config-mysql.travis.php.dist',
-            '/var/www/magento2/dev/tests/integration/etc/install-config-mysql.travis.php'
+            sprintf('%s/dev/tests/integration/etc/install-config-mysql.travis.php.dist', $magentoPath),
+            sprintf('%s/dev/tests/integration/etc/install-config-mysql.travis.php', $magentoPath)
         );
 
         $output->writeln('To open magento go to <info>http://localhost:1748</info> Admin area: <info>http://localhost:1748/admin</info>, login: <info>admin</info>, password: <info>admin123</info>');
@@ -89,19 +105,25 @@ class MagentoFinalize extends AbstractCommand
     public function getOptionsConfig()
     {
         return [
-            'static-deploy' => [
+            'magento-path' => [
+                'initial' => true,
+                'default' => '/var/www/magento2',
+                'description' => 'Path to source folder for Magento',
+                'question' => 'Please enter path to source folder for Magento %default%'
+            ],
+            'magento-static-deploy' => [
                 'boolean' => true,
                 'default' => false,
                 'description' => 'Whether to pre-deploy all static contents.',
                 'question' => 'Do you want to pre-deploy all static assets? %default%'
             ],
-            'static-grunt-compile' => [
+            'magento-grunt-compile' => [
                 'boolean' => true,
                 'default' => false,
                 'description' => 'Whether to compile CSS out of LESS via Grunt.',
                 'question' => 'Do you want to compile CSS out of LESS via Grunt? %default%'
             ],
-            'di-compile' => [
+            'magento-di-compile' => [
                 'boolean' => true,
                 'default' => false,
                 'description' => 'Whether to create generated files beforehand.',
