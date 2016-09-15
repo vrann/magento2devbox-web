@@ -154,8 +154,9 @@ abstract class AbstractCommand extends Command
 
         $defaultValue = $this->getConfigValue('default', $config);
 
-        if (!$input->isInteractive() && $defaultValue !== null
-            || !$overwrite && $this->getConfigValue($name, $this->valueSetStates, false)
+        if ((!$input->isInteractive() && $defaultValue !== null
+            || $this->getConfigValue($name, $this->valueSetStates, false))
+            && !$overwrite
         ) {
             return $input->getOption($name);
         }
