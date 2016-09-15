@@ -7,19 +7,24 @@
 namespace MagentoDevBox;
 
 require_once __DIR__ . '/vendor/autoload.php';
+require_once __DIR__ . '/Command/Wrapper/MagentoInstallAll.php';
 
+use MagentoDevBox\Command\Wrapper\MagentoInstallAll;
 use Symfony\Component\Console\Application;
 
 $application = new Application();
 $commands = [];
 
-foreach (glob(__DIR__ . '/command/*.php') as $command)
+foreach (glob(__DIR__ . '/Command/*.php') as $fileName)
 {
-    require_once $command;
+    require_once $fileName;
 
-    $className = 'MagentoDevBox\\Command\\' . basename($command, '.php');
-    $commands[] = new $className;
+    $className = 'MagentoDevBox\\Command\\' . basename($fileName, '.php');
+    $commands[] = new $className();
 }
 
 $application->addCommands($commands);
+$wrapperCommand = new MagentoInstallAll();
+$application->add($wrapperCommand);
+$wrapperCommand->postConfigure();
 $application->run();
