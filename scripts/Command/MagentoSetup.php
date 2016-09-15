@@ -71,7 +71,7 @@ class MagentoSetup extends AbstractCommand
 
             copy('/home/magento2/.composer/auth.json', '/var/www/magento2/var/composer_home/auth.json');
 
-            if ($this->requestOption('install-sample-data', $input, $output)) {
+            if ($this->requestOption('magento-sample-data', $input, $output)) {
                 $this->executeCommands(
                     [
                         'cd /var/www/magento2 && php bin/magento sampledata:deploy',
@@ -145,7 +145,7 @@ class MagentoSetup extends AbstractCommand
                 'description' => 'RabbitMQ port.',
                 'question' => 'Please specify RabbitMQ port %default%'
             ],
-            'install-sample-data' => [
+            'magento-sample-data' => [
                 'boolean' => true,
                 'default' => false,
                 'description' => 'Whether to install Sample Data.',
