@@ -14,14 +14,14 @@ use Symfony\Component\Console\Output\OutputInterface;
 /**
  * Command for Magento final steps
  */
-class MagentoPrepare extends AbstractCommand
+class MagentoFinalize extends AbstractCommand
 {
     /**
      * {@inheritdoc}
      */
     protected function configure()
     {
-        $this->setName('magento:prepare')
+        $this->setName('magento:finalize')
             ->setDescription('Prepare Magento for usage')
             ->setHelp('This command allows you to perform final steps for Magento usage.');
 

@@ -28,11 +28,6 @@ class MagentoSetup extends AbstractCommand
         parent::configure();
     }
 
-    private function cleanupSystem()
-    {
-        $this->executeCommands('cd /var/www/magento2 && rm -rf var/* pub/static/* app/etc/env.php app/etc/config.php');
-    }
-
     /**
      * {@inheritdoc}
      */
@@ -87,7 +82,17 @@ class MagentoSetup extends AbstractCommand
             }
         }
 
-        $output->writeln('To prepare magento sources run <info>devbox magento:prepare</info> command next');
+        $output->writeln('To prepare magento sources run <info>m2init magento:finalize</info> command next');
+    }
+
+    /**
+     * Cleanup system
+     *
+     * @return void
+     */
+    private function cleanupSystem()
+    {
+        $this->executeCommands('cd /var/www/magento2 && rm -rf var/* pub/static/* app/etc/env.php app/etc/config.php');
     }
 
     /**

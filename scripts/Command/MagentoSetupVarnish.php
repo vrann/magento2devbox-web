@@ -13,6 +13,9 @@ use Symfony\Component\Console\Output\OutputInterface;
 use Magento\Framework\App\Bootstrap;
 use Magento\PageCache\Model\Config;
 
+/**
+ * Command for Varnish setup
+ */
 class MagentoSetupVarnish extends AbstractCommand
 {
     /**

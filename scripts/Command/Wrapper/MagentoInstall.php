@@ -16,7 +16,7 @@ use Symfony\Component\Console\Input\ArgvInput;
 /**
  * Command for Magento final steps
  */
-class MagentoInstallAll extends AbstractCommand
+class MagentoInstall extends AbstractCommand
 {
     /**
      * @var array
@@ -28,7 +28,7 @@ class MagentoInstallAll extends AbstractCommand
      */
     protected function configure()
     {
-        $this->setName('magento:install-all')
+        $this->setName('magento:install')
             ->setDescription('Setup Magento and all components')
             ->setHelp('This command allows you to setup Magento and all components.');
     }
@@ -56,7 +56,7 @@ class MagentoInstallAll extends AbstractCommand
                 'magento:setup',
                 'magento:setup:redis',
                 'magento:setup:varnish',
-                'magento:prepare'
+                'magento:finalize'
             ],
             $input,
             $output
