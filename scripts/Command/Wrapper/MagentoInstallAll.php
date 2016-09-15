@@ -11,7 +11,7 @@ use MagentoDevBox\AbstractCommand;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Exception\CommandNotFoundException;
-use Symfony\Component\Console\Input\ArrayInput;
+use Symfony\Component\Console\Input\ArgvInput;
 
 /**
  * Command for Magento final steps
@@ -119,14 +119,16 @@ class MagentoInstallAll extends AbstractCommand
     {
         /** @var AbstractCommand $command */
         $command = $this->getApplication()->get($commandName);
-        $inputData = [];
+        $arguments = [null, $commandName];
 
         foreach ($command->getOptionsConfig() as $optionName => $optionConfig) {
-            if (!$this->getConfigValue('virtual', $optionConfig, false)) {
-                $inputData[$optionName] = $input->getOption($optionName);
+            if (!$this->getConfigValue('virtual', $optionConfig, false)
+                && $input->hasParameterOption('--' . $optionName)
+            ) {
+                $arguments[] = sprintf('--%s=%s', $optionName, $input->getOption($optionName));
             }
         }
 
-        $command->run(new ArrayInput($inputData), $output);
+        $command->run(new ArgvInput($arguments), $output);
     }
 }
