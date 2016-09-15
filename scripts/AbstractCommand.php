@@ -152,12 +152,15 @@ abstract class AbstractCommand extends Command
             throw new \Exception(sprintf('Option "%s" has no question and cannot be set interactively!', $name));
         }
 
-        if ($this->getConfigValue($name, $this->valueSetStates, false) && !$overwrite) {
+        $defaultValue = $this->getConfigValue('default', $config);
+
+        if (!$input->isInteractive() && $defaultValue !== null
+            || !$overwrite && $this->getConfigValue($name, $this->valueSetStates, false)
+        ) {
             return $input->getOption($name);
         }
 
         $isBoolean = $this->getConfigValue('boolean', $config, static::OPTION_DEFAULT_BOOLEAN);
-        $defaultValue = $this->getConfigValue('default', $config);
 
         if ($isBoolean) {
             $defaultValueString = static::QUESTION_PATTERN_DEFAULT_BOOLEAN;
