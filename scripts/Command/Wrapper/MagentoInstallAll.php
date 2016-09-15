@@ -129,6 +129,8 @@ class MagentoInstallAll extends AbstractCommand
             }
         }
 
-        $command->run(new ArgvInput($arguments), $output);
+        $commandInput = new ArgvInput($arguments);
+        $commandInput->setInteractive($input->isInteractive());
+        $command->run($commandInput, $output);
     }
 }
