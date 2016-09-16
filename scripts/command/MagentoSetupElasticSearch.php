@@ -11,6 +11,9 @@ use MagentoDevBox\AbstractCommand;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
+/**
+ * Command for ElasticSearch setup
+ */
 class MagentoSetupElasticSearch extends AbstractCommand
 {
     /**
@@ -37,9 +40,9 @@ class MagentoSetupElasticSearch extends AbstractCommand
     {
         $this->getPDOConnection($input)->exec(
             'DELETE FROM core_config_data'
-            . ' WHERE path = "catalog/search/elasticsearch_server_hostname" '
-            . ' OR path = "catalog/search/elasticsearch_server_port"'
-            . ' OR path = "catalog/search/engine";'
+                . ' WHERE path = "catalog/search/elasticsearch_server_hostname" '
+                . ' OR path = "catalog/search/elasticsearch_server_port"'
+                . ' OR path = "catalog/search/engine";'
         );
 
         $config = [
@@ -71,15 +74,18 @@ class MagentoSetupElasticSearch extends AbstractCommand
     }
 
     /**
+     * Get connection to database
+     *
      * @param InputInterface $input
      * @return \PDO
      */
     private function getPDOConnection(InputInterface $input)
     {
         if ($this->pdo === null) {
-            $dsn = 'mysql:dbname=' . $input->getOption('db-name') . ';host=' . $input->getOption('db-host');
+            $dsn = sprintf('mysql:dbname=%s;host=%s', $input->getOption('db-name'), $input->getOption('db-host'));
             $this->pdo = new \PDO($dsn, $input->getOption('db-user'), $input->getOption('db-password'));
         }
+
         return $this->pdo;
     }
 
@@ -89,6 +95,12 @@ class MagentoSetupElasticSearch extends AbstractCommand
     public function getOptionsConfig()
     {
         return [
+            'magento-path' => [
+                'initial' => true,
+                'default' => '/var/www/magento2',
+                'description' => 'Path to source folder for Magento',
+                'question' => 'Please enter path to source folder for Magento %default%'
+            ],
             'db-host' => [
                 'initial' => true,
                 'default' => 'db',
@@ -130,13 +142,7 @@ class MagentoSetupElasticSearch extends AbstractCommand
                 'default' => 9200,
                 'description' => 'Magento ElasticSearch port',
                 'question' => 'Please enter magento ElasticSearch port %default%'
-            ],
-            'magento-dir' => [
-                'initial' => true,
-                'default' => '/var/www/magento2',
-                'description' => 'Magento root directory',
-                'question' => 'Please enter Magento root directory %default%'
-            ],
+            ]
         ];
     }
 }

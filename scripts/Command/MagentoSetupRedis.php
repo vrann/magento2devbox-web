@@ -103,9 +103,8 @@ class MagentoSetupRedis extends AbstractCommand
             'magento-path' => [
                 'initial' => true,
                 'default' => '/var/www/magento2',
-                'requireValue' => false,
-                'description' => 'Path to Magento.',
-                'question' => 'Please enter Magento path %default%'
+                'description' => 'Path to source folder for Magento',
+                'question' => 'Please enter path to source folder for Magento %default%'
             ],
             'redis-fpc-setup' => [
                 'initial' => true,
