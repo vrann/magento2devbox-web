@@ -78,7 +78,7 @@ class MagentoSetupVarnish extends AbstractCommand
                 'scope' => 'default',
                 'scope_id' => 0,
                 'path' => 'system/full_page_cache/varnish/access_list',
-                'value' => $input->getOption('webserver-host-host')
+                'value' => $input->getOption('webserver-host')
             ],
             [
                 'scope' => 'default',
