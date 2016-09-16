@@ -16,6 +16,13 @@ RUN apt-get update && apt-get install -y \
     openssh-server \
     supervisor \
     mysql-client \
+    ocaml \
+    && curl -L https://github.com/bcpierce00/unison/archive/2.48.4.tar.gz | tar zxv -C /tmp && \
+             cd /tmp/unison-2.48.4 && \
+             sed -i -e 's/GLIBC_SUPPORT_INOTIFY 0/GLIBC_SUPPORT_INOTIFY 1/' src/fsmonitor/linux/inotify_stubs.c && \
+             make && \
+             cp src/unison src/unison-fsmonitor /usr/local/bin && \
+             cd /root && rm -rf /tmp/unison-2.48.4 \
     && docker-php-ext-configure gd --with-freetype-dir=/usr/include/ --with-jpeg-dir=/usr/include/ \
     && docker-php-ext-install -j$(nproc) mcrypt intl xsl gd zip pdo_mysql opcache \
     && curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer \
@@ -43,7 +50,11 @@ RUN apt-get update && apt-get install -y \
     && a2enmod proxy_fcgi \
     && rm -f /etc/apache2/sites-enabled/000-default.conf \
     && useradd -m -d /home/magento2 magento2 \
+    && mkdir /home/magento2/magento2 && mkdir /var/www/magento2 \
     && curl -sS https://accounts.magento.cloud/cli/installer -o /home/magento2/installer
+
+RUN chown magento2:magento2 /home/magento2/magento2 && \
+    chown magento2:magento2 /var/www/magento2
 
 # PHP config
 ADD conf/php.ini /usr/local/etc/php
@@ -59,6 +70,9 @@ ADD conf/php-fpm-magento2.conf /usr/local/etc/php-fpm.d/php-fpm-magento2.conf
 
 # apache config
 ADD conf/apache-default.conf /etc/apache2/sites-enabled/apache-default.conf
+
+# unison script
+ADD conf/unison.sh /usr/local/bin/unison.sh
 
 ENV PATH /home/magento2/scripts/:/home/magento2/.magento-cloud/bin:$PATH
 
