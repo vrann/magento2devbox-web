@@ -86,7 +86,7 @@ class MagentoSetupElasticSearch extends AbstractCommand
     /**
      * {@inheritdoc}
      */
-    protected function getOptionsConfig()
+    public function getOptionsConfig()
     {
         return [
             'db-host' => [
