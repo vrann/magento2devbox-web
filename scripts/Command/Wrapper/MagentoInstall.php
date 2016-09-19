@@ -129,13 +129,19 @@ class MagentoInstall extends AbstractCommand
         $arguments = [null, $commandName];
 
         foreach ($command->getOptionsConfig() as $optionName => $optionConfig) {
-            if (!$this->getConfigValue('virtual', $optionConfig, false)) {
+            if (!$this->getConfigValue('virtual', $optionConfig, false)
+                && ($input->hasParameterOption('--' . $optionName) || array_key_exists($optionName, $this->sharedData))
+            ) {
                 $optionValue = array_key_exists($optionName, $this->sharedData)
                     ? $this->sharedData[$optionName]
                     : $input->getOption($optionName);
 
                 if ($optionValue !== null) {
-                    $arguments[] = sprintf('--%s=%s', $optionName, $input->getOption($optionName));
+                    if ($this->getConfigValue('boolean', $optionConfig, false)) {
+                        $optionValue = $optionValue ? static::SYMBOL_BOOLEAN_TRUE : static::SYMBOL_BOOLEAN_FALSE;
+                    }
+
+                    $arguments[] = sprintf('--%s=%s', $optionName, $optionValue);
                 }
             }
         }
