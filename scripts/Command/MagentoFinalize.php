@@ -98,7 +98,17 @@ class MagentoFinalize extends AbstractCommand
 
         chmod(sprintf('%s/bin/magento', $magentoPath), 0750);
 
-        $output->writeln('To open magento go to <info>http://localhost:1748</info> Admin area: <info>http://localhost:1748/admin</info>, login: <info>admin</info>, password: <info>admin123</info>');
+        $magentoBackendPath = $input->getOption('magento-backend-path');
+        $magentoAdminUser = $input->getOption('magento-admin-user');
+        $magentoAdminPassword = $input->getOption('magento-admin-password');
+        $magentoUrl = $input->getOption('magento-url');
+
+        $output->writeln(
+            'To open installed magento go to <info>' . $magentoUrl
+            . '</info> Admin area: <info>' . $magentoUrl . '/' . $magentoBackendPath
+            . '</info>, login: <info>' . $magentoAdminUser
+            . '</info>, password: <info>' . $magentoAdminPassword . '</info>'
+        );
     }
 
     /**
@@ -125,6 +135,30 @@ class MagentoFinalize extends AbstractCommand
                 'default' => false,
                 'description' => 'Whether to create generated files beforehand.',
                 'question' => 'Do you want to create generated files beforehand? %default%'
+            ],
+            'magento-backend-path' => [
+                'initial' => true,
+                'default' => 'admin',
+                'description' => 'Magento backend path.',
+                'question' => 'Please enter backend admin path %default%'
+            ],
+            'magento-admin-user' => [
+                'initial' => true,
+                'default' => 'admin',
+                'description' => 'Admin username.',
+                'question' => 'Please enter backend admin username %default%'
+            ],
+            'magento-admin-password' => [
+                'initial' => true,
+                'default' => 'admin123',
+                'description' => 'Admin password.',
+                'question' => 'Please enter backend admin password %default%'
+            ],
+            'magento-url' => [
+                'initial' => true,
+                'default' => 'http://localhost:1748',
+                'description' => 'Magento domain name.',
+                'question' => 'Please enter magento domain name %default%'
             ]
         ];
     }
