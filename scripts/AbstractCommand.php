@@ -104,7 +104,7 @@ abstract class AbstractCommand extends Command
     {
         foreach($this->getOptionsConfig() as $name => $config) {
             if ((!$input->isInteractive() && $this->getConfigValue('default', $config) !== null
-                || $input->hasParameterOption('--' . $name)) && $this->getConfigValue('virtual', $config, false)
+                || $input->hasParameterOption('--' . $name)) && !$this->getConfigValue('virtual', $config, false)
             ) {
                 $this->valueSetStates[$name] = true;
 
