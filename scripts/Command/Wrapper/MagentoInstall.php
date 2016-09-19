@@ -136,13 +136,11 @@ class MagentoInstall extends AbstractCommand
                     ? $this->sharedData[$optionName]
                     : $input->getOption($optionName);
 
-                if ($optionValue !== null) {
-                    if ($this->getConfigValue('boolean', $optionConfig, false)) {
-                        $optionValue = $optionValue ? static::SYMBOL_BOOLEAN_TRUE : static::SYMBOL_BOOLEAN_FALSE;
-                    }
-
-                    $arguments[] = sprintf('--%s=%s', $optionName, $optionValue);
+                if ($this->getConfigValue('boolean', $optionConfig, false)) {
+                    $optionValue = $optionValue ? static::SYMBOL_BOOLEAN_TRUE : static::SYMBOL_BOOLEAN_FALSE;
                 }
+
+                $arguments[] = sprintf('--%s=%s', $optionName, $optionValue);
             }
         }
 

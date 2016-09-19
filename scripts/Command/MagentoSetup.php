@@ -111,7 +111,7 @@ class MagentoSetup extends AbstractCommand
                 'initial' => true,
                 'default' => 'admin',
                 'description' => 'Magento backend path.',
-                'question' => 'Please enter backend admin path %default%'
+                'question' => 'Please enter backend path %default%'
             ],
             'magento-admin-user' => [
                 'initial' => true,
