@@ -78,6 +78,7 @@ class MagentoInstall extends AbstractCommand
         $optionsConfig = [];
 
         if ($this->optionsConfig === null) {
+            //Merge configs of all commands into this command wrapper so input passes validation
             /** @var AbstractCommand $command */
             foreach ($this->getApplication()->all() as $command) {
                 if ($command instanceof AbstractCommand && !$command instanceof self) {
@@ -85,10 +86,12 @@ class MagentoInstall extends AbstractCommand
                 }
             }
 
+            //Make sure this command does not request any values
             foreach ($optionsConfig as $optionName => $optionConfig) {
                 $optionsConfig[$optionName]['initial'] = false;
             }
 
+            //Cache config
             $this->optionsConfig = $optionsConfig;
         }
 
