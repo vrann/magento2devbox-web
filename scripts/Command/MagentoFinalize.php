@@ -33,7 +33,7 @@ class MagentoFinalize extends AbstractCommand
      */
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-        $magentoPath = $this->requestOption('magento-path', $input, $output);
+        $magentoPath = $input->getOption('magento-path');
         $this->executeCommands(sprintf('cd %s && php bin/magento deploy:mode:set developer', $magentoPath), $output);
 
         if ($this->requestOption('magento-static-deploy', $input, $output)) {
@@ -107,12 +107,7 @@ class MagentoFinalize extends AbstractCommand
     public function getOptionsConfig()
     {
         return [
-            'magento-path' => [
-                'initial' => true,
-                'default' => '/var/www/magento2',
-                'description' => 'Path to source folder for Magento',
-                'question' => 'Please enter path to source folder for Magento %default%'
-            ],
+            static::OPTION_MAGENTO_PATH => $this->getMagentoPathConfig(),
             'magento-static-deploy' => [
                 'boolean' => true,
                 'default' => false,

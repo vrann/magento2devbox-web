@@ -60,6 +60,12 @@ abstract class AbstractCommand extends Command
     const OPTION_DEFAULT_REQUIRE_VALUE = true;
     /**#@-*/
 
+    /**#@+
+     * Common options
+     */
+    const OPTION_MAGENTO_PATH = 'magento-path';
+    /**#@-*/
+
     /**
      * @var QuestionHelper
      */
@@ -286,6 +292,20 @@ abstract class AbstractCommand extends Command
         }
 
         return $this->questionHelper;
+    }
+
+    /**
+     * Get config for "magento-path" option
+     *
+     * @return array
+     */
+    protected function getMagentoPathConfig()
+    {
+        return [
+            'default' => '/var/www/magento2',
+            'description' => 'Path to source folder for Magento',
+            'question' => 'Please enter path to source folder for Magento %default%'
+        ];
     }
 
     /**

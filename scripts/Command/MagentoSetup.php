@@ -33,7 +33,7 @@ class MagentoSetup extends AbstractCommand
      */
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-        $magentoPath = $this->requestOption('magento-path', $input, $output);
+        $magentoPath = $input->getOption('magento-path');
         $this->executeCommands(
             sprintf('cd %s && rm -rf var/* pub/static/* app/etc/env.php app/etc/config.php', $magentoPath)
         );
@@ -99,12 +99,7 @@ class MagentoSetup extends AbstractCommand
     public function getOptionsConfig()
     {
         return [
-            'magento-path' => [
-                'initial' => true,
-                'default' => '/var/www/magento2',
-                'description' => 'Path to source folder for Magento',
-                'question' => 'Please enter path to source folder for Magento %default%'
-            ],
+            static::OPTION_MAGENTO_PATH => $this->getMagentoPathConfig(),
             'magento-sources-reuse' => [
                 'initial' => true,
                 'boolean' => true,
