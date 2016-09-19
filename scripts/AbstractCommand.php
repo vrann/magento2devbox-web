@@ -161,8 +161,9 @@ abstract class AbstractCommand extends Command
         }
 
         $defaultValue = $this->getConfigValue('default', $config);
+        $isInteractive = $input->isInteractive();
 
-        if ((!$input->isInteractive() && $defaultValue !== null
+        if ((!$isInteractive && $defaultValue !== null
             || $this->getConfigValue($name, $this->getValueSetStates(), false))
             && !$overwrite
         ) {
@@ -196,7 +197,9 @@ abstract class AbstractCommand extends Command
         $question = $isBoolean
             ? new ConfirmationQuestion($question, $defaultValue, static::MATCHER_BOOLEAN_TRUE)
             : new Question($question, $defaultValue);
+        $input->setInteractive(true);
         $value = $this->getQuestionHelper()->ask($input, $output, $question);
+        $input->setInteractive($isInteractive);
 
         if (!$this->getConfigValue('virtual', $config, static::OPTION_DEFAULT_VIRTUAL)) {
             $this->valueSetStates[$name] = true;
