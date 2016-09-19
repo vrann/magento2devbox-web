@@ -60,6 +60,12 @@ abstract class AbstractCommand extends Command
     const OPTION_DEFAULT_REQUIRE_VALUE = true;
     /**#@-*/
 
+    /**#@+
+     * Common options
+     */
+    const OPTION_MAGENTO_PATH = 'magento-path';
+    /**#@-*/
+
     /**
      * @var QuestionHelper
      */
@@ -97,8 +103,8 @@ abstract class AbstractCommand extends Command
     protected function initialize(InputInterface $input, OutputInterface $output)
     {
         foreach($this->getOptionsConfig() as $name => $config) {
-            if (!$input->isInteractive() && $this->getConfigValue('default', $config) !== null
-                || $input->hasParameterOption('--' . $name)
+            if ((!$input->isInteractive() && $this->getConfigValue('default', $config) !== null
+                || $input->hasParameterOption('--' . $name)) && !$this->getConfigValue('virtual', $config, false)
             ) {
                 $this->valueSetStates[$name] = true;
 
@@ -155,8 +161,9 @@ abstract class AbstractCommand extends Command
         }
 
         $defaultValue = $this->getConfigValue('default', $config);
+        $isInteractive = $input->isInteractive();
 
-        if ((!$input->isInteractive() && $defaultValue !== null
+        if ((!$isInteractive && $defaultValue !== null
             || $this->getConfigValue($name, $this->getValueSetStates(), false))
             && !$overwrite
         ) {
@@ -190,7 +197,9 @@ abstract class AbstractCommand extends Command
         $question = $isBoolean
             ? new ConfirmationQuestion($question, $defaultValue, static::MATCHER_BOOLEAN_TRUE)
             : new Question($question, $defaultValue);
+        $input->setInteractive(true);
         $value = $this->getQuestionHelper()->ask($input, $output, $question);
+        $input->setInteractive($isInteractive);
 
         if (!$this->getConfigValue('virtual', $config, static::OPTION_DEFAULT_VIRTUAL)) {
             $this->valueSetStates[$name] = true;
@@ -286,6 +295,20 @@ abstract class AbstractCommand extends Command
         }
 
         return $this->questionHelper;
+    }
+
+    /**
+     * Get config for "magento-path" option
+     *
+     * @return array
+     */
+    protected function getMagentoPathConfig()
+    {
+        return [
+            'default' => '/var/www/magento2',
+            'description' => 'Path to source folder for Magento',
+            'question' => 'Please enter path to source folder for Magento %default%'
+        ];
     }
 
     /**

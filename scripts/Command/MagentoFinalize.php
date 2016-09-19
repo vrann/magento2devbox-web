@@ -33,7 +33,7 @@ class MagentoFinalize extends AbstractCommand
      */
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-        $magentoPath = $this->requestOption('magento-path', $input, $output);
+        $magentoPath = $input->getOption('magento-path');
         $this->executeCommands(sprintf('cd %s && php bin/magento deploy:mode:set developer', $magentoPath), $output);
 
         if ($this->requestOption('magento-static-deploy', $input, $output)) {
@@ -96,7 +96,19 @@ class MagentoFinalize extends AbstractCommand
             sprintf('%s/dev/tests/integration/etc/install-config-mysql.travis.php', $magentoPath)
         );
 
-        $output->writeln('To open magento go to <info>http://localhost:1748</info> Admin area: <info>http://localhost:1748/admin</info>, login: <info>admin</info>, password: <info>admin123</info>');
+        chmod(sprintf('%s/bin/magento', $magentoPath), 0750);
+
+        $magentoBackendPath = $input->getOption('magento-backend-path');
+        $magentoAdminUser = $input->getOption('magento-admin-user');
+        $magentoAdminPassword = $input->getOption('magento-admin-password');
+        $magentoUrl = $input->getOption('magento-url');
+
+        $output->writeln(
+            'To open installed magento go to <info>' . $magentoUrl
+            . '</info> Admin area: <info>' . $magentoUrl . '/' . $magentoBackendPath
+            . '</info>, login: <info>' . $magentoAdminUser
+            . '</info>, password: <info>' . $magentoAdminPassword . '</info>'
+        );
     }
 
     /**
@@ -105,12 +117,7 @@ class MagentoFinalize extends AbstractCommand
     public function getOptionsConfig()
     {
         return [
-            'magento-path' => [
-                'initial' => true,
-                'default' => '/var/www/magento2',
-                'description' => 'Path to source folder for Magento',
-                'question' => 'Please enter path to source folder for Magento %default%'
-            ],
+            static::OPTION_MAGENTO_PATH => $this->getMagentoPathConfig(),
             'magento-static-deploy' => [
                 'boolean' => true,
                 'default' => false,
@@ -128,6 +135,30 @@ class MagentoFinalize extends AbstractCommand
                 'default' => false,
                 'description' => 'Whether to create generated files beforehand.',
                 'question' => 'Do you want to create generated files beforehand? %default%'
+            ],
+            'magento-backend-path' => [
+                'initial' => true,
+                'default' => 'admin',
+                'description' => 'Magento backend path.',
+                'question' => 'Please enter backend admin path %default%'
+            ],
+            'magento-admin-user' => [
+                'initial' => true,
+                'default' => 'admin',
+                'description' => 'Admin username.',
+                'question' => 'Please enter backend admin username %default%'
+            ],
+            'magento-admin-password' => [
+                'initial' => true,
+                'default' => 'admin123',
+                'description' => 'Admin password.',
+                'question' => 'Please enter backend admin password %default%'
+            ],
+            'magento-url' => [
+                'initial' => true,
+                'default' => 'http://localhost:1748',
+                'description' => 'Magento domain name.',
+                'question' => 'Please enter magento domain name %default%'
             ]
         ];
     }

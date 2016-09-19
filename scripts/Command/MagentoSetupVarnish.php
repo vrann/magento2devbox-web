@@ -42,7 +42,7 @@ class MagentoSetupVarnish extends AbstractCommand
     {
         $this->saveConfig($input, $output);
 
-        require $input->getOption('magento-path') . '/app/bootstrap.php';
+        require sprintf('%s/app/bootstrap.php', $input->getOption('magento-path'));
         $bootstrap = Bootstrap::create(BP, $_SERVER);
 
         $om = $bootstrap->getObjectManager();
@@ -106,7 +106,10 @@ class MagentoSetupVarnish extends AbstractCommand
             $stmt->execute();
         }
 
-        $this->executeCommands('cd ' . $input->getOption('magento-path') . ' && php bin/magento cache:clean config');
+        $this->executeCommands(
+            sprintf('cd %s && php bin/magento cache:clean config', $input->getOption('magento-path')),
+            $output
+        );
     }
 
     /**
@@ -128,12 +131,7 @@ class MagentoSetupVarnish extends AbstractCommand
     public function getOptionsConfig()
     {
         return [
-            'magento-path' => [
-                'initial' => true,
-                'default' => '/var/www/magento2',
-                'description' => 'Path to source folder for Magento',
-                'question' => 'Please enter path to source folder for Magento %default%'
-            ],
+            static::OPTION_MAGENTO_PATH => $this->getMagentoPathConfig(),
             'webserver-host' => [
                 'initial' => true,
                 'default' => 'web',

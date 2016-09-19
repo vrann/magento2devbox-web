@@ -78,6 +78,7 @@ class MagentoInstall extends AbstractCommand
         $optionsConfig = [];
 
         if ($this->optionsConfig === null) {
+            //Merge configs of all commands into this command wrapper so input passes validation
             /** @var AbstractCommand $command */
             foreach ($this->getApplication()->all() as $command) {
                 if ($command instanceof AbstractCommand && !$command instanceof self) {
@@ -85,10 +86,12 @@ class MagentoInstall extends AbstractCommand
                 }
             }
 
+            //Make sure this command does not request any values
             foreach ($optionsConfig as $optionName => $optionConfig) {
                 $optionsConfig[$optionName]['initial'] = false;
             }
 
+            //Cache config
             $this->optionsConfig = $optionsConfig;
         }
 
@@ -128,22 +131,33 @@ class MagentoInstall extends AbstractCommand
         $command = $this->getApplication()->get($commandName);
         $arguments = [null, $commandName];
 
+        //Set values for options supported by the current command
         foreach ($command->getOptionsConfig() as $optionName => $optionConfig) {
-            if (!$this->getConfigValue('virtual', $optionConfig, false)) {
+            //Only if option is not virtual (defined as a valid CLI option)
+            //And only if value was passed through CLI or was set in one of previously executed commands
+            if (!$this->getConfigValue('virtual', $optionConfig, false)
+                && ($input->hasParameterOption('--' . $optionName) || array_key_exists($optionName, $this->sharedData))
+            ) {
+                //Value set in previously executed command overwrites value originally passed through CLI
                 $optionValue = array_key_exists($optionName, $this->sharedData)
                     ? $this->sharedData[$optionName]
                     : $input->getOption($optionName);
 
-                if ($optionValue !== null) {
-                    $arguments[] = sprintf('--%s=%s', $optionName, $input->getOption($optionName));
+                //Value transformation for boolean type
+                if ($this->getConfigValue('boolean', $optionConfig, false)) {
+                    $optionValue = $optionValue ? static::SYMBOL_BOOLEAN_TRUE : static::SYMBOL_BOOLEAN_FALSE;
                 }
+
+                $arguments[] = sprintf('--%s=%s', $optionName, $optionValue);
             }
         }
 
+        //Manually create new input for the command so it passes validation
         $commandInput = new ArgvInput($arguments);
         $commandInput->setInteractive($input->isInteractive());
         $command->run($commandInput, $output);
 
+        //Store values that were set during current command execution for future commands
         foreach ($command->getValueSetStates() as $optionName => $optionState) {
             if ($optionState) {
                 $this->sharedData[$optionName] = $commandInput->getOption($optionName);

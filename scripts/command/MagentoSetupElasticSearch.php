@@ -70,7 +70,10 @@ class MagentoSetupElasticSearch extends AbstractCommand
             $stmt->execute();
         }
 
-        $this->executeCommands('cd ' . $input->getOption('magento-dir') . ' && php bin/magento cache:clean config');
+        $this->executeCommands(
+            sprintf('cd %s && php bin/magento cache:clean config', $input->getOption('magento-path')),
+            $output
+        );
     }
 
     /**
@@ -95,12 +98,7 @@ class MagentoSetupElasticSearch extends AbstractCommand
     public function getOptionsConfig()
     {
         return [
-            'magento-path' => [
-                'initial' => true,
-                'default' => '/var/www/magento2',
-                'description' => 'Path to source folder for Magento',
-                'question' => 'Please enter path to source folder for Magento %default%'
-            ],
+            static::OPTION_MAGENTO_PATH => $this->getMagentoPathConfig(),
             'db-host' => [
                 'initial' => true,
                 'default' => 'db',

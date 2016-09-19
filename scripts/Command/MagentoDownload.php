@@ -41,7 +41,7 @@ class MagentoDownload extends AbstractCommand
             $this->installFromCloud($input, $output);
         }
 
-        $magentoPath = $this->requestOption('magento-path', $input, $output);
+        $magentoPath = $input->getOption('magento-path');
         $authFile = '/home/magento2/.composer/auth.json';
         $rootAuth = sprintf('%s/auth.json', $magentoPath);
 
@@ -180,7 +180,7 @@ class MagentoDownload extends AbstractCommand
                 $branch,
                 $project,
                 $project,
-                $this->requestOption('magento-path', $input, $output)
+                $input->getOption('magento-path')
             ),
             $output
         );
@@ -213,12 +213,7 @@ class MagentoDownload extends AbstractCommand
     public function getOptionsConfig()
     {
         return [
-            'magento-path' => [
-                'initial' => true,
-                'default' => '/var/www/magento2',
-                'description' => 'Path to source folder for Magento',
-                'question' => 'Please enter path to source folder for Magento %default%'
-            ],
+            static::OPTION_MAGENTO_PATH => $this->getMagentoPathConfig(),
             'magento-sources-reuse' => [
                 'initial' => true,
                 'boolean' => true,

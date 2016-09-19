@@ -52,7 +52,8 @@ RUN apt-get update && apt-get install -y \
     && useradd -m -d /home/magento2 magento2 \
     && mkdir /home/magento2/magento2 && mkdir /var/www/magento2 \
     && curl -sS https://accounts.magento.cloud/cli/installer -o /home/magento2/installer \
-    && rm -r /usr/local/etc/php-fpm.d/*
+    && rm -r /usr/local/etc/php-fpm.d/* \
+    && sed -i 's/www-data/magento2/g' /etc/apache2/envvars
 
 RUN chown magento2:magento2 /home/magento2/magento2 && \
     chown magento2:magento2 /var/www/magento2
@@ -79,6 +80,7 @@ RUN chmod +x /usr/local/bin/unison.sh
 RUN chmod +x /usr/local/bin/entrypoint.sh
 
 ENV PATH /home/magento2/scripts/:/home/magento2/.magento-cloud/bin:$PATH
+ENV PATH /var/www/magento2/bin/magento:$PATH
 
 # Initial scripts
 COPY scripts/ /home/magento2/scripts/

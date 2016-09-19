@@ -34,7 +34,7 @@ class MagentoSetupRedis extends AbstractCommand
     protected function execute(InputInterface $input, OutputInterface $output)
     {
         $host = $input->getOption('redis-host');
-        $configPath = sprintf('%s/app/etc/env.php', $this->requestOption('magento-path', $input, $output));
+        $configPath = sprintf('%s/app/etc/env.php', $input->getOption('magento-path'));
         $config = include $configPath;
 
         if ($input->getOption('redis-session-setup')) {
@@ -100,12 +100,7 @@ class MagentoSetupRedis extends AbstractCommand
     public function getOptionsConfig()
     {
         return [
-            'magento-path' => [
-                'initial' => true,
-                'default' => '/var/www/magento2',
-                'description' => 'Path to source folder for Magento',
-                'question' => 'Please enter path to source folder for Magento %default%'
-            ],
+            static::OPTION_MAGENTO_PATH => $this->getMagentoPathConfig(),
             'redis-fpc-setup' => [
                 'initial' => true,
                 'boolean' => true,
