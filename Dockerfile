@@ -78,6 +78,7 @@ ADD conf/unison.sh /usr/local/bin/unison.sh
 ADD conf/entrypoint.sh /usr/local/bin/entrypoint.sh
 
 ENV PATH /home/magento2/scripts/:/home/magento2/.magento-cloud/bin:$PATH
+ENV PATH /var/www/magento2/bin/magento:$PATH
 
 # Initial scripts
 COPY scripts/ /home/magento2/scripts/
