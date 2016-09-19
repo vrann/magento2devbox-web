@@ -103,8 +103,8 @@ abstract class AbstractCommand extends Command
     protected function initialize(InputInterface $input, OutputInterface $output)
     {
         foreach($this->getOptionsConfig() as $name => $config) {
-            if (!$input->isInteractive() && $this->getConfigValue('default', $config) !== null
-                || $input->hasParameterOption('--' . $name)
+            if ((!$input->isInteractive() && $this->getConfigValue('default', $config) !== null
+                || $input->hasParameterOption('--' . $name)) && $this->getConfigValue('virtual', $config, false)
             ) {
                 $this->valueSetStates[$name] = true;
 
