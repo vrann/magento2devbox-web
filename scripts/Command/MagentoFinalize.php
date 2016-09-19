@@ -96,7 +96,7 @@ class MagentoFinalize extends AbstractCommand
             sprintf('%s/dev/tests/integration/etc/install-config-mysql.travis.php', $magentoPath)
         );
 
-        chmod('/var/www/magento2/bin/magento', 0750);
+        chmod(sprintf('%s/bin/magento', $magentoPath), 0750);
 
         $output->writeln('To open magento go to <info>http://localhost:1748</info> Admin area: <info>http://localhost:1748/admin</info>, login: <info>admin</info>, password: <info>admin123</info>');
     }
