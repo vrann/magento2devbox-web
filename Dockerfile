@@ -75,6 +75,8 @@ ADD conf/apache-default.conf /etc/apache2/sites-enabled/apache-default.conf
 # unison script
 ADD conf/unison.sh /usr/local/bin/unison.sh
 ADD conf/entrypoint.sh /usr/local/bin/entrypoint.sh
+RUN chmod +x /usr/local/bin/unison.sh
+RUN chmod +x /usr/local/bin/entrypoint.sh
 
 ENV PATH /home/magento2/scripts/:/home/magento2/.magento-cloud/bin:$PATH
 
