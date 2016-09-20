@@ -88,6 +88,9 @@ COPY scripts/ /home/magento2/scripts/
 RUN cd /home/magento2/scripts && composer install
 RUN chmod +x /home/magento2/scripts/m2init
 
+# Delete user password to connect with ssh with empty password
+RUN passwd magento2 -d
+
 EXPOSE 80 22 44100
 WORKDIR /home/magento2
 
