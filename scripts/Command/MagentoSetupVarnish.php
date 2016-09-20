@@ -176,7 +176,7 @@ class MagentoSetupVarnish extends AbstractCommand
             ],
             'varnish-config-path' => [
                 'initial' => true,
-                'default' => '/home/magento2/scripts/default.vcl',
+                'default' => '/home/magento2/configs/varnish/default.vcl',
                 'description' => 'Magento root directory',
                 'question' => 'Please enter output configuration file path %default%'
             ]
