@@ -86,6 +86,9 @@ ENV PATH /var/www/magento2/bin/magento:$PATH
 COPY scripts/ /home/magento2/scripts/
 RUN cd /home/magento2/scripts && composer install
 
+# Delete user password to connect with ssh with empty password
+RUN passwd magento2 -d
+
 EXPOSE 80 22 44100
 WORKDIR /home/magento2
 
