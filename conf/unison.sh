@@ -4,7 +4,7 @@
 trap 'kill -TERM $PID' TERM INT
 
 # Run unison server
-unison -repeat=watch -batch -silent -owner /home/magento2/magento2 /var/www/magento2 &
+unison -repeat=watch magento2 &
 
 # Wait until the process is stopped
 PID=$!

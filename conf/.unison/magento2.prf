@@ -1,0 +1,17 @@
+# Roots of the synchronization
+root = /home/magento2
+root = /var/www
+
+# Paths to synchronize 
+path = magento2
+path = magento2
+
+# Params
+# owner = true
+# group = true
+numericids = false
+log = true
+batch = true
+fastcheck = true
+perms = 0
+

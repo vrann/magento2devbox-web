@@ -74,6 +74,7 @@ ADD conf/php-fpm-magento2.conf /usr/local/etc/php-fpm.d/php-fpm-magento2.conf
 ADD conf/apache-default.conf /etc/apache2/sites-enabled/apache-default.conf
 
 # unison script
+ADD conf/.unison/magento2.prf /root/.unison/magento2.prf
 ADD conf/unison.sh /usr/local/bin/unison.sh
 ADD conf/entrypoint.sh /usr/local/bin/entrypoint.sh
 RUN chmod +x /usr/local/bin/unison.sh
@@ -85,6 +86,7 @@ ENV PATH /var/www/magento2/bin/magento:$PATH
 # Initial scripts
 COPY scripts/ /home/magento2/scripts/
 RUN cd /home/magento2/scripts && composer install
+RUN chmod +x /home/magento2/scripts/m2init
 
 EXPOSE 80 22 44100
 WORKDIR /home/magento2
