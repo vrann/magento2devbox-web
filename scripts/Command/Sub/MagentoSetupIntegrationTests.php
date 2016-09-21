@@ -3,11 +3,15 @@
  * Copyright © 2016 Magento. All rights reserved.
  * See COPYING.txt for license details.
  */
-namespace MagentoDevBox\Command;
+namespace MagentoDevBox\Command\Sub;
 
 require_once __DIR__ . '/../AbstractCommand.php';
+require_once __DIR__ . '/../Options/Magento.php';
+require_once __DIR__ . '/../Options/Db.php';
 
-use MagentoDevBox\AbstractCommand;
+use MagentoDevBox\Command\AbstractCommand;
+use MagentoDevBox\Command\Options\Magento as MagentoOptions;
+use MagentoDevBox\Command\Options\Db as DbOptions;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
@@ -34,13 +38,15 @@ class MagentoSetupIntegrationTests extends AbstractCommand
     protected function execute(InputInterface $input, OutputInterface $output)
     {
         $dbName = 'magento_integration_tests';
+        $dbUser = $input->getOption(DbOptions::USER);
+        $dbPassword = $input->getOption(DbOptions::PASSWORD);
 
         $this->executeCommands(
-            sprintf('mysql -h db -u root -proot -e "CREATE DATABASE IF NOT EXISTS %s;"', $dbName),
+            sprintf('mysql -h db -u %s -p%s -e "CREATE DATABASE IF NOT EXISTS %s;"', $dbUser, $dbPassword, $dbName),
             $output
         );
 
-        $magentoPath = $input->getOption('magento-path');
+        $magentoPath = $input->getOption(MagentoOptions::PATH);
         $sourceFile = sprintf('%s/dev/tests/integration/etc/install-config-mysql.php.dist', $magentoPath);
         $targetFile = sprintf('%s/dev/tests/integration/etc/install-config-mysql.php', $magentoPath);
 
@@ -48,9 +54,9 @@ class MagentoSetupIntegrationTests extends AbstractCommand
             $config = file_get_contents($sourceFile);
             $config = $this->replaceOptionValues(
                 [
-                    'db-host' => 'db',
-                    'db-user' => 'root',
-                    'db-password' => 'root',
+                    'db-host' => $input->getOption(DbOptions::HOST),
+                    'db-user' => $dbUser,
+                    'db-password' => $dbPassword,
                     'db-name' => $dbName,
                     'backend-frontname' => 'admin'
                 ],
@@ -82,7 +88,10 @@ class MagentoSetupIntegrationTests extends AbstractCommand
     public function getOptionsConfig()
     {
         return [
-            static::OPTION_MAGENTO_PATH => $this->getMagentoPathConfig()
+            MagentoOptions::PATH => MagentoOptions::get(MagentoOptions::PATH),
+            DbOptions::HOST => DbOptions::get(DbOptions::HOST),
+            DbOptions::USER => DbOptions::get(DbOptions::USER),
+            DbOptions::PASSWORD => DbOptions::get(DbOptions::PASSWORD)
         ];
     }
 }

@@ -3,11 +3,11 @@
  * Copyright © 2016 Magento. All rights reserved.
  * See COPYING.txt for license details.
  */
-namespace MagentoDevBox\Command\Wrapper;
+namespace MagentoDevBox\Command;
 
-require_once __DIR__ . '/../../AbstractCommand.php';
+require_once __DIR__ . '/AbstractCommand.php';
 
-use MagentoDevBox\AbstractCommand;
+use MagentoDevBox\Command\AbstractCommand;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Exception\CommandNotFoundException;
@@ -59,8 +59,8 @@ class MagentoInstall extends AbstractCommand
             [
                 'magento:download',
                 'magento:setup',
-                'magento:setup:redis',
                 'magento:setup:varnish',
+                'magento:setup:redis',
                 'magento:setup:elasticsearch',
                 'magento:setup:integration-tests',
                 'magento:finalize'

@@ -3,11 +3,17 @@
  * Copyright © 2016 Magento. All rights reserved.
  * See COPYING.txt for license details.
  */
-namespace MagentoDevBox\Command;
+namespace MagentoDevBox\Command\Sub;
 
 require_once __DIR__ . '/../AbstractCommand.php';
+require_once __DIR__ . '/../Options/Magento.php';
+require_once __DIR__ . '/../Options/Redis.php';
+require_once __DIR__ . '/../Registry.php';
 
-use MagentoDevBox\AbstractCommand;
+use MagentoDevBox\Command\AbstractCommand;
+use MagentoDevBox\Command\Options\Magento as MagentoOptions;
+use MagentoDevBox\Command\Options\Redis as RedisOptions;
+use MagentoDevBox\Command\Registry;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
@@ -33,11 +39,11 @@ class MagentoSetupRedis extends AbstractCommand
      */
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-        $host = $input->getOption('redis-host');
-        $configPath = sprintf('%s/app/etc/env.php', $input->getOption('magento-path'));
+        $host = $this->requestOption(RedisOptions::HOST, $input, $output);
+        $configPath = sprintf('%s/app/etc/env.php', $this->requestOption(MagentoOptions::PATH, $input, $output));
         $config = include $configPath;
 
-        if ($input->getOption('redis-session-setup')) {
+        if ($this->requestOption(RedisOptions::SESSION_SETUP, $input, $output)) {
             $config['session'] = [
                 'save' => 'redis',
                 'redis' => [
@@ -65,7 +71,7 @@ class MagentoSetupRedis extends AbstractCommand
             $config['session'] = ['save' => 'files'];
         }
 
-        if ($input->getOption('redis-fpc-setup')) {
+        if (!Registry::get('fpc-installed') && $this->requestOption(RedisOptions::FPC_SETUP, $input, $output)) {
             $config['cache']['frontend']['page_cache'] = [
                 'backend' => 'Cm_Cache_Backend_Redis',
                 'backend_options' => [
@@ -75,11 +81,13 @@ class MagentoSetupRedis extends AbstractCommand
                     'compress_data' => '0'
                 ]
             ];
+
+            Registry::set('fpc-installed', true);
         } else {
             unset($config['cache']['frontend']['page_cache']);
         }
 
-        if ($input->getOption('redis-cache-setup')) {
+        if ($this->requestOption(RedisOptions::CACHE_SETUP, $input, $output)) {
             $config['cache']['frontend']['default'] = [
                 'backend' => 'Cm_Cache_Backend_Redis',
                 'backend_options' => [
@@ -100,35 +108,11 @@ class MagentoSetupRedis extends AbstractCommand
     public function getOptionsConfig()
     {
         return [
-            static::OPTION_MAGENTO_PATH => $this->getMagentoPathConfig(),
-            'redis-fpc-setup' => [
-                'initial' => true,
-                'boolean' => true,
-                'default' => false,
-                'description' => 'Whether to use Redis as Magento full page cache.',
-                'question' => 'Do you want to use Redis as Magento full page cache? %default%'
-            ],
-            'redis-cache-setup' => [
-                'initial' => true,
-                'boolean' => true,
-                'default' => true,
-                'description' => 'Whether to use Redis as Magento default cache.',
-                'question' => 'Do you want to use Redis as Magento default cache? %default%'
-            ],
-            'redis-session-setup' => [
-                'initial' => true,
-                'boolean' => true,
-                'default' => false,
-                'description' => 'Whether to use Redis for storing sessions.',
-                'question' => 'Do you want to use Redis for storing sessions? %default%'
-            ],
-            'redis-host' => [
-                'initial' => true,
-                'default' => 'redis',
-                'requireValue' => false,
-                'description' => 'Redis host.',
-                'question' => 'Please enter Redis host %default%'
-            ]
+            MagentoOptions::PATH => MagentoOptions::get(MagentoOptions::PATH),
+            RedisOptions::FPC_SETUP => RedisOptions::get(RedisOptions::FPC_SETUP),
+            RedisOptions::CACHE_SETUP => RedisOptions::get(RedisOptions::CACHE_SETUP),
+            RedisOptions::SESSION_SETUP => RedisOptions::get(RedisOptions::SESSION_SETUP),
+            RedisOptions::HOST => RedisOptions::get(RedisOptions::HOST)
         ];
     }
 }
