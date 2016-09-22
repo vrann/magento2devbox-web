@@ -16,5 +16,6 @@ unison magento2
 echo "[DONE] Sync Finished" > /var/www/magento2/status.html
 sed -i 's/^\(\s*DirectoryIndex\s*\).*$/\1index.html/' /etc/apache2/sites-enabled/apache-default.conf
 service apache2 restart
+rm -rf /var/www/magento2/status.html
 
 supervisord -n -c /etc/supervisord.conf
