@@ -3,19 +3,21 @@
  * Copyright © 2016 Magento. All rights reserved.
  * See COPYING.txt for license details.
  */
-namespace MagentoDevBox\Command\Sub;
+namespace MagentoDevBox\Command\Pool;
 
 require_once __DIR__ . '/../AbstractCommand.php';
 require_once __DIR__ . '/../Options/Magento.php';
 require_once __DIR__ . '/../Options/Db.php';
 require_once __DIR__ . '/../Options/WebServer.php';
 require_once __DIR__ . '/../Options/RabbitMq.php';
+require_once __DIR__ . '/../Registry.php';
 
 use MagentoDevBox\Command\AbstractCommand;
 use MagentoDevBox\Command\Options\Magento as MagentoOptions;
 use MagentoDevBox\Command\Options\Db as DbOptions;
 use MagentoDevBox\Command\Options\WebServer as WebServerOptions;
 use MagentoDevBox\Command\Options\RabbitMq as RabbitMqOptions;
+use MagentoDevBox\Command\Registry;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
@@ -42,9 +44,16 @@ class MagentoSetup extends AbstractCommand
     protected function execute(InputInterface $input, OutputInterface $output)
     {
         $magentoPath = $input->getOption(MagentoOptions::PATH);
+
         $this->executeCommands(
             sprintf('cd %s && rm -rf var/* pub/static/* app/etc/env.php app/etc/config.php', $magentoPath)
         );
+
+        $webserverHomePort = $this->requestOption(WebServerOptions::HOME_PORT, $input, $output);
+        $magentoHost = $input->getOption(MagentoOptions::HOST);
+        $magentoBackendPath = $this->requestOption(MagentoOptions::BACKEND_PATH, $input, $output);
+        $magentoAdminUser = $this->requestOption(MagentoOptions::ADMIN_USER, $input, $output);
+        $magentoAdminPassword = $this->requestOption(MagentoOptions::ADMIN_PASSWORD, $input, $output);
 
         $command = sprintf(
             'cd %s && php bin/magento setup:install'
@@ -54,15 +63,15 @@ class MagentoSetup extends AbstractCommand
                 . ' --language=en_US --currency=USD --timezone=America/Chicago --use-rewrites=1'
                 . ' --backend-frontname=%s',
             $magentoPath,
-            $input->getOption(MagentoOptions::HOST, $input, $output),
-            $this->requestOption(WebServerOptions::HOME_PORT, $input, $output),
+            $magentoHost,
+            $webserverHomePort,
             $input->getOption(DbOptions::HOST),
             $input->getOption(DbOptions::NAME),
             $input->getOption(DbOptions::USER),
             $input->getOption(DbOptions::PASSWORD),
-            $this->requestOption(MagentoOptions::ADMIN_USER, $input, $output),
-            $this->requestOption(MagentoOptions::ADMIN_PASSWORD, $input, $output),
-            $this->requestOption(MagentoOptions::BACKEND_PATH, $input, $output)
+            $magentoAdminUser,
+            $magentoAdminPassword,
+            $magentoBackendPath
         );
 
         if ($this->requestOption(RabbitMqOptions::SETUP, $input, $output)) {
@@ -104,7 +113,19 @@ class MagentoSetup extends AbstractCommand
             }
         }
 
-        $output->writeln('To prepare magento sources run <info>m2init magento:finalize</info> command next');
+        Registry::setData(
+            [
+                MagentoOptions::HOST => $magentoHost,
+                MagentoOptions::PORT => $webserverHomePort,
+                MagentoOptions::BACKEND_PATH => $magentoBackendPath,
+                MagentoOptions::ADMIN_USER => $magentoAdminUser,
+                MagentoOptions::ADMIN_PASSWORD => $magentoAdminPassword
+            ]
+        );
+
+        if (!Registry::get(static::CHAINED_EXECUTION_FLAG)) {
+            $output->writeln('To prepare magento sources run <info>m2init magento:finalize</info> command next');
+        }
     }
 
     /**

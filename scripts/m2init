@@ -26,11 +26,11 @@ use Symfony\Component\Console\Application;
 $application = new Application();
 $commands = [];
 
-foreach (glob(__DIR__ . '/Command/Sub/*.php') as $fileName)
+foreach (glob(__DIR__ . '/Command/Pool/*.php') as $fileName)
 {
     require_once $fileName;
 
-    $className = 'MagentoDevBox\\Command\\Sub\\' . basename($fileName, '.php');
+    $className = 'MagentoDevBox\\Command\\Pool\\' . basename($fileName, '.php');
     $commands[] = new $className();
 }
 

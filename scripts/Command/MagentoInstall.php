@@ -6,8 +6,10 @@
 namespace MagentoDevBox\Command;
 
 require_once __DIR__ . '/AbstractCommand.php';
+require_once __DIR__ . '/Options/Magento.php';
+require_once __DIR__ . '/Registry.php';
 
-use MagentoDevBox\Command\AbstractCommand;
+use MagentoDevBox\Command\Options\Magento as MagentoOptions;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Exception\CommandNotFoundException;
@@ -55,6 +57,8 @@ class MagentoInstall extends AbstractCommand
      */
     protected function execute(InputInterface $input, OutputInterface $output)
     {
+        Registry::set(static::CHAINED_EXECUTION_FLAG, true);
+
         $this->executeWrappedCommands(
             [
                 'magento:download',
@@ -68,6 +72,33 @@ class MagentoInstall extends AbstractCommand
             $input,
             $output
         );
+
+        if (
+            Registry::hasAll(
+                [
+                    MagentoOptions::HOST, MagentoOptions::PORT,
+                    MagentoOptions::BACKEND_PATH, MagentoOptions::ADMIN_USER, MagentoOptions::ADMIN_PASSWORD
+                ]
+            )
+        ) {
+            $magentoUrl = sprintf(
+                'http://%s:%s',
+                Registry::get(MagentoOptions::HOST),
+                Registry::get(MagentoOptions::PORT)
+            );
+
+            $output->writeln(
+                sprintf(
+                    'To open installed magento go to <info>%s</info> Admin area: <info>%s/%s</info>,'
+                    . ' login: <info>%s</info>, password: <info>%s</info>',
+                    $magentoUrl,
+                    $magentoUrl,
+                    Registry::get(MagentoOptions::BACKEND_PATH),
+                    Registry::get(MagentoOptions::ADMIN_USER),
+                    Registry::get(MagentoOptions::ADMIN_PASSWORD)
+                )
+            );
+        }
     }
 
     /**

@@ -3,17 +3,13 @@
  * Copyright © 2016 Magento. All rights reserved.
  * See COPYING.txt for license details.
  */
-namespace MagentoDevBox\Command\Sub;
+namespace MagentoDevBox\Command\Pool;
 
 require_once __DIR__ . '/../AbstractCommand.php';
 require_once __DIR__ . '/../Options/Magento.php';
-require_once __DIR__ . '/../Options/WebServer.php';
-require_once __DIR__ . '/../Registry.php';
 
 use MagentoDevBox\Command\AbstractCommand;
 use MagentoDevBox\Command\Options\Magento as MagentoOptions;
-use MagentoDevBox\Command\Options\WebServer as WebServerOptions;
-use MagentoDevBox\Command\Registry;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
@@ -105,23 +101,6 @@ class MagentoFinalize extends AbstractCommand
         );
 
         chmod(sprintf('%s/bin/magento', $magentoPath), 0750);
-
-        $homePort = Registry::has('port-overwrite')
-            ? Registry::get('port-overwrite')
-            : $this->requestOption(WebServerOptions::HOME_PORT, $input, $output);
-        $magentoUrl = sprintf('http://%s:%s', $input->getOption(MagentoOptions::HOST), $homePort);
-
-        $output->writeln(
-            sprintf(
-                'To open installed magento go to <info>%s</info> Admin area: <info>%s/%s</info>,'
-                    . ' login: <info>%s</info>, password: <info>%s</info>',
-                $magentoUrl,
-                $magentoUrl,
-                $input->getOption(MagentoOptions::BACKEND_PATH),
-                $input->getOption(MagentoOptions::ADMIN_USER),
-                $input->getOption(MagentoOptions::ADMIN_PASSWORD)
-            )
-        );
     }
 
     /**
@@ -130,16 +109,11 @@ class MagentoFinalize extends AbstractCommand
     public function getOptionsConfig()
     {
         return [
-            MagentoOptions::HOST => MagentoOptions::get(MagentoOptions::HOST),
             MagentoOptions::PATH => MagentoOptions::get(MagentoOptions::PATH),
-            MagentoOptions::BACKEND_PATH => MagentoOptions::get(MagentoOptions::BACKEND_PATH),
-            MagentoOptions::ADMIN_USER => MagentoOptions::get(MagentoOptions::ADMIN_USER),
-            MagentoOptions::ADMIN_PASSWORD => MagentoOptions::get(MagentoOptions::ADMIN_PASSWORD),
             MagentoOptions::STATIC_CONTENTS_DEPLOY => MagentoOptions::get(MagentoOptions::STATIC_CONTENTS_DEPLOY),
             MagentoOptions::GRUNT_COMPILE => MagentoOptions::get(MagentoOptions::GRUNT_COMPILE),
             MagentoOptions::DI_COMPILE => MagentoOptions::get(MagentoOptions::DI_COMPILE),
-            MagentoOptions::CRON_RUN => MagentoOptions::get(MagentoOptions::CRON_RUN),
-            WebServerOptions::HOME_PORT => WebServerOptions::get(WebServerOptions::HOME_PORT)
+            MagentoOptions::CRON_RUN => MagentoOptions::get(MagentoOptions::CRON_RUN)
         ];
     }
 }

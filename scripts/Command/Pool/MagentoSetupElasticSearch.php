@@ -3,7 +3,7 @@
  * Copyright © 2016 Magento. All rights reserved.
  * See COPYING.txt for license details.
  */
-namespace MagentoDevBox\Command\Sub;
+namespace MagentoDevBox\Command\Pool;
 
 require_once __DIR__ . '/../AbstractCommand.php';
 require_once __DIR__ . '/../Options/Magento.php';

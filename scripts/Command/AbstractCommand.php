@@ -61,6 +61,11 @@ abstract class AbstractCommand extends Command
     /**#@-*/
 
     /**
+     * Chained execution flag
+     */
+    const CHAINED_EXECUTION_FLAG = 'chained-execution';
+
+    /**
      * @var QuestionHelper
      */
     private $questionHelper;

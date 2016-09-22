@@ -39,6 +39,19 @@ class Registry
     }
 
     /**
+     * Set array of values
+     *
+     * @param array $data
+     * @return void
+     */
+    public static function setData(array $data)
+    {
+        foreach ($data as $key => $value) {
+            static::set($key, $value);
+        }
+    }
+
+    /**
      * Check if value exists
      *
      * @param string $key
@@ -47,5 +60,22 @@ class Registry
     public static function has($key)
     {
         return array_key_exists($key, static::$data);
+    }
+
+    /**
+     * Check if all values exist
+     *
+     * @param array $keys
+     * @return bool
+     */
+    public static function hasAll(array $keys)
+    {
+        foreach ($keys as $key) {
+            if (!static::has($key)) {
+                return false;
+            }
+        }
+
+        return true;
     }
 }

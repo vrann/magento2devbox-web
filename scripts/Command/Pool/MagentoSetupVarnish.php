@@ -3,7 +3,7 @@
  * Copyright © 2016 Magento. All rights reserved.
  * See COPYING.txt for license details.
  */
-namespace MagentoDevBox\Command\Sub;
+namespace MagentoDevBox\Command\Pool;
 
 require_once __DIR__ . '/../AbstractCommand.php';
 require_once __DIR__ . '/../Options/Magento.php';
@@ -50,7 +50,8 @@ class MagentoSetupVarnish extends AbstractCommand
      */
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-        if (Registry::get('fpc-installed') || !$this->requestOption(VarnishOptions::FPC_SETUP, $input, $output)) {
+        if (Registry::get(VarnishOptions::FPC_INSTALLED)
+            || !$this->requestOption(VarnishOptions::FPC_SETUP, $input, $output)) {
             return;
         }
 
@@ -65,8 +66,8 @@ class MagentoSetupVarnish extends AbstractCommand
         $content = $config->getVclFile(Config::VARNISH_4_CONFIGURATION_PATH);
         file_put_contents($this->requestOption(VarnishOptions::CONFIG_PATH, $input, $output), $content);
 
-        Registry::set('port-overwrite', $this->requestOption(VarnishOptions::HOME_PORT, $input, $output));
-        Registry::set('fpc-installed', true);
+        Registry::set(MagentoOptions::PORT, $this->requestOption(VarnishOptions::HOME_PORT, $input, $output));
+        Registry::set(VarnishOptions::FPC_INSTALLED, true);
     }
 
     /**

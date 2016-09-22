@@ -14,6 +14,7 @@ class Magento extends AbstractOptions
 {
     const SOURCES_REUSE = 'magento-sources-reuse';
     const HOST = 'magento-host';
+    const PORT = 'magento-port';
     const PATH = 'magento-path';
     const EDITION = 'magento-edition';
     const BACKEND_PATH = 'magento-backend-path';

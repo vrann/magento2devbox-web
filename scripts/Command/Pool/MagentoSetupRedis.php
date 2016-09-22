@@ -3,7 +3,7 @@
  * Copyright © 2016 Magento. All rights reserved.
  * See COPYING.txt for license details.
  */
-namespace MagentoDevBox\Command\Sub;
+namespace MagentoDevBox\Command\Pool;
 
 require_once __DIR__ . '/../AbstractCommand.php';
 require_once __DIR__ . '/../Options/Magento.php';
@@ -71,22 +71,6 @@ class MagentoSetupRedis extends AbstractCommand
             $config['session'] = ['save' => 'files'];
         }
 
-        if (!Registry::get('fpc-installed') && $this->requestOption(RedisOptions::FPC_SETUP, $input, $output)) {
-            $config['cache']['frontend']['page_cache'] = [
-                'backend' => 'Cm_Cache_Backend_Redis',
-                'backend_options' => [
-                    'server' => $host,
-                    'port' => '6379',
-                    'database' => '1',
-                    'compress_data' => '0'
-                ]
-            ];
-
-            Registry::set('fpc-installed', true);
-        } else {
-            unset($config['cache']['frontend']['page_cache']);
-        }
-
         if ($this->requestOption(RedisOptions::CACHE_SETUP, $input, $output)) {
             $config['cache']['frontend']['default'] = [
                 'backend' => 'Cm_Cache_Backend_Redis',
@@ -97,6 +81,24 @@ class MagentoSetupRedis extends AbstractCommand
             ];
         } else {
             unset($config['cache']['frontend']['default']);
+        }
+
+        if (!Registry::get(RedisOptions::FPC_INSTALLED)
+            && $this->requestOption(RedisOptions::FPC_SETUP, $input, $output)
+        ) {
+            $config['cache']['frontend']['page_cache'] = [
+                'backend' => 'Cm_Cache_Backend_Redis',
+                'backend_options' => [
+                    'server' => $host,
+                    'port' => '6379',
+                    'database' => '1',
+                    'compress_data' => '0'
+                ]
+            ];
+
+            Registry::set(RedisOptions::FPC_INSTALLED, true);
+        } else {
+            unset($config['cache']['frontend']['page_cache']);
         }
 
         file_put_contents($configPath, sprintf("<?php\n return %s;", var_export($config, true)));

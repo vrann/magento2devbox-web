@@ -3,17 +3,19 @@
  * Copyright © 2016 Magento. All rights reserved.
  * See COPYING.txt for license details.
  */
-namespace MagentoDevBox\Command\Sub;
+namespace MagentoDevBox\Command\Pool;
 
 require_once __DIR__ . '/../AbstractCommand.php';
 require_once __DIR__ . '/../Options/Magento.php';
 require_once __DIR__ . '/../Options/MagentoCloud.php';
 require_once __DIR__ . '/../Options/Composer.php';
+require_once __DIR__ . '/../Registry.php';
 
 use MagentoDevBox\Command\AbstractCommand;
 use MagentoDevBox\Command\Options\Magento as MagentoOptions;
 use MagentoDevBox\Command\Options\MagentoCloud as MagentoCloudOptions;
 use MagentoDevBox\Command\Options\Composer as ComposerOptions;
+use MagentoDevBox\Command\Registry;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
@@ -64,7 +66,7 @@ class MagentoDownload extends AbstractCommand
                 : 'community';
             $this->executeCommands(
                 sprintf(
-                    'cd %s && composer create-project --repository-url=""https://repo.magento.com/""'
+                    'cd %s && composer create-project --repository-url=https://repo.magento.com/'
                         . ' magento/project-%s-edition .',
                     $magentoPath,
                     $version
@@ -75,7 +77,9 @@ class MagentoDownload extends AbstractCommand
             $this->executeCommands(sprintf('cd %s && composer install', $magentoPath), $output);
         }
 
-        $output->writeln('To setup magento run <info>m2init magento:setup</info> command next');
+        if (!Registry::get(static::CHAINED_EXECUTION_FLAG)) {
+            $output->writeln('To setup magento run <info>m2init magento:setup</info> command next');
+        }
     }
 
     /**
@@ -109,7 +113,11 @@ class MagentoDownload extends AbstractCommand
                             true,
                             'New key will be created. Enter the name of the SSH key'
                         );
-                        $this->executeCommands(sprintf('ssh-keygen -t rsa -N "" -f /home/magento2/.ssh/%s', $keyName), $output);
+
+                        $this->executeCommands(
+                            sprintf('ssh-keygen -t rsa -N "" -f /home/magento2/.ssh/%s', $keyName),
+                            $output
+                        );
                     } else {
                         throw new \Exception(
                             'You selected to init project from the Magento Cloud,'
@@ -130,18 +138,19 @@ class MagentoDownload extends AbstractCommand
         }
 
         chmod(sprintf('/home/magento2/.ssh/%s', $keyName), 0600);
-        $this->executeCommands(sprintf('echo "IdentityFile /home/magento2/.ssh/%s" >> /etc/ssh/ssh_config', $keyName), $output);
+
+        $this->executeCommands(
+            sprintf('echo "IdentityFile /home/magento2/.ssh/%s" >> /etc/ssh/ssh_config', $keyName),
+            $output
+        );
 
         if ($this->requestOption(MagentoCloudOptions::KEY_ADD, $input, $output)) {
             $this->executeCommands(sprintf('magento-cloud ssh-key:add /home/magento2/.ssh/%s.pub', $keyName), $output);
         }
 
-        $verifySSHCommand = 'ssh -q -o "BatchMode=yes" idymogyzqpche-master-7rqtwti@ssh.us.magentosite.cloud "echo 2>&1"'
-            . ' && echo $host SSH_OK || echo $host SSH_NOK';
-        $this->executeCommands($verifySSHCommand, $output);
-        $result = shell_exec(
-            $verifySSHCommand
-        );
+        $verifySshCommand = 'ssh -q -o "BatchMode=yes" idymogyzqpche-master-7rqtwti@ssh.us.magentosite.cloud'
+            . ' "echo 2>&1" && echo $host SSH_OK || echo $host SSH_NOK';
+        $result = shell_exec($verifySshCommand);
 
         if (trim($result) == 'SSH_OK') {
             $output->writeln('SSH connection with the Magento Cloud can be established.');

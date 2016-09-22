@@ -12,6 +12,7 @@ require_once __DIR__ . '/AbstractOptions.php';
  */
 class Varnish extends AbstractOptions
 {
+    const FPC_INSTALLED = 'fpc-installed';
     const FPC_SETUP = 'varnish-fpc-setup';
     const CONFIG_PATH = 'varnish-config-path';
     const HOME_PORT = 'varnish-home-port';

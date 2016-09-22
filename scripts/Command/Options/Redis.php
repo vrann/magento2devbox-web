@@ -12,6 +12,7 @@ require_once __DIR__ . '/AbstractOptions.php';
  */
 class Redis extends AbstractOptions
 {
+    const FPC_INSTALLED = 'fpc-installed';
     const FPC_SETUP = 'redis-fpc-setup';
     const CACHE_SETUP = 'redis-cache-setup';
     const SESSION_SETUP = 'redis-session-setup';
@@ -23,13 +24,6 @@ class Redis extends AbstractOptions
     protected static function getOptions()
     {
         return [
-            static::FPC_SETUP => [
-                'initial' => true,
-                'boolean' => true,
-                'default' => false,
-                'description' => 'Whether to use Redis as Magento full page cache.',
-                'question' => 'Do you want to use Redis as Magento full page cache? %default%'
-            ],
             static::CACHE_SETUP => [
                 'initial' => true,
                 'boolean' => true,
@@ -43,6 +37,12 @@ class Redis extends AbstractOptions
                 'default' => false,
                 'description' => 'Whether to use Redis for storing sessions.',
                 'question' => 'Do you want to use Redis for storing sessions? %default%'
+            ],
+            static::FPC_SETUP => [
+                'boolean' => true,
+                'default' => false,
+                'description' => 'Whether to use Redis as Magento full page cache.',
+                'question' => 'Do you want to use Redis as Magento full page cache? %default%'
             ],
             static::HOST => [
                 'initial' => true,
