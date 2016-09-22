@@ -6,19 +6,27 @@
  */
 namespace MagentoDevBox;
 
-if (file_exists('/var/www/magento2/status.html')) {
-    $status = file_get_contents('/var/www/magento2/status.html');
-    if (strpos($status, 'IN PROGRESS') !== false) {
-        echo $status;
-        if (file_exists("/root/unison.log")) {
-           passthru("tail /root/unison.log");
+$blockCommand = true;
+$initStatus = '[BGN] Synchronisation of the webroot and shared code directory started.';
+echo $initStatus . "\n";
+while ($blockCommand) {
+    if (!file_exists('/var/www/magento2/status.html')) {
+        $blockCommand = false;
+    } else {
+        $status = file_get_contents('/var/www/magento2/status.html');
+        if ($status != $initStatus) {
+            echo $status . "\n";
+            $initStatus = $status;
         }
-        die();
+        if (strpos($status, '[DONE]') !== false) {
+            $blockCommand = false;
+        }
+        echo ".";
+        sleep(5);
     }
 }
 
 require_once __DIR__ . '/vendor/autoload.php';
-require_once __DIR__ . '/Command/MagentoInstall.php';
 
 use MagentoDevBox\Command\MagentoInstall;
 use Symfony\Component\Console\Application;
@@ -28,8 +36,6 @@ $commands = [];
 
 foreach (glob(__DIR__ . '/Command/Pool/*.php') as $fileName)
 {
-    require_once $fileName;
-
     $className = 'MagentoDevBox\\Command\\Pool\\' . basename($fileName, '.php');
     $commands[] = new $className();
 }
