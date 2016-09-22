@@ -93,24 +93,27 @@ class MagentoSetup extends AbstractCommand
 
         $this->executeCommands($command, $output);
 
-        if (!$input->getOption(MagentoOptions::SOURCES_REUSE)) {
-            $composerHomePath = sprintf('%s/var/composer_home', $magentoPath);
+        $composerHomePath = sprintf('%s/var/composer_home', $magentoPath);
+        $composerAuthPath = sprintf('%s/auth.json', $composerHomePath);
 
+        if (!file_exists($composerAuthPath)) {
             if (!file_exists($composerHomePath)) {
                 mkdir($composerHomePath, 0777, true);
             }
 
-            copy('/home/magento2/.composer/auth.json', sprintf('%s/auth.json', $composerHomePath));
+            copy('/home/magento2/.composer/auth.json', $composerAuthPath);
+        }
 
-            if ($this->requestOption(MagentoOptions::SAMPLE_DATA_INSTALL, $input, $output)) {
-                $this->executeCommands(
-                    [
-                        sprintf('cd %s && php bin/magento sampledata:deploy', $magentoPath),
-                        sprintf('cd %s && php bin/magento setup:upgrade', $magentoPath)
-                    ],
-                    $output
-                );
-            }
+        if (!Registry::get(MagentoOptions::SOURCES_REUSE)
+            && $this->requestOption(MagentoOptions::SAMPLE_DATA_INSTALL, $input, $output)
+        ) {
+            $this->executeCommands(
+                [
+                    sprintf('cd %s && php bin/magento sampledata:deploy', $magentoPath),
+                    sprintf('cd %s && php bin/magento setup:upgrade', $magentoPath)
+                ],
+                $output
+            );
         }
 
         Registry::setData(
@@ -134,7 +137,6 @@ class MagentoSetup extends AbstractCommand
     public function getOptionsConfig()
     {
         return [
-            MagentoOptions::SOURCES_REUSE => MagentoOptions::get(MagentoOptions::SOURCES_REUSE),
             MagentoOptions::HOST => MagentoOptions::get(MagentoOptions::HOST),
             MagentoOptions::PATH => MagentoOptions::get(MagentoOptions::PATH),
             MagentoOptions::BACKEND_PATH => MagentoOptions::get(MagentoOptions::BACKEND_PATH),

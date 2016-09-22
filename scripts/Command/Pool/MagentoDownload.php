@@ -80,6 +80,8 @@ class MagentoDownload extends AbstractCommand
         if (!Registry::get(static::CHAINED_EXECUTION_FLAG)) {
             $output->writeln('To setup magento run <info>m2init magento:setup</info> command next');
         }
+
+        Registry::set(MagentoOptions::SOURCES_REUSE, $useExistingSources);
     }
 
     /**
