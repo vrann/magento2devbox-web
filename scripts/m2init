@@ -6,6 +6,17 @@
  */
 namespace MagentoDevBox;
 
+if (file_exists('/var/www/magento2/status.html')) {
+    $status = file_get_contents('/var/www/magento2/status.html');
+    if (strpos($status, 'IN PROGRESS') !== false) {
+        echo $status;
+        if (file_exists("/root/unison.log")) {
+           passthru("tail /root/unison.log");
+        }
+        die();
+    }
+}
+
 require_once __DIR__ . '/vendor/autoload.php';
 require_once __DIR__ . '/Command/MagentoInstall.php';
 
