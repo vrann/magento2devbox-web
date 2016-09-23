@@ -13,4 +13,5 @@ numericids = false
 log = true
 batch = true
 fastcheck = true
+confirmbigdel = false
 
