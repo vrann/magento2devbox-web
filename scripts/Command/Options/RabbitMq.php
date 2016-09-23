@@ -5,8 +5,6 @@
  */
 namespace MagentoDevBox\Command\Options;
 
-require_once __DIR__ . '/AbstractOptions.php';
-
 /**
  * Container for RabbitMQ options
  */

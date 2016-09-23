@@ -5,10 +5,6 @@
  */
 namespace MagentoDevBox\Command;
 
-require_once __DIR__ . '/AbstractCommand.php';
-require_once __DIR__ . '/Options/Magento.php';
-require_once __DIR__ . '/Registry.php';
-
 use MagentoDevBox\Command\Options\Magento as MagentoOptions;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;

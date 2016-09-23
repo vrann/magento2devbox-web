@@ -5,8 +5,6 @@
  */
 namespace MagentoDevBox\Command\Options;
 
-require_once __DIR__ . '/AbstractOptions.php';
-
 /**
  * Container for Redis options
  */
@@ -34,7 +32,7 @@ class Redis extends AbstractOptions
             static::SESSION_SETUP => [
                 'initial' => true,
                 'boolean' => true,
-                'default' => false,
+                'default' => true,
                 'description' => 'Whether to use Redis for storing sessions.',
                 'question' => 'Do you want to use Redis for storing sessions? %default%'
             ],

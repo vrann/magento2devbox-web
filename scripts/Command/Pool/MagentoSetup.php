@@ -5,13 +5,6 @@
  */
 namespace MagentoDevBox\Command\Pool;
 
-require_once __DIR__ . '/../AbstractCommand.php';
-require_once __DIR__ . '/../Options/Magento.php';
-require_once __DIR__ . '/../Options/Db.php';
-require_once __DIR__ . '/../Options/WebServer.php';
-require_once __DIR__ . '/../Options/RabbitMq.php';
-require_once __DIR__ . '/../Registry.php';
-
 use MagentoDevBox\Command\AbstractCommand;
 use MagentoDevBox\Command\Options\Magento as MagentoOptions;
 use MagentoDevBox\Command\Options\Db as DbOptions;

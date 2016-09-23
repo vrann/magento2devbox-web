@@ -5,9 +5,6 @@
  */
 namespace MagentoDevBox\Command\Pool;
 
-require_once __DIR__ . '/../AbstractCommand.php';
-require_once __DIR__ . '/../Options/Magento.php';
-
 use MagentoDevBox\Command\AbstractCommand;
 use MagentoDevBox\Command\Options\Magento as MagentoOptions;
 use Symfony\Component\Console\Input\InputInterface;

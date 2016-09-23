@@ -5,11 +5,6 @@
  */
 namespace MagentoDevBox\Command\Pool;
 
-require_once __DIR__ . '/../AbstractCommand.php';
-require_once __DIR__ . '/../Options/Magento.php';
-require_once __DIR__ . '/../Options/Db.php';
-require_once __DIR__ . '/../Options/ElasticSearch.php';
-
 use MagentoDevBox\Command\AbstractCommand;
 use MagentoDevBox\Command\Options\Magento as MagentoOptions;
 use MagentoDevBox\Command\Options\Db as DbOptions;

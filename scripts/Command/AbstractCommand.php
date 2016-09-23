@@ -302,7 +302,7 @@ abstract class AbstractCommand extends Command
      * Config parameters:
      * - virtual        virtual options are not added into the list of supported options for this command and their
      *                  values are not stored
-     * - initial        whether to request for option automatically before command execution (does not support virtual
+     * - initial        whether to request for option automatically before command execution (ignored for virtual
      *                  options)
      * - requireValue   whether to allow this option to be passed as argument with empty value (e.g. "--option" or
      *                  "--option=")

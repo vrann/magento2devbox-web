@@ -5,8 +5,6 @@
  */
 namespace MagentoDevBox\Command\Options;
 
-require_once __DIR__ . '/AbstractOptions.php';
-
 /**
  * Container for Varnish options
  */
@@ -31,9 +29,9 @@ class Varnish extends AbstractOptions
                 'question' => 'Do you want to use Varnish as Magento full page cache? %default%'
             ],
             static::CONFIG_PATH => [
-                'default' => '/home/magento2/configs/varnish/default.vcl.',
-                'description' => 'Magento root directory',
-                'question' => 'Please enter output configuration file path %default%'
+                'default' => '/home/magento2/configs/varnish/default.vcl',
+                'description' => 'Configuration file path for Varnish.',
+                'question' => 'Please enter configuration file path for Varnish %default%'
             ],
             static::HOME_PORT => [
                 'default' => 1749,
