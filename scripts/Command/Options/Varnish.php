@@ -34,7 +34,6 @@ class Varnish extends AbstractOptions
                 'question' => 'Please enter configuration file path for Varnish %default%'
             ],
             static::HOME_PORT => [
-                'default' => 1749,
                 'description' => 'Varnish port on home machine.',
                 'question' => 'Please enter Varnish port on home machine %default%'
             ]
