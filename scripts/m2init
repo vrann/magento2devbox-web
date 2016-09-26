@@ -17,7 +17,7 @@ while ($blockCommand) {
         $status = file_get_contents('/var/www/magento2/status.html');
 
         if ($status != $initStatus) {
-            echo $status . "\n";
+            echo "\n" . $status . "\n";
             $initStatus = $status;
         }
 
@@ -25,7 +25,7 @@ while ($blockCommand) {
             $blockCommand = false;
         }
 
-        echo ".";
+        echo '.';
         sleep(5);
     }
 }
