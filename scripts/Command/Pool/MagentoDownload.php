@@ -73,6 +73,13 @@ class MagentoDownload extends AbstractCommand
             $this->executeCommands(sprintf('cd %s && composer install', $magentoPath), $output);
         }
 
+        $userProfilePath = '/home/magento2/.profile';
+
+        file_put_contents(
+            $userProfilePath,
+            implode("\n", [file_get_contents($userProfilePath), sprintf('export PATH="%s/bin:$PATH"', $magentoPath)])
+        );
+
         if (!Registry::get(static::CHAINED_EXECUTION_FLAG)) {
             $output->writeln('To setup magento run <info>m2init magento:setup</info> command next');
         }
