@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
 
+chown -R magento2:magento2 /var/www/magento2
 if [ -n $USE_SHARED_WEBROOT ]
 then
     if [ $USE_SHARED_WEBROOT == "0" ]
@@ -9,7 +10,6 @@ then
         service apache2 restart
         echo "[IN PROGRESS] Sync Started. Copying started" > /var/www/magento2/status.html
         cp -rf /home/magento2/magento2 /var/www
-        chown -R magento2:magento2 /var/www/magento2
         chown -R magento2:magento2 /home/magento2/magento2
         echo "[IN PROGRESS] Copying Finished" > /var/www/magento2/status.html
 
@@ -20,6 +20,7 @@ then
         sed -i 's/^\(\s*DirectoryIndex\s*\).*$/\1index.html/' /etc/apache2/sites-enabled/apache-default.conf
         service apache2 restart
         rm -rf /var/www/magento2/status.html
+        rm -rf /home/magento2/magento2/status.html
         cat >/etc/supervisor/conf.d/unison.conf <<EOL
 [program:unison]
 command = /usr/local/bin/unison.sh
