@@ -51,9 +51,11 @@ class MagentoDownload extends AbstractCommand
             $this->generateAuthFile($authFile, $input, $output);
         }
 
+        $composerJsonExists = file_exists(sprintf('%s/composer.json', $magentoPath));
+
         if (!$useExistingSources
             && !$this->requestOption(MagentoCloudOptions::INSTALL, $input, $output)
-            && !file_exists(sprintf('%s/composer.json', $magentoPath))
+            && !$composerJsonExists
         ) {
             $version = strtolower($this->requestOption(MagentoOptions::EDITION, $input, $output)) == 'ee'
                 ? 'enterprise'
@@ -67,7 +69,7 @@ class MagentoDownload extends AbstractCommand
                 ),
                 $output
             );
-        } else {
+        } elseif ($composerJsonExists) {
             $this->executeCommands(sprintf('cd %s && composer install', $magentoPath), $output);
         }
 

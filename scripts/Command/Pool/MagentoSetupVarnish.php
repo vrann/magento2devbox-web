@@ -72,7 +72,7 @@ class MagentoSetupVarnish extends AbstractCommand
      */
     private function saveConfig(InputInterface $input, OutputInterface $output)
     {
-        $connection = $this->getPDOConnection($input, $output);
+        $connection = $this->getPdoConnection($input);
         $connection->exec(
             'DELETE FROM core_config_data'
                 . ' WHERE path = "system/full_page_cache/caching_application" '
@@ -144,24 +144,22 @@ class MagentoSetupVarnish extends AbstractCommand
     }
 
     /**
-     * Get database connection
+     * Get connection to database
      *
      * @param InputInterface $input
-     * @param OutputInterface $output
      * @return \PDO
      */
-    private function getPDOConnection(InputInterface $input, OutputInterface $output)
+    private function getPdoConnection(InputInterface $input)
     {
         if ($this->pdo === null) {
-            $dsn = sprintf(
-                'mysql:dbname=%s;host=%s',
-                $this->requestOption(DbOptions::NAME, $input, $output),
-                $this->requestOption(DbOptions::HOST, $input, $output)
-            );
             $this->pdo = new \PDO(
-                $dsn,
-                $this->requestOption(DbOptions::USER, $input, $output),
-                $this->requestOption(DbOptions::PASSWORD, $input, $output)
+                sprintf(
+                    'mysql:dbname=%s;host=%s',
+                    $input->getOption(DbOptions::NAME),
+                    $input->getOption(DbOptions::HOST)
+                ),
+                $input->getOption(DbOptions::USER),
+                $input->getOption(DbOptions::PASSWORD)
             );
         }
 

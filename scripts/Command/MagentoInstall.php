@@ -85,8 +85,8 @@ class MagentoInstall extends AbstractCommand
 
             $output->writeln(
                 sprintf(
-                    'To open installed magento go to <info>%s</info> Admin area: <info>%s/%s</info>,'
-                    . ' login: <info>%s</info>, password: <info>%s</info>',
+                    'To open installed magento go to <info>%s</info>, admin area: <info>%s/%s</info>,'
+                        . ' login: <info>%s</info>, password: <info>%s</info>',
                     $magentoUrl,
                     $magentoUrl,
                     Registry::get(MagentoOptions::BACKEND_PATH),

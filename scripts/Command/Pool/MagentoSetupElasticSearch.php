@@ -39,7 +39,8 @@ class MagentoSetupElasticSearch extends AbstractCommand
      */
     public function execute(InputInterface $input, OutputInterface $output)
     {
-        $this->getPDOConnection($input)->exec(
+        $connection = $this->getPdoConnection($input);
+        $connection->exec(
             'DELETE FROM core_config_data'
                 . ' WHERE path = "catalog/search/elasticsearch_server_hostname" '
                 . ' OR path = "catalog/search/elasticsearch_server_port"'
@@ -61,7 +62,7 @@ class MagentoSetupElasticSearch extends AbstractCommand
             ]
         ];
 
-        $stmt = $this->getPDOConnection($input)->prepare(
+        $stmt = $connection->prepare(
             'INSERT INTO core_config_data (scope, scope_id, path, `value`) VALUES ("default", 0, :path, :value);'
         );
 
@@ -83,7 +84,7 @@ class MagentoSetupElasticSearch extends AbstractCommand
      * @param InputInterface $input
      * @return \PDO
      */
-    private function getPDOConnection(InputInterface $input)
+    private function getPdoConnection(InputInterface $input)
     {
         if ($this->pdo === null) {
             $this->pdo = new \PDO(
