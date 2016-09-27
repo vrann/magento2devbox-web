@@ -3,10 +3,10 @@
  * Copyright © 2016 Magento. All rights reserved.
  * See COPYING.txt for license details.
  */
-namespace MagentoDevBox\Command;
+namespace MagentoDevBox\Library;
 
 /**
- * Class for communication between commands
+ * Class for communication between classes
  */
 class Registry
 {

@@ -10,7 +10,8 @@ use MagentoDevBox\Command\Options\Magento as MagentoOptions;
 use MagentoDevBox\Command\Options\WebServer as WebServerOptions;
 use MagentoDevBox\Command\Options\Db as DbOptions;
 use MagentoDevBox\Command\Options\Varnish as VarnishOptions;
-use MagentoDevBox\Command\Registry;
+use MagentoDevBox\Library\Registry;
+use MagentoDevBox\Library\Db;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Magento\Framework\App\Bootstrap;
@@ -21,11 +22,6 @@ use Magento\PageCache\Model\Config;
  */
 class MagentoSetupVarnish extends AbstractCommand
 {
-    /**
-     * @var \PDO
-     */
-    private $pdo;
-
     /**
      * {@inheritdoc}
      */
@@ -72,8 +68,14 @@ class MagentoSetupVarnish extends AbstractCommand
      */
     private function saveConfig(InputInterface $input, OutputInterface $output)
     {
-        $connection = $this->getPdoConnection($input);
-        $connection->exec(
+        $dbConnection = Db::getConnection(
+            $input->getOption(DbOptions::HOST),
+            $input->getOption(DbOptions::USER),
+            $input->getOption(DbOptions::PASSWORD),
+            $input->getOption(DbOptions::NAME)
+        );
+
+        $dbConnection->exec(
             'DELETE FROM core_config_data'
                 . ' WHERE path = "system/full_page_cache/caching_application" '
                 . ' OR path like "system/full_page_cache/varnish/%";'
@@ -106,7 +108,7 @@ class MagentoSetupVarnish extends AbstractCommand
             ]
         ];
 
-        $statement = $connection->prepare(
+        $statement = $dbConnection->prepare(
             'INSERT INTO core_config_data (scope, scope_id, path, `value`) VALUES (:scope, :scope_id, :path, :value);'
         );
 
@@ -134,36 +136,13 @@ class MagentoSetupVarnish extends AbstractCommand
         ];
 
         foreach ($options as $optionPath => $protocol) {
-            $statement = $connection->prepare(
+            $statement = $dbConnection->prepare(
                 'UPDATE `core_config_data` SET `value`=:url WHERE `path`=:path'
             );
             $statement->bindParam(':url', sprintf('%s://%s:%s', $protocol, $magentoHost, $homePort));
             $statement->bindParam(':path', $optionPath);
             $statement->execute();
         }
-    }
-
-    /**
-     * Get connection to database
-     *
-     * @param InputInterface $input
-     * @return \PDO
-     */
-    private function getPdoConnection(InputInterface $input)
-    {
-        if ($this->pdo === null) {
-            $this->pdo = new \PDO(
-                sprintf(
-                    'mysql:dbname=%s;host=%s',
-                    $input->getOption(DbOptions::NAME),
-                    $input->getOption(DbOptions::HOST)
-                ),
-                $input->getOption(DbOptions::USER),
-                $input->getOption(DbOptions::PASSWORD)
-            );
-        }
-
-        return $this->pdo;
     }
 
     /**

@@ -9,7 +9,7 @@ use MagentoDevBox\Command\AbstractCommand;
 use MagentoDevBox\Command\Options\Magento as MagentoOptions;
 use MagentoDevBox\Command\Options\MagentoCloud as MagentoCloudOptions;
 use MagentoDevBox\Command\Options\Composer as ComposerOptions;
-use MagentoDevBox\Command\Registry;
+use MagentoDevBox\Library\Registry;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 

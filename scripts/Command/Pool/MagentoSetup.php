@@ -10,7 +10,7 @@ use MagentoDevBox\Command\Options\Magento as MagentoOptions;
 use MagentoDevBox\Command\Options\Db as DbOptions;
 use MagentoDevBox\Command\Options\WebServer as WebServerOptions;
 use MagentoDevBox\Command\Options\RabbitMq as RabbitMqOptions;
-use MagentoDevBox\Command\Registry;
+use MagentoDevBox\Library\Registry;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 

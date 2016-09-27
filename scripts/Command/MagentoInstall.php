@@ -6,6 +6,7 @@
 namespace MagentoDevBox\Command;
 
 use MagentoDevBox\Command\Options\Magento as MagentoOptions;
+use MagentoDevBox\Library\Registry;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Exception\CommandNotFoundException;

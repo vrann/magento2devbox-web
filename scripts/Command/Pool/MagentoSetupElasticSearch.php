@@ -9,6 +9,7 @@ use MagentoDevBox\Command\AbstractCommand;
 use MagentoDevBox\Command\Options\Magento as MagentoOptions;
 use MagentoDevBox\Command\Options\Db as DbOptions;
 use MagentoDevBox\Command\Options\ElasticSearch as ElasticSearchOptions;
+use MagentoDevBox\Library\Db;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
@@ -17,11 +18,6 @@ use Symfony\Component\Console\Output\OutputInterface;
  */
 class MagentoSetupElasticSearch extends AbstractCommand
 {
-    /**
-     * @var \PDO
-     */
-    private $pdo;
-
     /**
      * {@inheritdoc}
      */
@@ -39,8 +35,14 @@ class MagentoSetupElasticSearch extends AbstractCommand
      */
     public function execute(InputInterface $input, OutputInterface $output)
     {
-        $connection = $this->getPdoConnection($input);
-        $connection->exec(
+        $dbConnection = Db::getConnection(
+            $input->getOption(DbOptions::HOST),
+            $input->getOption(DbOptions::USER),
+            $input->getOption(DbOptions::PASSWORD),
+            $input->getOption(DbOptions::NAME)
+        );
+
+        $dbConnection->exec(
             'DELETE FROM core_config_data'
                 . ' WHERE path = "catalog/search/elasticsearch_server_hostname" '
                 . ' OR path = "catalog/search/elasticsearch_server_port"'
@@ -62,7 +64,7 @@ class MagentoSetupElasticSearch extends AbstractCommand
             ]
         ];
 
-        $stmt = $connection->prepare(
+        $stmt = $dbConnection->prepare(
             'INSERT INTO core_config_data (scope, scope_id, path, `value`) VALUES ("default", 0, :path, :value);'
         );
 
@@ -76,29 +78,6 @@ class MagentoSetupElasticSearch extends AbstractCommand
             sprintf('cd %s && php bin/magento cache:clean config', $input->getOption(MagentoOptions::PATH)),
             $output
         );
-    }
-
-    /**
-     * Get connection to database
-     *
-     * @param InputInterface $input
-     * @return \PDO
-     */
-    private function getPdoConnection(InputInterface $input)
-    {
-        if ($this->pdo === null) {
-            $this->pdo = new \PDO(
-                sprintf(
-                    'mysql:dbname=%s;host=%s',
-                    $input->getOption(DbOptions::NAME),
-                    $input->getOption(DbOptions::HOST)
-                ),
-                $input->getOption(DbOptions::USER),
-                $input->getOption(DbOptions::PASSWORD)
-            );
-        }
-
-        return $this->pdo;
     }
 
     /**
