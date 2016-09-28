@@ -63,6 +63,7 @@ ADD conf/php.ini /usr/local/etc/php
 
 # SSH config
 ADD conf/sshd_config /etc/ssh/sshd_config
+RUN chown magento2:magento2 /etc/ssh/ssh_config
 
 # supervisord config
 ADD conf/supervisord.conf /etc/supervisord.conf

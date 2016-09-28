@@ -53,9 +53,8 @@ class MagentoDownload extends AbstractCommand
 
         $composerJsonExists = file_exists(sprintf('%s/composer.json', $magentoPath));
 
-        if (!$useExistingSources
+        if (!$useExistingSources && !$composerJsonExists
             && !$this->requestOption(MagentoCloudOptions::INSTALL, $input, $output)
-            && !$composerJsonExists
         ) {
             $version = strtolower($this->requestOption(MagentoOptions::EDITION, $input, $output)) == 'ee'
                 ? 'enterprise'
@@ -119,7 +118,7 @@ class MagentoDownload extends AbstractCommand
                     } else {
                         throw new \Exception(
                             'You selected to init project from the Magento Cloud,'
-                            . ' but SSH key for the Cloud is missing. Start from the beginning.'
+                                . ' but SSH key for the Cloud is missing. Start from the beginning.'
                         );
                     }
                 }
@@ -132,6 +131,7 @@ class MagentoDownload extends AbstractCommand
                 false,
                 'New key will be created. Enter the name of the SSH key'
             );
+
             $this->executeCommands(sprintf('ssh-keygen -t rsa -N "" -f /home/magento2/.ssh/%s', $keyName), $output);
         }
 
@@ -146,9 +146,12 @@ class MagentoDownload extends AbstractCommand
             $this->executeCommands(sprintf('magento-cloud ssh-key:add /home/magento2/.ssh/%s.pub', $keyName), $output);
         }
 
-        $verifySshCommand = 'ssh -q -o "BatchMode=yes" idymogyzqpche-master-7rqtwti@ssh.us.magentosite.cloud'
-            . ' "echo 2>&1" && echo $host SSH_OK || echo $host SSH_NOK';
-        $result = shell_exec($verifySshCommand);
+        $result = shell_exec(
+            sprintf(
+                'ssh -q -o "BatchMode=yes" %s "echo 2>&1" && echo $host SSH_OK || echo $host SSH_NOK',
+                shell_exec('magento-cloud environment:ssh --pipe -p idymogyzqpche -e master')
+            )
+        );
 
         if (trim($result) == 'SSH_OK') {
             $output->writeln('SSH connection with the Magento Cloud can be established.');
