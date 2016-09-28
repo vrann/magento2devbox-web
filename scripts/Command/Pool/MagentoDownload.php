@@ -82,6 +82,8 @@ class MagentoDownload extends AbstractCommand
     /**
      * Download sources from Magento Cloud
      *
+     * @todo remove hardcoded /home/magento2
+     * @todo
      * @param InputInterface $input
      * @param OutputInterface $output
      * @return void
@@ -94,6 +96,37 @@ class MagentoDownload extends AbstractCommand
         }
 
         $this->executeCommands('magento-cloud', $output);
+
+        $this->executeCommands('magento-cloud project:list', $output);
+        $project = $this->requestOption(MagentoCloudOptions::PROJECT, $input, $output);
+
+        while (!$project) {
+            if ($this->requestOption(MagentoCloudOptions::PROJECT_SKIP, $input, $output, true)) {
+                $project = $this->requestOption(MagentoCloudOptions::PROJECT, $input, $output, true);
+            } else {
+                throw new \Exception(
+                    'You selected to init project from the Magento Cloud, but haven\'t provided project name.'
+                    . ' Please start from the beginning.'
+                );
+            }
+        }
+
+        $this->executeCommands('magento-cloud environment:list --project=' . $project, $output);
+        $branch = $this->requestOption(MagentoCloudOptions::BRANCH, $input, $output);
+
+        while (!$branch) {
+            if ($this->requestOption(MagentoCloudOptions::BRANCH_SKIP, $input, $output, true)) {
+                $project = $this->requestOption(MagentoCloudOptions::BRANCH, $input, $output, true);
+            } else {
+                throw new \Exception(
+                    'You selected to init project from the Magento Cloud, but haven\'t provided branch name.'
+                    . ' Please start from the beginning.'
+                );
+            }
+        }
+
+        // @todo show user all magento cloud ssh keys magento-cloud list ? magento-clode ssh-list
+        // wrap shell_exec
 
         if ($this->requestOption(MagentoCloudOptions::KEY_REUSE, $input, $output)) {
             $keyName = $this->requestOption(MagentoCloudOptions::KEY_NAME, $input, $output);
@@ -146,12 +179,20 @@ class MagentoDownload extends AbstractCommand
             $this->executeCommands(sprintf('magento-cloud ssh-key:add /home/magento2/.ssh/%s.pub', $keyName), $output);
         }
 
-        $result = shell_exec(
-            sprintf(
-                'ssh -q -o "BatchMode=yes" %s "echo 2>&1" && echo $host SSH_OK || echo $host SSH_NOK',
-                shell_exec('magento-cloud environment:ssh --pipe -p idymogyzqpche -e master')
-            )
+        sleep(50);
+
+        $sshHost = shell_exec('magento-cloud environment:ssh --pipe -p ' . $project . ' -e ' . $branch);
+
+        $command = sprintf(
+            'ssh -q -o "BatchMode=yes" %s "echo 2>&1" && echo $host SSH_OK || echo $host SSH_NOK',
+            $sshHost
         );
+
+        echo $command . "\n";
+
+        $result = shell_exec($command);
+
+        echo trim($result) . "\n";
 
         if (trim($result) == 'SSH_OK') {
             $output->writeln('SSH connection with the Magento Cloud can be established.');
@@ -160,34 +201,6 @@ class MagentoDownload extends AbstractCommand
                 'You selected to init project from the Magento Cloud, but SSH connection cannot be established.'
                     . ' Please start from the beginning.'
             );
-        }
-
-        $this->executeCommands('magento-cloud project:list', $output);
-        $project = $this->requestOption(MagentoCloudOptions::PROJECT, $input, $output);
-
-        while (!$project) {
-            if ($this->requestOption(MagentoCloudOptions::PROJECT_SKIP, $input, $output, true)) {
-                $project = $this->requestOption(MagentoCloudOptions::PROJECT, $input, $output, true);
-            } else {
-                throw new \Exception(
-                    'You selected to init project from the Magento Cloud, but haven\'t provided project name.'
-                        . ' Please start from the beginning.'
-                );
-            }
-        }
-
-        $this->executeCommands('magento-cloud environment:list --project=' . $project, $output);
-        $branch = $this->requestOption(MagentoCloudOptions::BRANCH, $input, $output);
-
-        while (!$branch) {
-            if ($this->requestOption(MagentoCloudOptions::BRANCH_SKIP, $input, $output, true)) {
-                $project = $this->requestOption(MagentoCloudOptions::BRANCH, $input, $output, true);
-            } else {
-                throw new \Exception(
-                    'You selected to init project from the Magento Cloud, but haven\'t provided branch name.'
-                    . ' Please start from the beginning.'
-                );
-            }
         }
 
         $this->executeCommands(
