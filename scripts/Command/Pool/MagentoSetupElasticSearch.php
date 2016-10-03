@@ -35,7 +35,13 @@ class MagentoSetupElasticSearch extends AbstractCommand
      */
     public function execute(InputInterface $input, OutputInterface $output)
     {
-        if ($input->getOption(MagentoOptions::EDITION) == 'CE') {
+        $elasticModuleExist = exec(
+            sprintf(
+                'cd %s && php bin/magento module:status | grep Magento_Elasticsearch',
+                $input->getOption(MagentoOptions::PATH)
+            )
+        );
+        if (!$elasticModuleExist) {
             return;
         }
 
@@ -91,7 +97,6 @@ class MagentoSetupElasticSearch extends AbstractCommand
     {
         return [
             MagentoOptions::PATH => MagentoOptions::get(MagentoOptions::PATH),
-            MagentoOptions::EDITION => MagentoOptions::get(MagentoOptions::EDITION),
             DbOptions::HOST => DbOptions::get(DbOptions::HOST),
             DbOptions::USER => DbOptions::get(DbOptions::USER),
             DbOptions::PASSWORD => DbOptions::get(DbOptions::PASSWORD),
