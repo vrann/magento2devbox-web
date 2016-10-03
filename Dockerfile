@@ -24,7 +24,7 @@ RUN apt-get update && apt-get install -y \
              cp src/unison src/unison-fsmonitor /usr/local/bin && \
              cd /root && rm -rf /tmp/unison-2.48.4 \
     && docker-php-ext-configure gd --with-freetype-dir=/usr/include/ --with-jpeg-dir=/usr/include/ \
-    && docker-php-ext-install -j$(nproc) mcrypt intl xsl gd zip pdo_mysql opcache \
+    && docker-php-ext-install -j$(nproc) mcrypt intl xsl gd zip pdo_mysql opcache soap \
     && curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer \
     && docker-php-ext-install opcache \
     && pecl install xdebug && docker-php-ext-enable xdebug \
