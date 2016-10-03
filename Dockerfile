@@ -89,7 +89,7 @@ ENV WEBROOT_PATH="/var/www/magento2"
 
 # Initial scripts
 COPY scripts/ /home/magento2/scripts/
-RUN cd /home/magento2/scripts && composer install && gichmod +x /home/magento2/scripts/m2init
+RUN cd /home/magento2/scripts && composer install && chmod +x /home/magento2/scripts/m2init
 
 # Delete user password to connect with ssh with empty password
 RUN passwd magento2 -d
