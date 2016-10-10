@@ -117,8 +117,13 @@ class MagentoDownload extends AbstractCommand
         );
 
         if ($this->requestOption(MagentoCloudOptions::KEY_ADD, $input, $output)) {
-            $this->executeCommands('magento-cloud ssh-key:list');
-            $this->executeCommands(sprintf('magento-cloud ssh-key:add /home/magento2/.ssh/%s.pub', $keyName), $output);
+            $this->executeCommands(
+                [
+                    sprintf('magento-cloud ssh-key:add /home/magento2/.ssh/%s.pub', $keyName),
+                    'magento-cloud ssh-key:list'
+                ],
+                $output
+            );
         }
 
         $sshHost = $this->shellExec('magento-cloud environment:ssh --pipe -p ' . $project . ' -e ' . $branch);

@@ -86,15 +86,16 @@ class MagentoSetup extends AbstractCommand
 
         $this->executeCommands($command, $output);
 
+        $composerAuthSourcePath = '/home/magento2/.composer/auth.json';
         $composerHomePath = sprintf('%s/var/composer_home', $magentoPath);
         $composerAuthPath = sprintf('%s/auth.json', $composerHomePath);
 
-        if (!file_exists($composerAuthPath)) {
+        if (!file_exists($composerAuthPath) && file_exists($composerAuthSourcePath)) {
             if (!file_exists($composerHomePath)) {
                 mkdir($composerHomePath, 0777, true);
             }
 
-            copy('/home/magento2/.composer/auth.json', $composerAuthPath);
+            copy($composerAuthSourcePath, $composerAuthPath);
         }
 
         if (!Registry::get(MagentoOptions::SOURCES_REUSE)
