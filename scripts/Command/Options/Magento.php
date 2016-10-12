@@ -38,7 +38,7 @@ class Magento extends AbstractOptions
                 'question' => 'Do you want to use existing sources? %default%'
             ],
             static::HOST => [
-                'default' => 'localhost',
+                'default' => '127.0.0.1',
                 'description' => 'Magento host.',
                 'question' => 'Please enter Magento host %default%'
             ],
