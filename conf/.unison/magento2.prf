@@ -14,4 +14,7 @@ log = true
 batch = true
 fastcheck = true
 confirmbigdel = false
-
+ignore = Path */.git
+ignore = Path */.idea
+prefer = /home/magento2
+follow = /var/www

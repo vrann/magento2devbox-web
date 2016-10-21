@@ -1,5 +1,14 @@
 #!/usr/bin/env bash
 
+if [ -n $CREATE_SYMLINK_EE ]
+then
+    if [ $CREATE_SYMLINK_EE == "1" ]
+    then
+        mkdir -p $HOST_CE_PATH
+        ln -s /home/magento2/magento2/$EE_DIRNAME $HOST_CE_PATH/$EE_DIRNAME
+    fi
+fi
+
 if [ -n $USE_SHARED_WEBROOT ]
 then
     if [ $USE_SHARED_WEBROOT == "0" ]
