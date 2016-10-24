@@ -1,5 +1,5 @@
 FROM php:7.0.10-fpm
-MAINTAINER "Oleksandr Iegorov <oiegorov@magento.com>"
+MAINTAINER "Magento"
 
 RUN apt-get update && apt-get install -y \
     apt-utils \
@@ -25,9 +25,8 @@ RUN apt-get update && apt-get install -y \
              cp src/unison src/unison-fsmonitor /usr/local/bin && \
              cd /root && rm -rf /tmp/unison-2.48.4 \
     && docker-php-ext-configure gd --with-freetype-dir=/usr/include/ --with-jpeg-dir=/usr/include/ \
-    && docker-php-ext-install -j$(nproc) mcrypt intl xsl gd zip pdo_mysql opcache soap \
+    && docker-php-ext-install -j$(nproc) mcrypt intl xsl gd zip pdo_mysql opcache soap bcmath \
     && curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer \
-    && docker-php-ext-install opcache \
     && pecl install xdebug && docker-php-ext-enable xdebug \
     && echo "xdebug.remote_enable=1" >> /usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini \
     && echo "xdebug.remote_port=9000" >> /usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini \
@@ -37,14 +36,9 @@ RUN apt-get update && apt-get install -y \
     && mkdir /var/run/sshd \
     && apt-get clean && apt-get update && apt-get install -y nodejs \
     && ln -s /usr/bin/nodejs /usr/bin/node \
-    && apt-get clean && apt-get update && apt-get install -y npm \
+    && apt-get install -y npm \
     && npm update -g npm && npm install -g grunt-cli && npm install -g gulp \
-    && docker-php-ext-install bcmath \
     && echo "StrictHostKeyChecking no" >> /etc/ssh/ssh_config \
-    && echo "[magento2]" >> /usr/local/etc/php-fpm.d/docker.conf \
-    && echo "access.log = /proc/self/fd/2" >> /usr/local/etc/php-fpm.d/docker.conf \
-    && echo "clear_env = no" >> /usr/local/etc/php-fpm.d/docker.conf \
-    && echo "catch_workers_output = yes" >> /usr/local/etc/php-fpm.d/docker.conf \
     && apt-get install -y apache2 \
     && a2enmod rewrite \
     && a2enmod proxy \
@@ -60,25 +54,25 @@ RUN chown magento2:magento2 /home/magento2/magento2 && \
     chown magento2:magento2 /var/www/magento2
 
 # PHP config
-ADD conf/php.ini /usr/local/etc/php
+COPY conf/php.ini /usr/local/etc/php
 
 # SSH config
-ADD conf/sshd_config /etc/ssh/sshd_config
+COPY conf/sshd_config /etc/ssh/sshd_config
 RUN chown magento2:magento2 /etc/ssh/ssh_config
 
 # supervisord config
-ADD conf/supervisord.conf /etc/supervisord.conf
+COPY conf/supervisord.conf /etc/supervisord.conf
 
 # php-fpm config
-ADD conf/php-fpm-magento2.conf /usr/local/etc/php-fpm.d/php-fpm-magento2.conf
+COPY conf/php-fpm-magento2.conf /usr/local/etc/php-fpm.d/php-fpm-magento2.conf
 
 # apache config
-ADD conf/apache-default.conf /etc/apache2/sites-enabled/apache-default.conf
+COPY conf/apache-default.conf /etc/apache2/sites-enabled/apache-default.conf
 
 # unison script
-ADD conf/.unison/magento2.prf /root/.unison/magento2.prf
-ADD conf/unison.sh /usr/local/bin/unison.sh
-ADD conf/entrypoint.sh /usr/local/bin/entrypoint.sh
+COPY conf/.unison/magento2.prf /root/.unison/magento2.prf
+COPY conf/unison.sh /usr/local/bin/unison.sh
+COPY conf/entrypoint.sh /usr/local/bin/entrypoint.sh
 RUN chmod +x /usr/local/bin/unison.sh && chmod +x /usr/local/bin/entrypoint.sh
 
 ENV PATH /home/magento2/scripts/:/home/magento2/.magento-cloud/bin:$PATH

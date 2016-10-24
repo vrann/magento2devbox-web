@@ -47,7 +47,7 @@ class MagentoFinalize extends AbstractCommand
                         'cd %s && cp Gruntfile.js.sample Gruntfile.js && cp package.json.sample package.json',
                         $magentoPath
                     ),
-                    sprintf('cd %s && npm install && grunt refresh', $magentoPath)
+                    sprintf('cd %s && npm install && grunt refresh --force', $magentoPath)
                 ],
                 $output
             );
