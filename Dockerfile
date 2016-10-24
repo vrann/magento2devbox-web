@@ -35,7 +35,6 @@ RUN apt-get update && apt-get install -y \
     && mkdir /var/run/sshd \
     && apt-get clean && apt-get update && apt-get install -y nodejs \
     && ln -s /usr/bin/nodejs /usr/bin/node \
-    #&& apt-get clean && apt-get update && apt-get install -y npm \
     && apt-get install -y npm \
     && npm update -g npm && npm install -g grunt-cli && npm install -g gulp \
     && echo "StrictHostKeyChecking no" >> /etc/ssh/ssh_config \
