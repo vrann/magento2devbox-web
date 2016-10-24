@@ -66,14 +66,17 @@ class MagentoDownload extends AbstractCommand
         if (!$useExistingSources && !$composerJsonExists
             && !$this->requestOption(MagentoCloudOptions::INSTALL, $input, $output)
         ) {
-            $version = strtolower($this->requestOption(MagentoOptions::EDITION, $input, $output)) == 'ee'
+            $edition = strtolower($this->requestOption(MagentoOptions::EDITION, $input, $output)) == 'ee'
                 ? 'enterprise'
                 : 'community';
+            $version = $this->requestOption(MagentoOptions::VERSION, $input, $output);
+            $version = strlen($version) > 0 ? ':' . $version : '';
             $this->executeCommands(
                 sprintf(
                     'cd %s && composer create-project --repository-url=https://repo.magento.com/'
-                        . ' magento/project-%s-edition .',
+                        . ' magento/project-%s-edition%s .',
                     $magentoPath,
+                    $edition,
                     $version
                 ),
                 $output

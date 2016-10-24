@@ -23,6 +23,7 @@ class Magento extends AbstractOptions
     const GRUNT_COMPILE = 'magento-grunt-compile';
     const DI_COMPILE = 'magento-di-compile';
     const CRON_RUN = 'magento-cron-run';
+    const VERSION = 'version';
 
     /**
      * {@inheritdoc}
@@ -33,7 +34,7 @@ class Magento extends AbstractOptions
             static::SOURCES_REUSE => [
                 'initial' => true,
                 'boolean' => true,
-                'default' => false,
+                'default' => (boolean)getenv('MAGENTO_USE_SOURCES_IN_HOST'),
                 'description' => 'Whether to use existing sources.',
                 'question' => 'Do you want to use existing sources? %default%'
             ],
@@ -48,55 +49,61 @@ class Magento extends AbstractOptions
                 'question' => 'Please enter path to source folder for Magento %default%'
             ],
             static::EDITION => [
-                'default' => 'CE',
+                'default' => strlen(getenv('MAGENTO_EDITION')) > 0 ? getenv('MAGENTO_EDITION') : 'CE',
                 'description' => 'Edition of Magento to install.',
-                'question' => 'Which version of Magento you want to be installed (please, choose CE or EE) %default%'
+                'question' => 'Which edition of Magento you want to be installed (please, choose CE or EE) %default%'
+            ],
+            static::VERSION => [
+                'default' => strlen(getenv('MAGENTO_VERSION')) > 0 ? getenv('MAGENTO_VERSION') : '',
+                'description' => 'Version of Magento to install.',
+                'question' => 'Which version of Magento you want to be installed (i.e 2.0.*, 2.1.0 or leave empty for latest) %default%'
             ],
             static::BACKEND_PATH => [
                 'initial' => true,
-                'default' => 'admin',
+                'default' => strlen(getenv('MAGENTO_BACKEND_PATH')) > 0 ? getenv('MAGENTO_BACKEND_PATH') : 'admin',
                 'description' => 'Magento backend path.',
                 'question' => 'Please enter backend path %default%'
             ],
             static::ADMIN_USER => [
                 'initial' => true,
-                'default' => 'admin',
+                'default' => strlen(getenv('MAGENTO_ADMIN_USER')) > 0 ? getenv('MAGENTO_ADMIN_USER') : 'admin',
                 'description' => 'Magento admin username.',
                 'question' => 'Please enter backend admin username %default%'
             ],
             static::ADMIN_PASSWORD => [
                 'initial' => true,
-                'default' => 'admin123',
+                'default' => strlen(getenv('MAGENTO_ADMIN_PASSWORD')) > 0 ?
+                    getenv('MAGENTO_ADMIN_PASSWORD') : 'admin123',
                 'description' => 'Magento admin password.',
                 'question' => 'Please enter backend admin password %default%'
             ],
             static::SAMPLE_DATA_INSTALL => [
                 'boolean' => true,
-                'default' => false,
+                'default' => (boolean)getenv('MAGENTO_SAMPLE_DATA_INSTALL'),
                 'description' => 'Whether to install Sample Data.',
                 'question' => 'Do you want to install Sample Data? %default%'
             ],
             static::STATIC_CONTENTS_DEPLOY => [
                 'boolean' => true,
-                'default' => false,
+                'default' => (boolean)getenv('MAGENTO_STATIC_CONTENTS_DEPLOY'),
                 'description' => 'Whether to pre-deploy all static contents.',
                 'question' => 'Do you want to pre-deploy all static assets? %default%'
             ],
             static::GRUNT_COMPILE => [
                 'boolean' => true,
-                'default' => false,
+                'default' => (boolean)getenv('MAGENTO_GRUNT_COMPILE'),
                 'description' => 'Whether to compile CSS out of LESS via Grunt.',
                 'question' => 'Do you want to compile CSS out of LESS via Grunt? %default%'
             ],
             static::DI_COMPILE => [
                 'boolean' => true,
-                'default' => false,
+                'default' => (boolean)getenv('MAGENTO_DI_COMPILE'),
                 'description' => 'Whether to create generated files beforehand.',
                 'question' => 'Do you want to create generated files beforehand? %default%'
             ],
             static::CRON_RUN => [
                 'boolean' => true,
-                'default' => false,
+                'default' => (boolean)getenv('MAGENTO_CRON_RUN'),
                 'description' => 'Whether to generate crontab file for Magento.',
                 'question' => 'Do you want to generate crontab file for Magento? %default%'
             ]

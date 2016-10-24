@@ -1,14 +1,5 @@
 #!/usr/bin/env bash
 
-if [ -n $CREATE_SYMLINK_EE ]
-then
-    if [ $CREATE_SYMLINK_EE == "1" ]
-    then
-        mkdir -p $HOST_CE_PATH
-        ln -s /home/magento2/magento2/$EE_DIRNAME $HOST_CE_PATH/$EE_DIRNAME
-    fi
-fi
-
 if [ -n $USE_SHARED_WEBROOT ]
 then
     if [ $USE_SHARED_WEBROOT == "0" ]
@@ -19,6 +10,14 @@ then
         echo "[IN PROGRESS] Sync Started. Copying started" > /var/www/magento2/status.html
         chown -R magento2:magento2 /home/magento2/magento2
         cp -rf /home/magento2/magento2 /var/www
+        if [ -n $CREATE_SYMLINK_EE ]
+        then
+            if [ $CREATE_SYMLINK_EE == "1" ]
+            then
+                mkdir -p $HOST_CE_PATH
+                ln -s /var/www/magento2/$EE_DIRNAME $HOST_CE_PATH/$EE_DIRNAME
+            fi
+        fi
         chown -R magento2:magento2 /var/www/magento2
         echo "[IN PROGRESS] Copying Finished" > /var/www/magento2/status.html
 

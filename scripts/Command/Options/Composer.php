@@ -20,10 +20,12 @@ class Composer extends AbstractOptions
     {
         return [
             static::PUBLIC_KEY => [
+                'default' => strlen(getenv('MAGENTO_PUBLIC_KEY')) > 0 ? getenv('MAGENTO_PUBLIC_KEY') : 'CE',
                 'description' => 'Composer public key for Magento.',
                 'question' => 'Enter your Magento public key'
             ],
             static::PRIVATE_KEY => [
+                'default' => strlen(getenv('MAGENTO_PRIVATE_KEY')) > 0 ? getenv('MAGENTO_PRIVATE_KEY') : 'CE',
                 'description' => 'Composer private key for Magento.',
                 'question' => 'Enter your Magento private key'
             ]

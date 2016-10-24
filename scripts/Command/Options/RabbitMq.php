@@ -23,7 +23,7 @@ class RabbitMq extends AbstractOptions
             static::SETUP => [
                 'initial' => true,
                 'boolean' => true,
-                'default' => false,
+                'default' => getenv("USE_RABBITMQ"),
                 'description' => 'Whether to install RabbitMQ.',
                 'question' => 'Do you want to install RabbitMQ? %default%'
             ],
