@@ -211,6 +211,7 @@ class MagentoDownload extends AbstractCommand
             MagentoOptions::SOURCES_REUSE => MagentoOptions::get(MagentoOptions::SOURCES_REUSE),
             MagentoOptions::PATH => MagentoOptions::get(MagentoOptions::PATH),
             MagentoOptions::EDITION => MagentoOptions::get(MagentoOptions::EDITION),
+            MagentoOptions::VERSION => MagentoOptions::get(MagentoOptions::VERSION),
             MagentoCloudOptions::INSTALL => MagentoCloudOptions::get(MagentoCloudOptions::INSTALL),
             MagentoCloudOptions::KEY_REUSE => MagentoCloudOptions::get(MagentoCloudOptions::KEY_REUSE),
             MagentoCloudOptions::KEY_CREATE => MagentoCloudOptions::get(MagentoCloudOptions::KEY_CREATE),
