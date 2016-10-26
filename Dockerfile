@@ -1,4 +1,4 @@
-FROM php:7.0.10-fpm
+FROM php:7.0.12-fpm
 MAINTAINER "Magento"
 
 RUN apt-get update && apt-get install -y \
@@ -54,25 +54,25 @@ RUN chown magento2:magento2 /home/magento2/magento2 && \
     chown magento2:magento2 /var/www/magento2
 
 # PHP config
-COPY conf/php.ini /usr/local/etc/php
+ADD conf/php.ini /usr/local/etc/php
 
 # SSH config
 COPY conf/sshd_config /etc/ssh/sshd_config
 RUN chown magento2:magento2 /etc/ssh/ssh_config
 
 # supervisord config
-COPY conf/supervisord.conf /etc/supervisord.conf
+ADD conf/supervisord.conf /etc/supervisord.conf
 
 # php-fpm config
-COPY conf/php-fpm-magento2.conf /usr/local/etc/php-fpm.d/php-fpm-magento2.conf
+ADD conf/php-fpm-magento2.conf /usr/local/etc/php-fpm.d/php-fpm-magento2.conf
 
 # apache config
-COPY conf/apache-default.conf /etc/apache2/sites-enabled/apache-default.conf
+ADD conf/apache-default.conf /etc/apache2/sites-enabled/apache-default.conf
 
 # unison script
-COPY conf/.unison/magento2.prf /root/.unison/magento2.prf
-COPY conf/unison.sh /usr/local/bin/unison.sh
-COPY conf/entrypoint.sh /usr/local/bin/entrypoint.sh
+ADD conf/.unison/magento2.prf /root/.unison/magento2.prf
+ADD conf/unison.sh /usr/local/bin/unison.sh
+ADD conf/entrypoint.sh /usr/local/bin/entrypoint.sh
 RUN chmod +x /usr/local/bin/unison.sh && chmod +x /usr/local/bin/entrypoint.sh
 
 ENV PATH /home/magento2/scripts/:/home/magento2/.magento-cloud/bin:$PATH
@@ -97,7 +97,7 @@ ENV CREATE_SYMLINK_EE 0
 ENV HOST_CE_PATH=""
 ENV EE_DIRNAME=""
 
-ENV MAGENTO_DOWNLOAD_SOURCES_COMPOSER 0
+ENV MAGENTO_DOWNLOAD_SOURCES_COMPOSER 1
 ENV MAGENTO_EDITION="CE"
 ENV MAGENTO_VERSION="2.1.2"
 ENV MAGENTO_SAMPLE_DATA_INSTALL 0
@@ -128,6 +128,6 @@ RUN passwd magento2 -d
 EXPOSE 80 22 44100
 WORKDIR /home/magento2
 
-USER root
+USER magento2
 
 ENTRYPOINT ["/usr/local/bin/entrypoint.sh"]
