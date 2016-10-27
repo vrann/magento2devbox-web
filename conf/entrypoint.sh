@@ -5,7 +5,7 @@ then
     if [ $USE_SHARED_WEBROOT == "0" ]
     then
         echo "[IN PROGRESS] Sync Started." > /var/www/magento2/status.html
-        sed -i 's/^\(\s*DirectoryIndex\s*\).*$/\1status.html/' /etc/apache2/sites-enabled/apache-default.conf
+        sed -i 's/^\(\s*DirectoryIndex\s*\).*$/\1status.html/' /home/magento2/magento2/.htaccess
         service apache2 restart
         echo "[IN PROGRESS] Sync Started. Copying started" > /var/www/magento2/status.html
         chown -R magento2:magento2 /home/magento2/magento2
@@ -25,7 +25,7 @@ then
         unison magento2
 
         echo "[DONE] Sync Finished" > /var/www/magento2/status.html
-        sed -i 's/^\(\s*DirectoryIndex\s*\).*$/\1index.html/' /etc/apache2/sites-enabled/apache-default.conf
+        sed -i 's/^\(\s*DirectoryIndex\s*\).*$/\1index.php/' /var/www/magento2/.htaccess
         service apache2 restart
         rm -rf /var/www/magento2/status.html
         rm -rf /home/magento2/magento2/status.html
