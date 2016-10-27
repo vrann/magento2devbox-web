@@ -48,8 +48,10 @@ class MagentoDownload extends AbstractCommand
     protected function execute(InputInterface $input, OutputInterface $output)
     {
         $useExistingSources = $this->requestOption(MagentoOptions::SOURCES_REUSE, $input, $output);
+        $installFromCloud = $this->requestOption(MagentoCloudOptions::INSTALL, $input, $output);
+        $installFromComposer = $this->requestOption(MagentoOptions::INSTALL_FROM_COMPOSER, $input, $output);
 
-        if (!$useExistingSources && $this->requestOption(MagentoCloudOptions::INSTALL, $input, $output)) {
+        if (!$useExistingSources && $installFromCloud) {
             $this->installFromCloud($input, $output);
         }
 
@@ -63,9 +65,7 @@ class MagentoDownload extends AbstractCommand
 
         $composerJsonExists = file_exists(sprintf('%s/composer.json', $magentoPath));
 
-        if (!$useExistingSources && !$composerJsonExists
-            && !$this->requestOption(MagentoCloudOptions::INSTALL, $input, $output)
-        ) {
+        if (!$useExistingSources && !$composerJsonExists && !$installFromCloud) {
             $edition = strtolower($this->requestOption(MagentoOptions::EDITION, $input, $output)) == 'ee'
                 ? 'enterprise'
                 : 'community';

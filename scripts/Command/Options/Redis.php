@@ -25,20 +25,20 @@ class Redis extends AbstractOptions
             static::CACHE_SETUP => [
                 'initial' => true,
                 'boolean' => true,
-                'default' => true,
+                'default' => (boolean)getenv('USE_REDIS_CACHE'),
                 'description' => 'Whether to use Redis as Magento default cache.',
                 'question' => 'Do you want to use Redis as Magento default cache? %default%'
             ],
             static::SESSION_SETUP => [
                 'initial' => true,
                 'boolean' => true,
-                'default' => true,
+                'default' => (boolean)getenv('USE_REDIS_SESSIONS'),
                 'description' => 'Whether to use Redis for storing sessions.',
                 'question' => 'Do you want to use Redis for storing sessions? %default%'
             ],
             static::FPC_SETUP => [
                 'boolean' => true,
-                'default' => false,
+                'default' => (boolean)getenv('USE_REDIS_FULL_PAGE_CACHE'),
                 'description' => 'Whether to use Redis as Magento full page cache.',
                 'question' => 'Do you want to use Redis as Magento full page cache? %default%'
             ],
