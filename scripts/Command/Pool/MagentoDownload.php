@@ -211,6 +211,7 @@ class MagentoDownload extends AbstractCommand
             MagentoOptions::SOURCES_REUSE => MagentoOptions::get(MagentoOptions::SOURCES_REUSE),
             MagentoOptions::PATH => MagentoOptions::get(MagentoOptions::PATH),
             MagentoOptions::EDITION => MagentoOptions::get(MagentoOptions::EDITION),
+            MagentoOptions::VERSION => MagentoOptions::get(MagentoOptions::VERSION),
             MagentoCloudOptions::INSTALL => MagentoCloudOptions::get(MagentoCloudOptions::INSTALL),
             MagentoCloudOptions::KEY_REUSE => MagentoCloudOptions::get(MagentoCloudOptions::KEY_REUSE),
             MagentoCloudOptions::KEY_CREATE => MagentoCloudOptions::get(MagentoCloudOptions::KEY_CREATE),
@@ -296,7 +297,7 @@ class MagentoDownload extends AbstractCommand
                             $input,
                             $output,
                             true,
-                            'New key will be created. Enter the name of the SSH key'
+                            'New SSH key will be generated and saved to the local file. Enter the name for local file'
                         );
 
                         $this->executeCommands(
@@ -318,7 +319,7 @@ class MagentoDownload extends AbstractCommand
                 $input,
                 $output,
                 false,
-                'New key will be created. Enter the name of the SSH key'
+                'New SSH key will be generated and saved to the local file. Enter the name for local file'
             );
 
             $this->executeCommands(sprintf('ssh-keygen -t rsa -N "" -f /home/magento2/.ssh/%s', $keyName), $output);

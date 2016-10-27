@@ -24,7 +24,7 @@ class Magento extends AbstractOptions
     const GRUNT_COMPILE = 'magento-grunt-compile';
     const DI_COMPILE = 'magento-di-compile';
     const CRON_RUN = 'magento-cron-run';
-    const VERSION = 'version';
+    const VERSION = 'magento-version';
 
     /**
      * {@inheritdoc}

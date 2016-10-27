@@ -1,4 +1,4 @@
-FROM php:7.0.10-fpm
+FROM php:7.0.12-fpm
 MAINTAINER "Magento"
 
 RUN apt-get update && apt-get install -y \
@@ -25,7 +25,8 @@ RUN apt-get update && apt-get install -y \
              cp src/unison src/unison-fsmonitor /usr/local/bin && \
              cd /root && rm -rf /tmp/unison-2.48.4 \
     && docker-php-ext-configure gd --with-freetype-dir=/usr/include/ --with-jpeg-dir=/usr/include/ \
-    && docker-php-ext-install -j$(nproc) mcrypt intl xsl gd zip pdo_mysql opcache soap bcmath \
+    && docker-php-ext-configure hash --with-mhash \
+    && docker-php-ext-install -j$(nproc) mcrypt intl xsl gd zip pdo_mysql opcache soap bcmath json iconv \
     && curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer \
     && pecl install xdebug && docker-php-ext-enable xdebug \
     && echo "xdebug.remote_enable=1" >> /usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini \
@@ -50,73 +51,74 @@ RUN apt-get update && apt-get install -y \
     && rm -r /usr/local/etc/php-fpm.d/* \
     && sed -i 's/www-data/magento2/g' /etc/apache2/envvars
 
-RUN chown magento2:magento2 /home/magento2/magento2 && \
-    chown magento2:magento2 /var/www/magento2
-
 # PHP config
-COPY conf/php.ini /usr/local/etc/php
+ADD conf/php.ini /usr/local/etc/php
 
 # SSH config
 COPY conf/sshd_config /etc/ssh/sshd_config
 RUN chown magento2:magento2 /etc/ssh/ssh_config
 
 # supervisord config
-COPY conf/supervisord.conf /etc/supervisord.conf
+ADD conf/supervisord.conf /etc/supervisord.conf
 
 # php-fpm config
-COPY conf/php-fpm-magento2.conf /usr/local/etc/php-fpm.d/php-fpm-magento2.conf
+ADD conf/php-fpm-magento2.conf /usr/local/etc/php-fpm.d/php-fpm-magento2.conf
 
 # apache config
-COPY conf/apache-default.conf /etc/apache2/sites-enabled/apache-default.conf
+ADD conf/apache-default.conf /etc/apache2/sites-enabled/apache-default.conf
 
 # unison script
-COPY conf/.unison/magento2.prf /root/.unison/magento2.prf
-COPY conf/unison.sh /usr/local/bin/unison.sh
-COPY conf/entrypoint.sh /usr/local/bin/entrypoint.sh
+ADD conf/.unison/magento2.prf /home/magento2/.unison/magento2.prf
+RUN chown -R magento2:magento2 /home/magento2 && \
+    chown -R magento2:magento2 /var/www/magento2
+
+ADD conf/unison.sh /usr/local/bin/unison.sh
+ADD conf/entrypoint.sh /usr/local/bin/entrypoint.sh
 RUN chmod +x /usr/local/bin/unison.sh && chmod +x /usr/local/bin/entrypoint.sh
 
-ENV PATH /home/magento2/scripts/:/home/magento2/.magento-cloud/bin:$PATH
-ENV PATH /var/www/magento2/bin:$PATH
+ENV PATH $PATH:/home/magento2/scripts/:/home/magento2/.magento-cloud/bin
+ENV PATH $PATH:/var/www/magento2/bin
+ENV PHP_EXTRA_CONFIGURE_ARGS="--enable-fpm --with-fpm-user=magento2 --with-fpm-group=magento2"
 
-ENV USE_SHARED_WEBROOT = 1
+ENV USE_SHARED_WEBROOT 1
 ENV SHARED_CODE_PATH="/var/www/magento2"
 ENV WEBROOT_PATH="/var/www/magento2"
 
-ENV USE_RABBITMQ = 0
-ENV USE_REDIS_FULL_PAGE_CACHE = 0
-ENV USE_REDIS_CACHE = 0
-ENV USE_REDIS_SESSIONS = 0
-ENV USE_VARNISH = 0
-ENV USE_ELASTICSEARCH = 0
+#ENV USE_RABBITMQ 0
+#ENV USE_REDIS_FULL_PAGE_CACHE 0
+#ENV USE_REDIS_CACHE 0
+#ENV USE_REDIS_SESSIONS 0
+#ENV USE_VARNISH 0
+#ENV USE_ELASTICSEARCH 0
 
-ENV MAGENTO_PUBLIC_KEY = ""
-ENV MAGENTO_PRIVATE_KEY = ""
+#ENV MAGENTO_PUBLIC_KEY=""
+#ENV MAGENTO_PRIVATE_KEY=""
 
-ENV MAGENTO_USE_SOURCES_IN_HOST = 0
-ENV CREATE_SYMLINK_EE = 0
-ENV HOST_CE_PATH = ""
-ENV EE_DIRNAME = ""
+#ENV MAGENTO_USE_SOURCES_IN_HOST 0
+#ENV CREATE_SYMLINK_EE 0
+#ENV HOST_CE_PATH=""
+#ENV EE_DIRNAME=""
 
-ENV MAGENTO_DOWNLOAD_SOURCES_COMPOSER = 0
-ENV MAGENTO_EDITION = "CE"
-ENV MAGENTO_VERSION = "2.1.2"
-ENV MAGENTO_SAMPLE_DATA_INSTALL = 0
+#ENV MAGENTO_DOWNLOAD_SOURCES_COMPOSER 1
+#ENV MAGENTO_EDITION="CE"
+#ENV MAGENTO_VERSION="2.1.2"
+#ENV MAGENTO_SAMPLE_DATA_INSTALL 0
 
-ENV MAGENTO_DOWNLOAD_SOURCES_CLOUD = 0
-ENV MAGENTO_CLOUD_USERNAME = ""
-ENV MAGENTO_CLOUD_PASSWORD = ""
-ENV MAGENTO_CLOUD_GENERATE_NEW_TOKEN = 0
-ENV MAGENTO_CLOUD_PROJECT = ""
-ENV MAGENTO_CLOUD_BRANCH = ""
+#ENV MAGENTO_DOWNLOAD_SOURCES_CLOUD 0
+#ENV MAGENTO_CLOUD_USERNAME=""
+#ENV MAGENTO_CLOUD_PASSWORD=""
+#ENV MAGENTO_CLOUD_GENERATE_NEW_TOKEN 0
+#ENV MAGENTO_CLOUD_PROJECT=""
+#ENV MAGENTO_CLOUD_BRANCH=""
 
-ENV MAGENTO_CRON_RUN = 1
-ENV MAGENTO_DI_COMPILE = 0
-ENV MAGENTO_GRUNT_COMPILE = 0
-ENV MAGENTO_STATIC_CONTENTS_DEPLOY = 0
+#ENV MAGENTO_CRON_RUN 1
+#ENV MAGENTO_DI_COMPILE 0
+#ENV MAGENTO_GRUNT_COMPILE 0
+#ENV MAGENTO_STATIC_CONTENTS_DEPLOY 0
 
-ENV MAGENTO_BACKEND_PATH = "admin"
-ENV MAGENTO_ADMIN_USER = "admin"
-ENV MAGENTO_ADMIN_PASSWORD = "admin123"
+#ENV MAGENTO_BACKEND_PATH="admin"
+#ENV MAGENTO_ADMIN_USER="admin"
+#ENV MAGENTO_ADMIN_PASSWORD="admin123"
 
 # Initial scripts
 COPY scripts/ /home/magento2/scripts/
