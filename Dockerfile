@@ -51,9 +51,6 @@ RUN apt-get update && apt-get install -y \
     && rm -r /usr/local/etc/php-fpm.d/* \
     && sed -i 's/www-data/magento2/g' /etc/apache2/envvars
 
-RUN chown magento2:magento2 /home/magento2/magento2 && \
-    chown magento2:magento2 /var/www/magento2
-
 # PHP config
 ADD conf/php.ini /usr/local/etc/php
 
@@ -72,7 +69,10 @@ ADD conf/apache-default.conf /etc/apache2/sites-enabled/apache-default.conf
 
 # unison script
 ADD conf/.unison/magento2.prf /home/magento2/.unison/magento2.prf
-RUN chown -R magento2:magento2 /home/magento2/.unison/
+RUN chown -R magento2:magento2 /home/magento2 && \
+    chown -R magento2:magento2 /var/www/magento2 && \
+    chown -R magento2:magento2 /home/magento2/.unison/
+
 ADD conf/unison.sh /usr/local/bin/unison.sh
 ADD conf/entrypoint.sh /usr/local/bin/entrypoint.sh
 RUN chmod +x /usr/local/bin/unison.sh && chmod +x /usr/local/bin/entrypoint.sh
