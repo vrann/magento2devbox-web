@@ -76,8 +76,9 @@ ADD conf/unison.sh /usr/local/bin/unison.sh
 ADD conf/entrypoint.sh /usr/local/bin/entrypoint.sh
 RUN chmod +x /usr/local/bin/unison.sh && chmod +x /usr/local/bin/entrypoint.sh
 
-ENV PATH /home/magento2/scripts/:/home/magento2/.magento-cloud/bin:$PATH
-ENV PATH /var/www/magento2/bin:$PATH
+ENV PATH $PATH:/home/magento2/scripts/:/home/magento2/.magento-cloud/bin
+ENV PATH $PATH:/var/www/magento2/bin
+ENV PHP_EXTRA_CONFIGURE_ARGS="--enable-fpm --with-fpm-user=magento2 --with-fpm-group=magento2"
 
 ENV USE_SHARED_WEBROOT 1
 ENV SHARED_CODE_PATH="/var/www/magento2"
