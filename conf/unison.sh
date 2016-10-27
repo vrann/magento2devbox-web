@@ -4,7 +4,7 @@
 trap 'kill -TERM $PID' TERM INT
 
 # Run unison server
-unison -repeat=watch magento2 &
+su - magento2 -c "unison -repeat=watch magento2 &"
 
 # Wait until the process is stopped
 PID=$!
