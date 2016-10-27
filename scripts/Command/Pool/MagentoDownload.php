@@ -297,7 +297,7 @@ class MagentoDownload extends AbstractCommand
                             $input,
                             $output,
                             true,
-                            'New key will be created. Enter the name of the SSH key'
+                            'New SSH key will be generated and saved to the local file. Enter the name for local file'
                         );
 
                         $this->executeCommands(
@@ -319,7 +319,7 @@ class MagentoDownload extends AbstractCommand
                 $input,
                 $output,
                 false,
-                'New key will be created. Enter the name of the SSH key'
+                'New SSH key will be generated and saved to the local file. Enter the name for local file'
             );
 
             $this->executeCommands(sprintf('ssh-keygen -t rsa -N "" -f /home/magento2/.ssh/%s', $keyName), $output);
