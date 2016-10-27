@@ -218,6 +218,7 @@ class MagentoDownload extends AbstractCommand
     {
         return [
             MagentoOptions::SOURCES_REUSE => MagentoOptions::get(MagentoOptions::SOURCES_REUSE),
+            MagentoOptions::INSTALL_FROM_COMPOSER => MagentoOptions::get(MagentoOptions::INSTALL_FROM_COMPOSER),
             MagentoOptions::PATH => MagentoOptions::get(MagentoOptions::PATH),
             MagentoOptions::EDITION => MagentoOptions::get(MagentoOptions::EDITION),
             MagentoOptions::VERSION => MagentoOptions::get(MagentoOptions::VERSION),

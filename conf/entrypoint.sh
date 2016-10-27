@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 
+rm -rf /var/www/magento2/status.html
+rm -rf /home/magento2/magento2/status.html
 if [ -n $USE_SHARED_WEBROOT ]
 then
     if [ $USE_SHARED_WEBROOT == "0" ]
