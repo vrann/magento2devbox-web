@@ -36,8 +36,8 @@ class MagentoCloud extends AbstractOptions
             static::KEY_REUSE => [
                 'boolean' => true,
                 'default' => true,
-                'description' => 'Whether to use existing SSH key for Magento Cloud.',
-                'question' => 'Do you want to use existing SSH key? %default%'
+                'description' => 'Whether to use existing SSH key from a local file.',
+                'question' => 'Do you want to use existing SSH key from a local file? %default%'
             ],
             static::KEY_CREATE => [
                 'boolean' => true,
@@ -47,8 +47,8 @@ class MagentoCloud extends AbstractOptions
             ],
             static::KEY_NAME => [
                 'default' => 'id_rsa',
-                'description' => 'Name of the SSH key to use with Magento Cloud.',
-                'question' => 'What is the name of the SSH key to use with the Magento Cloud? %default%'
+                'description' => 'Name of the local file with SSH key to use with Magento Cloud.',
+                'question' => 'What is the name of the local file with SSH key to use with Magento Cloud? %default%'
             ],
             static::KEY_SWITCH => [
                 'virtual' => true,
@@ -59,8 +59,9 @@ class MagentoCloud extends AbstractOptions
             static::KEY_ADD => [
                 'boolean' => true,
                 'default' => true,
-                'description' => 'Whether to add SSH key to Magento Cloud.',
-                'question' => 'Do you want to add key to the Magento Cloud? %default%'
+                'description' => 'Whether to add SSH key from created local file to Magento Cloud account.',
+                'question' => 'Do you want to add SSH key from created local file to your Magento Cloud account?'
+                    . ' %default%'
             ],
             static::PROJECT => [
                 'description' => 'Magento Cloud project to clone.',
