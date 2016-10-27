@@ -42,7 +42,7 @@ class Magento extends AbstractOptions
             static::INSTALL_FROM_COMPOSER => [
                 'boolean' => true,
                 'default' => (boolean)getenv('MAGENTO_DOWNLOAD_SOURCES_COMPOSER'),
-                'description' => 'Whether to use existing sources.',
+                'description' => 'Whether to use composer create-project.',
                 'question' => 'Do you want to use existing sources? %default%'
             ],
             static::HOST => [

@@ -51,21 +51,26 @@ class MagentoDownload extends AbstractCommand
         $installFromCloud = $this->requestOption(MagentoCloudOptions::INSTALL, $input, $output);
         $installFromComposer = $this->requestOption(MagentoOptions::INSTALL_FROM_COMPOSER, $input, $output);
 
-        if (!$useExistingSources && $installFromCloud) {
-            $this->installFromCloud($input, $output);
-        }
-
         $magentoPath = $input->getOption(MagentoOptions::PATH);
         $authFile = '/home/magento2/.composer/auth.json';
         $rootAuth = sprintf('%s/auth.json', $magentoPath);
-
         if (!file_exists($authFile) && !(file_exists($rootAuth))) {
             $this->generateAuthFile($authFile, $input, $output);
         }
 
-        $composerJsonExists = file_exists(sprintf('%s/composer.json', $magentoPath));
 
-        if (!$useExistingSources && !$composerJsonExists && !$installFromCloud) {
+        if ($useExistingSources) {
+            $composerJsonExists = file_exists(sprintf('%s/composer.json', $magentoPath));
+            if ($composerJsonExists) {
+                $this->executeCommands(sprintf('cd %s && composer install', $magentoPath), $output);
+            }
+        } else if ($installFromCloud) {
+            $this->installFromCloud($input, $output);
+            $composerJsonExists = file_exists(sprintf('%s/composer.json', $magentoPath));
+            if ($composerJsonExists) {
+                $this->executeCommands(sprintf('cd %s && composer install', $magentoPath), $output);
+            }
+        } else if ($installFromComposer) {
             $edition = strtolower($this->requestOption(MagentoOptions::EDITION, $input, $output)) == 'ee'
                 ? 'enterprise'
                 : 'community';
@@ -74,15 +79,19 @@ class MagentoDownload extends AbstractCommand
             $this->executeCommands(
                 sprintf(
                     'cd %s && composer create-project --repository-url=https://repo.magento.com/'
-                        . ' magento/project-%s-edition%s .',
+                    . ' magento/project-%s-edition%s .',
                     $magentoPath,
                     $edition,
                     $version
                 ),
                 $output
             );
-        } elseif ($composerJsonExists) {
-            $this->executeCommands(sprintf('cd %s && composer install', $magentoPath), $output);
+        } else {
+            throw new \Exception(
+                'You should select where to get Magento sources: from Composer, from Cloud '
+                . 'or to use sources in shared directory. Right now none of the options is selected'
+                . ' Please start from the beginning.'
+            );
         }
 
         if (!Registry::get(static::CHAINED_EXECUTION_FLAG)) {
