@@ -25,7 +25,8 @@ RUN apt-get update && apt-get install -y \
              cp src/unison src/unison-fsmonitor /usr/local/bin && \
              cd /root && rm -rf /tmp/unison-2.48.4 \
     && docker-php-ext-configure gd --with-freetype-dir=/usr/include/ --with-jpeg-dir=/usr/include/ \
-    && docker-php-ext-install -j$(nproc) mcrypt intl xsl gd zip pdo_mysql opcache soap bcmath \
+    && docker-php-ext-configure hash --with-mhash \
+    && docker-php-ext-install -j$(nproc) mcrypt intl xsl gd zip pdo_mysql opcache soap bcmath json iconv \
     && curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer \
     && pecl install xdebug && docker-php-ext-enable xdebug \
     && echo "xdebug.remote_enable=1" >> /usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini \
@@ -128,6 +129,6 @@ RUN passwd magento2 -d
 EXPOSE 80 22 44100
 WORKDIR /home/magento2
 
-USER magento2
+USER root
 
 ENTRYPOINT ["/usr/local/bin/entrypoint.sh"]
