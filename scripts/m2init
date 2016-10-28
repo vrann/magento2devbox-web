@@ -8,7 +8,6 @@ namespace MagentoDevBox;
 
 $blockCommand = true;
 $initStatus = '[BGN] Synchronisation of the webroot and shared code directory started.';
-echo $initStatus . "\n";
 
 while ($blockCommand) {
     if (!file_exists('/var/www/magento2/status.html')) {

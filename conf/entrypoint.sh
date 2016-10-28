@@ -2,6 +2,7 @@
 
 rm -rf /var/www/magento2/status.html
 rm -rf /home/magento2/magento2/status.html
+chown -R magento2:magento2 /var/www/magento2
 if [ -n $USE_SHARED_WEBROOT ]
 then
     if [ $USE_SHARED_WEBROOT == "0" ]
