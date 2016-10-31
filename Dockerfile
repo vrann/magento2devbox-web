@@ -6,6 +6,7 @@ ENV PHP_EXTRA_CONFIGURE_ARGS="--enable-fpm --with-fpm-user=magento2 --with-fpm-g
 RUN apt-get update && apt-get install -y \
     apt-utils \
     sudo \
+    wget \
     cron \
     curl \
     libmcrypt-dev \

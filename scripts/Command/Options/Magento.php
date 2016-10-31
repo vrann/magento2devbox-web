@@ -24,6 +24,7 @@ class Magento extends AbstractOptions
     const DI_COMPILE = 'magento-di-compile';
     const CRON_RUN = 'magento-cron-run';
     const VERSION = 'magento-version';
+    const WARM_UP_STOREFRONT = 'magento-warm-up-storefront';
 
     /**
      * {@inheritdoc}
@@ -106,6 +107,13 @@ class Magento extends AbstractOptions
                 'default' => (boolean)getenv('MAGENTO_CRON_RUN'),
                 'description' => 'Whether to generate crontab file for Magento.',
                 'question' => 'Do you want to generate crontab file for Magento? %default%'
+            ],
+            static::WARM_UP_STOREFRONT => [
+                'boolean' => true,
+                'default' => strlen(getenv('MAGENTO_WARM_UP_STOREFRONT')) > 0 ?
+                    (boolean)getenv('MAGENTO_WARM_UP_STOREFRONT') : true,
+                'description' => 'Whether to warm-up storefront for Magento.',
+                'question' => 'Do you want to warm-up storefront for Magento to speed up first page load? %default%'
             ]
         ];
     }
