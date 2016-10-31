@@ -1,13 +1,4 @@
 #!/usr/bin/env bash
 
-# Gracefully stop the process on 'docker stop'
-trap 'kill -TERM $PID' TERM INT
-
 # Run unison server
-su - magento2 -c "unison -repeat=watch magento2 &"
-
-# Wait until the process is stopped
-PID=$!
-wait $PID
-trap - TERM INT
-wait $PID
+su - magento2 -c "unison -repeat=watch magento2 > /home/magento2/custom_unison.log 2>&1 &"
