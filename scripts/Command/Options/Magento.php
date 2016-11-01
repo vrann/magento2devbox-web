@@ -112,8 +112,8 @@ class Magento extends AbstractOptions
                 'boolean' => true,
                 'default' => strlen(getenv('MAGENTO_WARM_UP_STOREFRONT')) > 0 ?
                     (boolean)getenv('MAGENTO_WARM_UP_STOREFRONT') : true,
-                'description' => 'Whether to warm-up storefront for Magento.',
-                'question' => 'Do you want to warm-up storefront for Magento to speed up first page load? %default%'
+                'description' => 'Whether to warm up storefront for Magento.',
+                'question' => 'Do you want to warm up storefront for Magento to speed up first page load? %default%'
             ]
         ];
     }

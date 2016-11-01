@@ -19,6 +19,21 @@ use Symfony\Component\Console\Output\OutputInterface;
 class MagentoFinalize extends AbstractCommand
 {
     /**
+     * @var string
+     */
+    private $dbConfigScope = 'default';
+
+    /**
+     * @var integer
+     */
+    private $dbConfigScopeId = 0;
+
+    /**
+     * @var string
+     */
+    private $dbConfigPath = 'web/unsecure/base_url';
+
+    /**
      * {@inheritdoc}
      */
     protected function configure()
@@ -161,11 +176,21 @@ class MagentoFinalize extends AbstractCommand
             $input->getOption(DbOptions::PASSWORD),
             $input->getOption(DbOptions::NAME)
         );
-        $statement = $dbConnection->prepare('SELECT `value` FROM `core_config_data` WHERE `config_id`=2 LIMIT 1');
+        $statement = $dbConnection->prepare(
+            'SELECT `value` FROM `core_config_data` WHERE `scope`=? AND `scope_id`=? AND `path`=? LIMIT 1'
+        );
+        $statement->bindParam(1, $this->dbConfigScope, \PDO::PARAM_STR);
+        $statement->bindParam(2, $this->dbConfigScopeId, \PDO::PARAM_INT);
+        $statement->bindParam(3, $this->dbConfigPath, \PDO::PARAM_STR);
         $statement->execute();
         $oldValue = $statement->fetch()['value'];
-        $statement = $dbConnection->prepare('UPDATE `core_config_data` SET `value`=? WHERE `config_id`=2');
+        $statement = $dbConnection->prepare(
+            'UPDATE `core_config_data` SET `value`=? WHERE `scope`=? AND `scope_id`=? AND `path`=?'
+        );
         $statement->bindParam(1, $tmpUrl, \PDO::PARAM_STR);
+        $statement->bindParam(2, $this->dbConfigScope, \PDO::PARAM_STR);
+        $statement->bindParam(3, $this->dbConfigScopeId, \PDO::PARAM_INT);
+        $statement->bindParam(4, $this->dbConfigPath, \PDO::PARAM_STR);
         $statement->execute();
 
         $magentoPath = $input->getOption(MagentoOptions::PATH);
@@ -195,8 +220,13 @@ class MagentoFinalize extends AbstractCommand
             $input->getOption(DbOptions::PASSWORD),
             $input->getOption(DbOptions::NAME)
         );
-        $statement = $dbConnection->prepare('UPDATE `core_config_data` SET `value`=? WHERE `config_id`=2');
+        $statement = $dbConnection->prepare(
+            'UPDATE `core_config_data` SET `value`=? WHERE `scope`=? AND `scope_id`=? AND `path`=?'
+        );
         $statement->bindParam(1, $originalUrl, \PDO::PARAM_STR);
+        $statement->bindParam(2, $this->dbConfigScope, \PDO::PARAM_STR);
+        $statement->bindParam(3, $this->dbConfigScopeId, \PDO::PARAM_INT);
+        $statement->bindParam(4, $this->dbConfigPath, \PDO::PARAM_STR);
         $statement->execute();
 
         $magentoPath = $input->getOption(MagentoOptions::PATH);
