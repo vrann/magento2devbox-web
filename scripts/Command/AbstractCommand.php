@@ -160,6 +160,8 @@ abstract class AbstractCommand extends Command
         }
 
         $defaultValue = $this->getConfigValue('default', $config);
+        $validationPattern = $this->getConfigValue('validationPattern', $config);
+        $validationAttempts = $this->getConfigValue('validationAttempts', $config);
         $isInteractive = $input->isInteractive();
 
         if ((!$isInteractive && $defaultValue !== null
@@ -196,8 +198,20 @@ abstract class AbstractCommand extends Command
         $question = $isBoolean
             ? new ConfirmationQuestion($question, $defaultValue, static::MATCHER_BOOLEAN_TRUE)
             : new Question($question, $defaultValue);
+        if ($validationPattern) {
+            $question->setValidator(function ($value) use ($validationPattern) {
+                $value = trim($value);
+                if (!preg_match($validationPattern, $value)) {
+                    throw new \Exception('Incorrect value');
+                }
+                return $value;
+            });
+        }
+        if ($validationAttempts) {
+            $question->setMaxAttempts($validationAttempts);
+        }
         $input->setInteractive(true);
-        $value = $this->getQuestionHelper()->ask($input, $output, $question);
+        $value = trim($this->getQuestionHelper()->ask($input, $output, $question));
         $input->setInteractive($isInteractive);
 
         if (!$this->getConfigValue('virtual', $config, static::OPTION_DEFAULT_VIRTUAL)) {

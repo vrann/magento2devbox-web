@@ -1,9 +1,12 @@
 FROM php:7.0.12-fpm
 MAINTAINER "Magento"
 
+ENV PHP_EXTRA_CONFIGURE_ARGS="--enable-fpm --with-fpm-user=magento2 --with-fpm-group=magento2"
+
 RUN apt-get update && apt-get install -y \
     apt-utils \
     sudo \
+    wget \
     cron \
     curl \
     libmcrypt-dev \
@@ -45,7 +48,7 @@ RUN apt-get update && apt-get install -y \
     && a2enmod proxy \
     && a2enmod proxy_fcgi \
     && rm -f /etc/apache2/sites-enabled/000-default.conf \
-    && useradd -m -d /home/magento2 magento2 && adduser magento2 sudo \
+    && useradd -m -d /home/magento2 -s /bin/bash magento2 && adduser magento2 sudo \
     && mkdir /home/magento2/magento2 && mkdir /var/www/magento2 \
     && curl -sS https://accounts.magento.cloud/cli/installer -o /home/magento2/installer \
     && rm -r /usr/local/etc/php-fpm.d/* \
@@ -78,7 +81,6 @@ RUN chmod +x /usr/local/bin/unison.sh && chmod +x /usr/local/bin/entrypoint.sh
 
 ENV PATH $PATH:/home/magento2/scripts/:/home/magento2/.magento-cloud/bin
 ENV PATH $PATH:/var/www/magento2/bin
-ENV PHP_EXTRA_CONFIGURE_ARGS="--enable-fpm --with-fpm-user=magento2 --with-fpm-group=magento2"
 
 ENV USE_SHARED_WEBROOT = 1
 ENV SHARED_CODE_PATH="/var/www/magento2"

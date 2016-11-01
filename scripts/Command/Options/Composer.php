@@ -22,12 +22,16 @@ class Composer extends AbstractOptions
             static::PUBLIC_KEY => [
                 'default' => strlen(getenv('MAGENTO_PUBLIC_KEY')) > 0 ? getenv('MAGENTO_PUBLIC_KEY') : null,
                 'description' => 'Composer public key for Magento.',
-                'question' => 'Enter your Magento public key'
+                'question' => 'Enter your Magento public key',
+                'validationPattern' => '/^[\w\d]+$/',
+                'validationAttempts' => 3
             ],
             static::PRIVATE_KEY => [
                 'default' => strlen(getenv('MAGENTO_PRIVATE_KEY')) > 0 ? getenv('MAGENTO_PRIVATE_KEY') : null,
                 'description' => 'Composer private key for Magento.',
-                'question' => 'Enter your Magento private key'
+                'question' => 'Enter your Magento private key',
+                'validationPattern' => '/^[\w\d]+$/',
+                'validationAttempts' => 3
             ]
         ];
     }
