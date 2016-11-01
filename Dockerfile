@@ -37,6 +37,7 @@ RUN apt-get update && apt-get install -y \
     && echo "xdebug.remote_connect_back=1" >> /usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini \
     && echo "xdebug.idekey=PHPSTORM" >> /usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini \
     && echo "xdebug.max_nesting_level=1000" >> /usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini \
+    && chmod 666 /usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini \
     && mkdir /var/run/sshd \
     && apt-get clean && apt-get update && apt-get install -y nodejs \
     && ln -s /usr/bin/nodejs /usr/bin/node \
@@ -124,7 +125,9 @@ ENV WEBROOT_PATH="/var/www/magento2"
 
 # Initial scripts
 COPY scripts/ /home/magento2/scripts/
-RUN cd /home/magento2/scripts && composer install && chmod +x /home/magento2/scripts/m2init
+RUN sed -i 's/^/;/' /usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini \
+    && cd /home/magento2/scripts && composer install && chmod +x /home/magento2/scripts/m2init \
+    && sed -i 's/^;;*//' /usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini
 
 # Delete user password to connect with ssh with empty password
 RUN passwd magento2 -d

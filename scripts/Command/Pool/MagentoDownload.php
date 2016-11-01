@@ -71,14 +71,25 @@ class MagentoDownload extends AbstractCommand
                 : 'community';
             $version = $this->requestOption(MagentoOptions::VERSION, $input, $output);
             $version = strlen($version) > 0 ? ':' . $version : '';
+            $xDebugIniFile = '/usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini';
+            $tmpIniFile = '/tmp/xdebug.ini';
+
             $this->executeCommands(
-                sprintf(
-                    'cd %s && composer create-project --repository-url=https://repo.magento.com/'
-                        . ' magento/project-%s-edition%s .',
-                    $magentoPath,
-                    $edition,
-                    $version
-                ),
+                [
+                    sprintf("sed 's/^/;/' %s > %s", $xDebugIniFile, $tmpIniFile),
+                    sprintf("cat %s > %s", $tmpIniFile, $xDebugIniFile),
+                    sprintf("rm -f %s", $tmpIniFile),
+                    sprintf(
+                        'cd %s && composer create-project --repository-url=https://repo.magento.com/'
+                            . ' magento/project-%s-edition%s .',
+                        $magentoPath,
+                        $edition,
+                        $version
+                    ),
+                    sprintf("sed 's/^;;*//' %s > %s", $xDebugIniFile, $tmpIniFile),
+                    sprintf("cat %s > %s", $tmpIniFile, $xDebugIniFile),
+                    sprintf("rm -f %s", $tmpIniFile),
+                ],
                 $output
             );
         } elseif ($composerJsonExists) {
