@@ -19,16 +19,22 @@ use Symfony\Component\Console\Output\OutputInterface;
 class MagentoFinalize extends AbstractCommand
 {
     /**
+     * Configuration scope in the DB
+     *
      * @var string
      */
     private $dbConfigScope = 'default';
 
     /**
+     * Configuration scope id in the DB
+     *
      * @var integer
      */
     private $dbConfigScopeId = 0;
 
     /**
+     * Configuration path in the DB
+     *
      * @var string
      */
     private $dbConfigPath = 'web/unsecure/base_url';
