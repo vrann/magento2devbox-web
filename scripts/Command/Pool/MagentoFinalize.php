@@ -202,7 +202,7 @@ class MagentoFinalize extends AbstractCommand
         $magentoPath = $input->getOption(MagentoOptions::PATH);
         $this->executeCommands(
             sprintf(
-                '%s/bin/magento cache:clean config',
+                'cd %s && php bin/magento cache:clean config',
                 $magentoPath
             )
         );
@@ -238,7 +238,7 @@ class MagentoFinalize extends AbstractCommand
         $magentoPath = $input->getOption(MagentoOptions::PATH);
         $this->executeCommands(
             sprintf(
-                '%s/bin/magento cache:clean config',
+                'php %s/bin/magento cache:clean config',
                 $magentoPath
             )
         );
