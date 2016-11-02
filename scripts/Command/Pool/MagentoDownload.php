@@ -60,43 +60,41 @@ class MagentoDownload extends AbstractCommand
 
 
         if ($useExistingSources) {
+            xDebugSwitcher::switchOff();
             $composerJsonExists = file_exists(sprintf('%s/composer.json', $magentoPath));
             if ($composerJsonExists) {
                 $this->executeCommands(sprintf('cd %s && composer install', $magentoPath), $output);
             }
+            xDebugSwitcher::switchOn();
         } else if ($installFromCloud) {
+            xDebugSwitcher::switchOff();
             $this->installFromCloud($input, $output);
             $composerJsonExists = file_exists(sprintf('%s/composer.json', $magentoPath));
             if ($composerJsonExists) {
                 $this->executeCommands(sprintf('cd %s && composer install', $magentoPath), $output);
             }
+            xDebugSwitcher::switchOn();
         } else if ($installFromComposer) {
             $edition = strtolower($this->requestOption(MagentoOptions::EDITION, $input, $output)) == 'ee'
                 ? 'enterprise'
                 : 'community';
             $version = $this->requestOption(MagentoOptions::VERSION, $input, $output);
             $version = strlen($version) > 0 ? ':' . $version : '';
-            $xDebugIniFile = '/usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini';
-            $tmpIniFile = '/tmp/xdebug.ini';
 
+            xDebugSwitcher::switchOff();
             $this->executeCommands(
                 [
-                    sprintf("sed 's/^/;/' %s > %s", $xDebugIniFile, $tmpIniFile),
-                    sprintf("cat %s > %s", $tmpIniFile, $xDebugIniFile),
-                    sprintf("rm -f %s", $tmpIniFile),
                     sprintf(
                         'cd %s && composer create-project --repository-url=https://repo.magento.com/'
                         . ' magento/project-%s-edition%s .',
                         $magentoPath,
                         $edition,
                         $version
-                    ),
-                    sprintf("sed 's/^;;*//' %s > %s", $xDebugIniFile, $tmpIniFile),
-                    sprintf("cat %s > %s", $tmpIniFile, $xDebugIniFile),
-                    sprintf("rm -f %s", $tmpIniFile),
+                    )
                 ],
                 $output
             );
+            xDebugSwitcher::switchOn();
         } else {
             throw new \Exception(
                 'You should select where to get Magento sources: from Composer, from Cloud '
@@ -229,7 +227,6 @@ class MagentoDownload extends AbstractCommand
     {
         return [
             MagentoOptions::SOURCES_REUSE => MagentoOptions::get(MagentoOptions::SOURCES_REUSE),
-            MagentoOptions::INSTALL_FROM_COMPOSER => MagentoOptions::get(MagentoOptions::INSTALL_FROM_COMPOSER),
             MagentoOptions::PATH => MagentoOptions::get(MagentoOptions::PATH),
             MagentoOptions::EDITION => MagentoOptions::get(MagentoOptions::EDITION),
             MagentoOptions::VERSION => MagentoOptions::get(MagentoOptions::VERSION),

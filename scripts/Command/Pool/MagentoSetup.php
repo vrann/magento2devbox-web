@@ -11,6 +11,7 @@ use MagentoDevBox\Command\Options\Db as DbOptions;
 use MagentoDevBox\Command\Options\WebServer as WebServerOptions;
 use MagentoDevBox\Command\Options\RabbitMq as RabbitMqOptions;
 use MagentoDevBox\Library\Registry;
+use MagentoDevBox\Library\xDebugSwitcher;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
@@ -101,6 +102,7 @@ class MagentoSetup extends AbstractCommand
         if (!Registry::get(MagentoOptions::SOURCES_REUSE)
             && $this->requestOption(MagentoOptions::SAMPLE_DATA_INSTALL, $input, $output)
         ) {
+            xDebugSwitcher::switchOff();
             $this->executeCommands(
                 [
                     sprintf('cd %s && php bin/magento sampledata:deploy', $magentoPath),
@@ -108,6 +110,7 @@ class MagentoSetup extends AbstractCommand
                 ],
                 $output
             );
+            xDebugSwitcher::switchOn();
         }
 
         Registry::setData(
