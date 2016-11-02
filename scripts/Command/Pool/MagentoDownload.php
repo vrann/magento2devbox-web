@@ -10,6 +10,7 @@ use MagentoDevBox\Command\Options\Magento as MagentoOptions;
 use MagentoDevBox\Command\Options\MagentoCloud as MagentoCloudOptions;
 use MagentoDevBox\Command\Options\Composer as ComposerOptions;
 use MagentoDevBox\Library\Registry;
+use MagentoDevBox\Library\xDebugSwitcher;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
@@ -71,27 +72,21 @@ class MagentoDownload extends AbstractCommand
                 : 'community';
             $version = $this->requestOption(MagentoOptions::VERSION, $input, $output);
             $version = strlen($version) > 0 ? ':' . $version : '';
-            $xDebugIniFile = '/usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini';
-            $tmpIniFile = '/tmp/xdebug.ini';
 
+            xDebugSwitcher::switchOff();
             $this->executeCommands(
                 [
-                    sprintf("sed 's/^/;/' %s > %s", $xDebugIniFile, $tmpIniFile),
-                    sprintf("cat %s > %s", $tmpIniFile, $xDebugIniFile),
-                    sprintf("rm -f %s", $tmpIniFile),
                     sprintf(
                         'cd %s && composer create-project --repository-url=https://repo.magento.com/'
                             . ' magento/project-%s-edition%s .',
                         $magentoPath,
                         $edition,
                         $version
-                    ),
-                    sprintf("sed 's/^;;*//' %s > %s", $xDebugIniFile, $tmpIniFile),
-                    sprintf("cat %s > %s", $tmpIniFile, $xDebugIniFile),
-                    sprintf("rm -f %s", $tmpIniFile),
+                    )
                 ],
                 $output
             );
+            xDebugSwitcher::switchOn();
         } elseif ($composerJsonExists) {
             $this->executeCommands(sprintf('cd %s && composer install', $magentoPath), $output);
         }
