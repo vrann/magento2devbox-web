@@ -18,7 +18,7 @@ then
             echo "[IN PROGRESS] Sync Started." > /var/www/magento2/status.html
             sed -i 's/^\(\s*DirectoryIndex\s*\).*$/\1status.html/' /home/magento2/magento2/.htaccess
             cp /home/magento2/magento2/.htacces /var/www/magento2/
-            chown -R magento2:magento2 /var/www/magento2/.htacces
+            chown magento2:magento2 /var/www/magento2/.htaccess
             service apache2 restart
 
             chown -R magento2:magento2 /var/www/magento2
