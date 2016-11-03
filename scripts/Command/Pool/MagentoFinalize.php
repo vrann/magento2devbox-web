@@ -116,21 +116,13 @@ class MagentoFinalize extends AbstractCommand
         if ($this->requestOption(MagentoOptions::WARM_UP_STOREFRONT, $input, $output)) {
             $storeFrontUrl = $this->getMagentoUrl($input);
             $this->updateApacheConfig($storeFrontUrl);
-            /*$this->executeCommands(
+            $this->executeCommands(
                 [
-                    //restart apache here
+                    'sudo service apache2 restart',
                     sprintf('cd /tmp && wget -E -H -k -K -p %s', $storeFrontUrl)
                 ],
                 $output
-            );*/
-
-            /*
-            $useVarnish = $input->getOption(VarnishOptions::FPC_SETUP);
-            $tmpUrl = $this->prepareTmpUrl($useVarnish);
-            $oldUrl = $this->modifyMagentoUrl($input, $tmpUrl);
-            $this->executeCommands(['cd /tmp && wget -E -H -k -K -p ' . $tmpUrl], $output);
-            $this->restoreMagentoUrl($input, $oldUrl);
-            */
+            );
         }
 
         // setup configs for integration tests
