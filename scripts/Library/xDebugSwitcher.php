@@ -28,10 +28,7 @@ class xDebugSwitcher
     public static function switchOff()
     {
         $command = sprintf(
-            "sed 's/^/;/' %s > %s && cat %s > %s && rm -f %s",
-            static::XDEBUG_CONFIG_FILE,
-            static::TMP_CONFIG_FILE,
-            static::TMP_CONFIG_FILE,
+            "sudo mv %s %s",
             static::XDEBUG_CONFIG_FILE,
             static::TMP_CONFIG_FILE
         );
@@ -46,12 +43,9 @@ class xDebugSwitcher
     public static function switchOn()
     {
         $command = sprintf(
-            "sed 's/^;;*//' %s > %s && cat %s > %s && rm -f %s",
-            static::XDEBUG_CONFIG_FILE,
+            "sudo mv %s %s",
             static::TMP_CONFIG_FILE,
-            static::TMP_CONFIG_FILE,
-            static::XDEBUG_CONFIG_FILE,
-            static::TMP_CONFIG_FILE
+            static::XDEBUG_CONFIG_FILE
         );
         shell_exec($command);
     }

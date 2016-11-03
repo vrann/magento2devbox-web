@@ -7,7 +7,6 @@ namespace MagentoDevBox\Command\Pool;
 
 use MagentoDevBox\Command\AbstractCommand;
 use MagentoDevBox\Command\Options\Magento as MagentoOptions;
-use MagentoDevBox\Command\Options\Varnish as VarnishOptions;
 use MagentoDevBox\Command\Options\Db as DbOptions;
 use MagentoDevBox\Library\Db;
 use Symfony\Component\Console\Input\InputInterface;
@@ -38,6 +37,13 @@ class MagentoFinalize extends AbstractCommand
      * @var string
      */
     private $dbConfigPath = 'web/unsecure/base_url';
+
+    /**
+     * Apache configuration file
+     *
+     * @var string
+     */
+    private $apacheConfigFile = '/etc/apache2/sites-enabled/apache-default.conf';
 
     /**
      * {@inheritdoc}
@@ -108,11 +114,23 @@ class MagentoFinalize extends AbstractCommand
         }
 
         if ($this->requestOption(MagentoOptions::WARM_UP_STOREFRONT, $input, $output)) {
+            $storeFrontUrl = $this->getMagentoUrl($input);
+            $this->updateApacheConfig($storeFrontUrl);
+            /*$this->executeCommands(
+                [
+                    //restart apache here
+                    sprintf('cd /tmp && wget -E -H -k -K -p %s', $storeFrontUrl)
+                ],
+                $output
+            );*/
+
+            /*
             $useVarnish = $input->getOption(VarnishOptions::FPC_SETUP);
             $tmpUrl = $this->prepareTmpUrl($useVarnish);
             $oldUrl = $this->modifyMagentoUrl($input, $tmpUrl);
             $this->executeCommands(['cd /tmp && wget -E -H -k -K -p ' . $tmpUrl], $output);
             $this->restoreMagentoUrl($input, $oldUrl);
+            */
         }
 
         // setup configs for integration tests
@@ -144,7 +162,6 @@ class MagentoFinalize extends AbstractCommand
             MagentoOptions::DI_COMPILE => MagentoOptions::get(MagentoOptions::DI_COMPILE),
             MagentoOptions::CRON_RUN => MagentoOptions::get(MagentoOptions::CRON_RUN),
             MagentoOptions::WARM_UP_STOREFRONT => MagentoOptions::get(MagentoOptions::WARM_UP_STOREFRONT),
-            VarnishOptions::FPC_SETUP => VarnishOptions::get(VarnishOptions::FPC_SETUP),
             DbOptions::HOST => DbOptions::get(DbOptions::HOST),
             DbOptions::USER => DbOptions::get(DbOptions::USER),
             DbOptions::PASSWORD => DbOptions::get(DbOptions::PASSWORD),
@@ -153,28 +170,12 @@ class MagentoFinalize extends AbstractCommand
     }
 
     /**
-     * Prepare magento url for usage inside web container
-     *
-     * @param boolean $useVarnish
-     * @return string
-     */
-    private function prepareTmpUrl($useVarnish)
-    {
-        $url = 'http://';
-        $url .= ($useVarnish) ? 'varnish:6081' : 'localhost';
-        $url .= '/';
-
-        return $url;
-    }
-
-    /**
-     * Change Magento url to temporary
+     * Get Magento url from the db
      *
      * @param InputInterface $input
-     * @param string $tmpUrl
      * @return string
      */
-    private function modifyMagentoUrl(InputInterface $input, $tmpUrl)
+    private function getMagentoUrl(InputInterface $input)
     {
         $dbConnection = Db::getConnection(
             $input->getOption(DbOptions::HOST),
@@ -189,58 +190,22 @@ class MagentoFinalize extends AbstractCommand
         $statement->bindParam(2, $this->dbConfigScopeId, \PDO::PARAM_INT);
         $statement->bindParam(3, $this->dbConfigPath, \PDO::PARAM_STR);
         $statement->execute();
-        $oldValue = $statement->fetch()['value'];
-        $statement = $dbConnection->prepare(
-            'UPDATE `core_config_data` SET `value`=? WHERE `scope`=? AND `scope_id`=? AND `path`=?'
-        );
-        $statement->bindParam(1, $tmpUrl, \PDO::PARAM_STR);
-        $statement->bindParam(2, $this->dbConfigScope, \PDO::PARAM_STR);
-        $statement->bindParam(3, $this->dbConfigScopeId, \PDO::PARAM_INT);
-        $statement->bindParam(4, $this->dbConfigPath, \PDO::PARAM_STR);
-        $statement->execute();
-
-        $magentoPath = $input->getOption(MagentoOptions::PATH);
-        $this->executeCommands(
-            sprintf(
-                'cd %s && php bin/magento cache:clean config',
-                $magentoPath
-            )
-        );
-
-        return $oldValue;
+        return $statement->fetch()['value'];
     }
 
     /**
-     * Restores external Magento url
+     * Update apache config
      *
-     * @param InputInterface $input
-     * @param string $originalUrl
+     * @param $url string
      * @return void
      */
-    private function restoreMagentoUrl(InputInterface $input, $originalUrl)
+    private function updateApacheConfig($url)
     {
-
-        $dbConnection = Db::getConnection(
-            $input->getOption(DbOptions::HOST),
-            $input->getOption(DbOptions::USER),
-            $input->getOption(DbOptions::PASSWORD),
-            $input->getOption(DbOptions::NAME)
-        );
-        $statement = $dbConnection->prepare(
-            'UPDATE `core_config_data` SET `value`=? WHERE `scope`=? AND `scope_id`=? AND `path`=?'
-        );
-        $statement->bindParam(1, $originalUrl, \PDO::PARAM_STR);
-        $statement->bindParam(2, $this->dbConfigScope, \PDO::PARAM_STR);
-        $statement->bindParam(3, $this->dbConfigScopeId, \PDO::PARAM_INT);
-        $statement->bindParam(4, $this->dbConfigPath, \PDO::PARAM_STR);
-        $statement->execute();
-
-        $magentoPath = $input->getOption(MagentoOptions::PATH);
+        $port = parse_url($url, PHP_URL_PORT);
         $this->executeCommands(
-            sprintf(
-                'php %s/bin/magento cache:clean config',
-                $magentoPath
-            )
+            [
+                sprintf('sudo echo -e \'\nListen %s\n\' >> %s', $port, $this->apacheConfigFile),
+            ]
         );
     }
 }
