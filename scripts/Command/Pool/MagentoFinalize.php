@@ -9,6 +9,8 @@ use MagentoDevBox\Command\AbstractCommand;
 use MagentoDevBox\Command\Options\Magento as MagentoOptions;
 use MagentoDevBox\Command\Options\Db as DbOptions;
 use MagentoDevBox\Library\Db;
+use MagentoDevBox\Library\ModuleExistence;
+use MagentoDevBox\Command\Options\ElasticSearch;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
@@ -138,6 +140,10 @@ class MagentoFinalize extends AbstractCommand
             sprintf('%s/dev/tests/integration/etc/install-config-mysql.travis.php.dist', $magentoPath),
             sprintf('%s/dev/tests/integration/etc/install-config-mysql.travis.php', $magentoPath)
         );
+
+        if (ModuleExistence::isModuleExists($input->getOption(MagentoOptions::PATH), ElasticSearch::ELASTIC_MODULE_NAME)) {
+            $this->executeCommands(sprintf('cd %s && php bin/magento indexer:reindex', $magentoPath), $output);
+        }
 
         chmod(sprintf('%s/bin/magento', $magentoPath), 0750);
     }

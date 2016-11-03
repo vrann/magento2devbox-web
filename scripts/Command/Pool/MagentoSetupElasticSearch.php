@@ -10,6 +10,8 @@ use MagentoDevBox\Command\Options\Magento as MagentoOptions;
 use MagentoDevBox\Command\Options\Db as DbOptions;
 use MagentoDevBox\Command\Options\ElasticSearch as ElasticSearchOptions;
 use MagentoDevBox\Library\Db;
+use MagentoDevBox\Library\ModuleExistence;
+use MagentoDevBox\Command\Options\ElasticSearch;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
@@ -35,13 +37,7 @@ class MagentoSetupElasticSearch extends AbstractCommand
      */
     public function execute(InputInterface $input, OutputInterface $output)
     {
-        $elasticModuleExist = exec(
-            sprintf(
-                'cd %s && php bin/magento module:status | grep Magento_Elasticsearch',
-                $input->getOption(MagentoOptions::PATH)
-            )
-        );
-        if (!$elasticModuleExist) {
+        if (!ModuleExistence::isModuleExists($input->getOption(MagentoOptions::PATH), ElasticSearch::ELASTIC_MODULE_NAME)) {
             return;
         }
 

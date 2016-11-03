@@ -12,6 +12,7 @@ class ElasticSearch extends AbstractOptions
 {
     const HOST = 'elastic-host';
     const PORT = 'elastic-port';
+    const ELASTIC_MODULE_NAME = 'Magento_Elasticsearch';
 
     /**
      * {@inheritdoc}
