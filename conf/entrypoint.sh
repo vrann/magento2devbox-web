@@ -10,16 +10,17 @@ then
         # if using custom sources
         if [ "$(ls -A /home/magento2/magento2)" ] && [ ! "$(ls -A /var/www/magento2)" ]
         then
-            while [ -f /home/magento2/magento2/sync-wait ]
-            do
-                echo .
-                sleep 2
-            done
             echo "[IN PROGRESS] Sync Started." > /var/www/magento2/status.html
             sed -i 's/^\(\s*DirectoryIndex\s*\).*$/\1status.html/' /home/magento2/magento2/.htaccess
             cp /home/magento2/magento2/.htacces /var/www/magento2/
             chown magento2:magento2 /var/www/magento2/.htaccess
             service apache2 restart
+
+            while [ -f /home/magento2/magento2/sync-wait ]
+            do
+                echo .
+                sleep 2
+            done
 
             chown -R magento2:magento2 /var/www/magento2
 
