@@ -15,4 +15,5 @@ fastcheck = true
 confirmbigdel = false
 ignore = Path */.git
 ignore = Path */.idea
+ignore = Path */update/vendor/composer/composer/tests/Composer/Test/Autoload/Fixtures/classmap/LargeClass.php
 prefer = /home/magento2
