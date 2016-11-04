@@ -115,6 +115,10 @@ class MagentoFinalize extends AbstractCommand
             $this->executeCommands(['crontab /home/magento2/crontab.sample', 'crontab -l'], $output);
         }
 
+        if (ModuleExistence::isModuleExists($input->getOption(MagentoOptions::PATH), ElasticSearchOptions::ELASTIC_MODULE_NAME)) {
+            $this->executeCommands(sprintf('cd %s && php bin/magento indexer:reindex', $magentoPath), $output);
+        }
+
         if ($this->requestOption(MagentoOptions::WARM_UP_STOREFRONT, $input, $output)) {
             $storeFrontUrl = $this->getMagentoUrl($input);
             $this->updateApacheConfig($storeFrontUrl);
@@ -140,10 +144,6 @@ class MagentoFinalize extends AbstractCommand
             sprintf('%s/dev/tests/integration/etc/install-config-mysql.travis.php.dist', $magentoPath),
             sprintf('%s/dev/tests/integration/etc/install-config-mysql.travis.php', $magentoPath)
         );
-
-        if (ModuleExistence::isModuleExists($input->getOption(MagentoOptions::PATH), ElasticSearchOptions::ELASTIC_MODULE_NAME)) {
-            $this->executeCommands(sprintf('cd %s && php bin/magento indexer:reindex', $magentoPath), $output);
-        }
 
         chmod(sprintf('%s/bin/magento', $magentoPath), 0750);
     }
