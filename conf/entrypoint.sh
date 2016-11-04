@@ -35,12 +35,8 @@ then
 
             echo "[IN PROGRESS] Unison sync started" > /var/www/magento2/status.html
 
-            su - magento2 -c "unison magento2 >> /home/magento2/custom_unison.log"
+            su - magento2 -c "unison magento2 >> /dev/null"
 
-            if [ $? != 0 ]
-            then
-                su - magento2 -c "unison magento2 >> /home/magento2/custom_unison.log"
-            fi
 
             chmod +x /var/www/magento2/bin/magento
 
@@ -51,15 +47,11 @@ then
             rm -rf /var/www/magento2/status.html
             rm -rf /home/magento2/magento2/status.html
         else
-            su - magento2 -c "unison magento2 >> /home/magento2/custom_unison.log"
+            su - magento2 -c "unison magento2 >> /dev/null"
 
-            if [ $? != 0 ]
-            then
-                su - magento2 -c "unison magento2 >> /home/magento2/custom_unison.log"
-            fi
         fi
 
-       su - magento2 -c "unison -repeat=watch magento2 > /home/magento2/custom_unison.log 2>&1 &"
+       su - magento2 -c "unison -repeat=watch magento2 > /dev/null 2>&1 &"
     fi
 fi
 
