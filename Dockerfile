@@ -51,7 +51,7 @@ RUN apt-get update && apt-get install -y \
     && a2enmod proxy_fcgi \
     && rm -f /etc/apache2/sites-enabled/000-default.conf \
     && useradd -m -d /home/magento2 -s /bin/bash magento2 && adduser magento2 sudo \
-    && mkdir /home/magento2/magento2 && mkdir /var/www/magento2 \
+    && mkdir /home/magento2/magento2 && mkdir /var/www/magento2 && chown magento2:magento2 /var/www/magento2 \
     && curl -sS https://accounts.magento.cloud/cli/installer -o /home/magento2/installer \
     && rm -r /usr/local/etc/php-fpm.d/* \
     && sed -i 's/www-data/magento2/g' /etc/apache2/envvars
