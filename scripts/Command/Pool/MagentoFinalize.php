@@ -200,10 +200,14 @@ class MagentoFinalize extends AbstractCommand
     private function updateApacheConfig($url)
     {
         $port = parse_url($url, PHP_URL_PORT);
+        $configContent = file_get_contents($this->apacheConfigFile);
+        if (preg_match('/Listen\s\d+/', $configContent)) {
+            $this->executeCommands(
+                sprintf('sudo sed -i -e \'s/\nListen\s+\d+\n//g\' %s', $this->apacheConfigFile)
+            );
+        }
         $this->executeCommands(
-            [
-                sprintf('sudo echo -e \'\nListen %s\n\' >> %s', $port, $this->apacheConfigFile),
-            ]
+            sprintf('sudo bash -c "echo -e \'\nListen %s\n\' >> %s"', $port, $this->apacheConfigFile)
         );
     }
 }
