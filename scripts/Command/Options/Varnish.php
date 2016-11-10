@@ -14,6 +14,7 @@ class Varnish extends AbstractOptions
     const FPC_SETUP = 'varnish-fpc-setup';
     const CONFIG_PATH = 'varnish-config-path';
     const HOME_PORT = 'varnish-home-port';
+    const HOST = 'varnish-host';
 
     /**
      * {@inheritdoc}
@@ -36,6 +37,11 @@ class Varnish extends AbstractOptions
             static::HOME_PORT => [
                 'description' => 'Varnish port on home machine.',
                 'question' => 'Please enter Varnish port on home machine %default%'
+            ],
+            static::HOST => [
+                'default' => 'varnish',
+                'description' => 'Varnish host',
+                'question' => 'Please enter Varnish host %default%'
             ]
         ];
     }

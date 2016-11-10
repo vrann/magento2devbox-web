@@ -44,6 +44,16 @@ class MagentoSetupVarnish extends AbstractCommand
             return;
         }
 
+        $varnishHost = $this->requestOption(VarnishOptions::HOST, $input, $output);
+        $this->executeCommands(
+            sprintf(
+                'cd %s && php bin/magento setup:config:set --http-cache-hosts=%s:6081',
+                $this->requestOption(MagentoOptions::PATH, $input, $output),
+                $varnishHost
+            ),
+            $output
+        );
+
         $this->saveConfig($input, $output);
 
         require_once sprintf('%s/app/bootstrap.php', $this->requestOption('magento-path', $input, $output));
@@ -57,6 +67,7 @@ class MagentoSetupVarnish extends AbstractCommand
 
         Registry::set(MagentoOptions::PORT, $this->requestOption(VarnishOptions::HOME_PORT, $input, $output));
         Registry::set(VarnishOptions::FPC_INSTALLED, true);
+        Registry::set(VarnishOptions::HOST, $varnishHost);
     }
 
     /**
@@ -78,7 +89,7 @@ class MagentoSetupVarnish extends AbstractCommand
         $dbConnection->exec(
             'DELETE FROM core_config_data'
                 . ' WHERE path = "system/full_page_cache/caching_application" '
-                . ' OR path like "system/full_page_cache/varnish/%";'
+                . ' OR path LIKE "system/full_page_cache/varnish/%";'
         );
 
         $config = [
@@ -123,7 +134,7 @@ class MagentoSetupVarnish extends AbstractCommand
         $this->executeCommands(
             sprintf(
                 'cd %s && php bin/magento cache:clean config',
-                $this->requestOption('magento-path', $input, $output)
+                $this->requestOption(MagentoOptions::PATH, $input, $output)
             ),
             $output
         );
@@ -154,6 +165,7 @@ class MagentoSetupVarnish extends AbstractCommand
             VarnishOptions::FPC_SETUP => VarnishOptions::get(VarnishOptions::FPC_SETUP),
             VarnishOptions::CONFIG_PATH => VarnishOptions::get(VarnishOptions::CONFIG_PATH),
             VarnishOptions::HOME_PORT => VarnishOptions::get(VarnishOptions::HOME_PORT),
+            VarnishOptions::HOST => VarnishOptions::get(VarnishOptions::HOST),
             WebServerOptions::HOST => WebServerOptions::get(WebServerOptions::HOST),
             WebServerOptions::PORT => WebServerOptions::get(WebServerOptions::PORT),
             DbOptions::HOST => DbOptions::get(DbOptions::HOST),
