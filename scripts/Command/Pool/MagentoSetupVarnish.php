@@ -39,10 +39,17 @@ class MagentoSetupVarnish extends AbstractCommand
      */
     protected function execute(InputInterface $input, OutputInterface $output)
     {
+        $markerFile = $input->getOption(VarnishOptions::MARKER_FILE);
         if (Registry::get(VarnishOptions::FPC_INSTALLED)
             || !$this->requestOption(VarnishOptions::FPC_SETUP, $input, $output)) {
+
+            if (file_exists($markerFile)) {
+                unlink($markerFile);
+            }
             return;
         }
+
+        touch($markerFile);
 
         $this->saveConfig($input, $output);
 
@@ -154,6 +161,7 @@ class MagentoSetupVarnish extends AbstractCommand
             VarnishOptions::FPC_SETUP => VarnishOptions::get(VarnishOptions::FPC_SETUP),
             VarnishOptions::CONFIG_PATH => VarnishOptions::get(VarnishOptions::CONFIG_PATH),
             VarnishOptions::HOME_PORT => VarnishOptions::get(VarnishOptions::HOME_PORT),
+            VarnishOptions::MARKER_FILE => VarnishOptions::get(VarnishOptions::MARKER_FILE),
             WebServerOptions::HOST => WebServerOptions::get(WebServerOptions::HOST),
             WebServerOptions::PORT => WebServerOptions::get(WebServerOptions::PORT),
             DbOptions::HOST => DbOptions::get(DbOptions::HOST),
