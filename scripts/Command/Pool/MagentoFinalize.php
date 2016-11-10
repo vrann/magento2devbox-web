@@ -67,6 +67,10 @@ class MagentoFinalize extends AbstractCommand
         $magentoPath = $input->getOption(MagentoOptions::PATH);
         $this->executeCommands(sprintf('cd %s && php bin/magento deploy:mode:set developer', $magentoPath), $output);
 
+        if ($this->requestOption(MagentoOptions::DI_COMPILE, $input, $output)) {
+            $this->executeCommands(sprintf('cd %s && php bin/magento setup:di:compile', $magentoPath), $output);
+        }
+
         if ($this->requestOption(MagentoOptions::STATIC_CONTENTS_DEPLOY, $input, $output)) {
             $this->executeCommands(
                 sprintf('cd %s && php bin/magento setup:static-content:deploy', $magentoPath),
@@ -83,10 +87,6 @@ class MagentoFinalize extends AbstractCommand
                 ],
                 $output
             );
-        }
-
-        if ($this->requestOption(MagentoOptions::DI_COMPILE, $input, $output)) {
-            $this->executeCommands(sprintf('cd %s && php bin/magento setup:di:compile', $magentoPath), $output);
         }
 
         if ($this->requestOption(MagentoOptions::CRON_RUN, $input, $output)) {
