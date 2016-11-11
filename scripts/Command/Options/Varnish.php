@@ -40,7 +40,7 @@ class Varnish extends AbstractOptions
                 'question' => 'Please enter Varnish port on home machine %default%'
             ],
             static::MARKER_FILE => [
-                'default' => '/home/magento2/varnish_used',
+                'default' =>   '/home/magento2/configs/varnish/varnish_used',
                 'description' => 'Varnish usage marker file',
                 'question' => 'Please enter file that will serve as Varnish usage marker %default%'
             ],
