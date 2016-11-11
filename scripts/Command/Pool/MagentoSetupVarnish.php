@@ -70,11 +70,23 @@ class MagentoSetupVarnish extends AbstractCommand
         /** @var Config $config */
         $config = $objectManager->get(Config::class);
         $content = $config->getVclFile(Config::VARNISH_4_CONFIGURATION_PATH);
+        $content = $this->customizeTimeOut($content);
         file_put_contents($this->requestOption(VarnishOptions::CONFIG_PATH, $input, $output), $content);
 
         Registry::set(MagentoOptions::PORT, $this->requestOption(VarnishOptions::HOME_PORT, $input, $output));
         Registry::set(VarnishOptions::FPC_INSTALLED, true);
         Registry::set(VarnishOptions::HOST, $varnishHost);
+    }
+
+    /**
+     * Customize varnish timeout
+     *
+     * @param $content
+     * @return string
+     */
+    private function customizeTimeOut($content)
+    {
+        return preg_replace('/(\.port\s\=\s\"80\"\;)/', "$1\n    .first_byte_timeout = 120s;", $content);
     }
 
     /**

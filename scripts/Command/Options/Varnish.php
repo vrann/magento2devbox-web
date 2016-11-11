@@ -36,8 +36,10 @@ class Varnish extends AbstractOptions
                 'question' => 'Please enter configuration file path for Varnish %default%'
             ],
             static::HOME_PORT => [
+                'default' => 1749,
                 'description' => 'Varnish port on home machine.',
-                'question' => 'Please enter Varnish port on home machine %default%'
+                'question' => 'Please enter Varnish port on home machine.'
+                    . ' See docker-compose.yml -> varnish -> ports -> xxxx:6081, where xxxx is port on home  %default%'
             ],
             static::MARKER_FILE => [
                 'default' => '/home/magento2/varnish_used',

@@ -75,8 +75,6 @@ ADD conf/apache-default.conf /etc/apache2/sites-enabled/apache-default.conf
 
 # unison script
 ADD conf/.unison/magento2.prf /home/magento2/.unison/magento2.prf
-RUN chown -R magento2:magento2 /home/magento2 && \
-    chown -R magento2:magento2 /var/www/magento2
 
 ADD conf/unison.sh /usr/local/bin/unison.sh
 ADD conf/entrypoint.sh /usr/local/bin/entrypoint.sh
@@ -130,6 +128,9 @@ COPY scripts/ /home/magento2/scripts/
 RUN sed -i 's/^/;/' /usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini \
     && cd /home/magento2/scripts && composer install && chmod +x /home/magento2/scripts/m2init \
     && sed -i 's/^;;*//' /usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini
+
+RUN chown -R magento2:magento2 /home/magento2 && \
+    chown -R magento2:magento2 /var/www/magento2
 
 # Delete user password to connect with ssh with empty password
 RUN passwd magento2 -d
