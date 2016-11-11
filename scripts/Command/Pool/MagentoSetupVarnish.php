@@ -44,12 +44,24 @@ class MagentoSetupVarnish extends AbstractCommand
             || !$this->requestOption(VarnishOptions::FPC_SETUP, $input, $output)) {
 
             if (file_exists($markerFile)) {
-                unlink($markerFile);
+                $this->executeCommands(
+                    sprintf(
+                        'unlink %s',
+                        $markerFile
+                    ),
+                    $output
+                );
             }
             return;
         }
 
-        touch($markerFile);
+        $this->executeCommands(
+            sprintf(
+                'touch %s',
+                $markerFile
+            ),
+            $output
+        );
         
         $varnishHost = $this->requestOption(VarnishOptions::HOST, $input, $output);
         $this->executeCommands(

@@ -42,7 +42,7 @@ class Varnish extends AbstractOptions
                     . ' See docker-compose.yml -> varnish -> ports -> xxxx:6081, where xxxx is port on home  %default%'
             ],
             static::MARKER_FILE => [
-                'default' => '/home/magento2/varnish_used',
+                'default' =>   '/home/magento2/configs/varnish/varnish_used',
                 'description' => 'Varnish usage marker file',
                 'question' => 'Please enter file that will serve as Varnish usage marker %default%'
             ],
