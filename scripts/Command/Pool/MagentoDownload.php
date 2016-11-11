@@ -30,6 +30,11 @@ class MagentoDownload extends AbstractCommand
     private $maxAttemptsCount = 10;
 
     /**
+     * @var bool
+     */
+    private $sshKeyIsNew = false;
+
+    /**
      * {@inheritdoc}
      */
     protected function configure()
@@ -125,7 +130,7 @@ class MagentoDownload extends AbstractCommand
             $output
         );
 
-        if ($this->requestOption(MagentoCloudOptions::KEY_ADD, $input, $output)) {
+        if ($this->sshKeyIsNew || $this->requestOption(MagentoCloudOptions::KEY_ADD, $input, $output)) {
             $this->executeCommands(
                 [
                     sprintf('magento-cloud ssh-key:add /home/magento2/.ssh/%s.pub', $keyName),
@@ -310,6 +315,7 @@ class MagentoDownload extends AbstractCommand
                             sprintf('ssh-keygen -t rsa -N "" -f /home/magento2/.ssh/%s', $keyName),
                             $output
                         );
+                        $this->sshKeyIsNew = true;
                     } else {
                         throw new \Exception(
                             'You selected to init project from the Magento Cloud,'
@@ -329,6 +335,7 @@ class MagentoDownload extends AbstractCommand
             );
 
             $this->executeCommands(sprintf('ssh-keygen -t rsa -N "" -f /home/magento2/.ssh/%s', $keyName), $output);
+            $this->sshKeyIsNew = true;
             return $keyName;
         }
     }
