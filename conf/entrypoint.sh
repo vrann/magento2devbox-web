@@ -8,8 +8,8 @@ then
     then
 
         # if using custom sources
-        if [ "$(ls -A /home/magento2/magento2)" ] && [ ! "$(ls -A /var/www/magento2)" ]
-        then
+        #if [ "$(ls -A /home/magento2/magento2)" ] && [ ! "$(ls -A /var/www/magento2)" ]
+        #then
             echo "[IN PROGRESS] Sync Started." > /var/www/magento2/status.html
             sed -i 's/^\(\s*DirectoryIndex\s*\).*$/\1status.html/' /home/magento2/magento2/.htaccess
             cp /home/magento2/magento2/.htacces /var/www/magento2/
@@ -46,10 +46,10 @@ then
             service apache2 restart
             rm -rf /var/www/magento2/status.html
             rm -rf /home/magento2/magento2/status.html
-        else
-            su - magento2 -c "unison magento2 >> /dev/null"
+        #else
+        #    su - magento2 -c "unison magento2 >> /dev/null"
 
-        fi
+        #fi
 
        su - magento2 -c "unison -repeat=watch magento2 > /dev/null 2>&1 &"
     fi
