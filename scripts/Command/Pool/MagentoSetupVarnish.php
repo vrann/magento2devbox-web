@@ -98,7 +98,20 @@ class MagentoSetupVarnish extends AbstractCommand
      */
     private function customizeTimeOut($content)
     {
-        return preg_replace('/(\.port\s\=\s\"80\"\;)/', "$1\n    .first_byte_timeout = 120s;", $content);
+        $content = preg_replace(
+            "/(\.port\s\=\s\"80\"\;\n\})/",
+            "$1\n\nbackend web_setup {\n    .host = \"web\";\n    .port = \"80\";\n    .first_byte_timeout = 600s;\n}",
+            $content
+        );
+
+        $content = preg_replace(
+            '/(sub vcl_recv\s\{)/',
+            "$1\n    set req.backend_hint = default;\n    if (req.url ~ \"/setup\") {\n"
+            . "        set req.backend_hint = web_setup;\n    }",
+            $content
+        );
+
+        return $content;
     }
 
     /**
