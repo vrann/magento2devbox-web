@@ -36,6 +36,9 @@ class MagentoSetupElasticSearch extends AbstractCommand
      */
     public function execute(InputInterface $input, OutputInterface $output)
     {
+        if (!$this->requestOption(ElasticSearchOptions::ES_SETUP, $input, $output)) {
+            return;
+        }
         if (!ModuleExistence::isModuleExists($input->getOption(MagentoOptions::PATH), ElasticSearchOptions::ELASTIC_MODULE_NAME)) {
             return;
         }
@@ -96,6 +99,7 @@ class MagentoSetupElasticSearch extends AbstractCommand
             DbOptions::USER => DbOptions::get(DbOptions::USER),
             DbOptions::PASSWORD => DbOptions::get(DbOptions::PASSWORD),
             DbOptions::NAME => DbOptions::get(DbOptions::NAME),
+            ElasticSearchOptions::ES_SETUP => ElasticSearchOptions::get(ElasticSearchOptions::ES_SETUP),
             ElasticSearchOptions::HOST => ElasticSearchOptions::get(ElasticSearchOptions::HOST),
             ElasticSearchOptions::PORT => ElasticSearchOptions::get(ElasticSearchOptions::PORT)
         ];

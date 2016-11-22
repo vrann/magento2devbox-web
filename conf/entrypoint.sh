@@ -1,18 +1,28 @@
 #!/usr/bin/env bash
 
+rm -rf /var/www/magento2/status.html
+rm -rf /home/magento2/magento2/status.html
 if [ -n $USE_SHARED_WEBROOT ]
 then
     if [ $USE_SHARED_WEBROOT == "0" ]
     then
 
         # if using custom sources
-        if [ "$(ls -A /home/magento2/magento2)" ] && [ ! "$(ls -A /var/www/magento2)" ]
-        then
+        #if [ "$(ls -A /home/magento2/magento2)" ] && [ ! "$(ls -A /var/www/magento2)" ]
+        #then
             echo "[IN PROGRESS] Sync Started." > /var/www/magento2/status.html
             sed -i 's/^\(\s*DirectoryIndex\s*\).*$/\1status.html/' /home/magento2/magento2/.htaccess
             cp /home/magento2/magento2/.htacces /var/www/magento2/
             chown magento2:magento2 /var/www/magento2/.htaccess
             service apache2 start
+
+            while [ -f /home/magento2/magento2/sync-wait ]
+            do
+                echo .
+                sleep 2
+            done
+
+            chown -R magento2:magento2 /var/www/magento2
 
             if [ -n $CREATE_SYMLINK_EE ]
             then
@@ -25,7 +35,8 @@ then
 
             echo "[IN PROGRESS] Unison sync started" > /var/www/magento2/status.html
 
-            (su - magento2 -c 'unison magento2') || (su - magento2 -c 'unison magento2')
+            su - magento2 -c "unison magento2 >> /dev/null"
+
 
             chmod +x /var/www/magento2/bin/magento
 
@@ -34,11 +45,12 @@ then
             sed -i 's/^\(\s*DirectoryIndex\s*\).*$/\1index.php/' /var/www/magento2/.htaccess
             rm -rf /var/www/magento2/status.html
             rm -rf /home/magento2/magento2/status.html
+        #else
+        #    su - magento2 -c "unison magento2 >> /dev/null"
 
-            su - magento2 -c 'unison -repeat=watch magento2' &
-        else
-            ((su - magento2 -c 'unison magento2') || (su - magento2 -c 'unison magento2'); (su - magento2 -c 'unison -repeat=watch magento2')) &
-        fi
+        #fi
+
+       su - magento2 -c "unison -repeat=watch magento2 > /dev/null 2>&1 &"
     fi
 fi
 

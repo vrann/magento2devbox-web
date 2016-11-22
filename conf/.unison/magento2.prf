@@ -8,6 +8,7 @@ path = magento2
 
 # Params
 fastercheckUNSAFE = true
+ignorelocks = true
 numericids = false
 log = true
 batch = true

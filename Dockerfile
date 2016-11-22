@@ -7,6 +7,7 @@ RUN apt-get update && apt-get install -y \
     apt-utils \
     sudo \
     wget \
+    unzip \
     cron \
     curl \
     libmcrypt-dev \
@@ -32,11 +33,7 @@ RUN apt-get update && apt-get install -y \
     && docker-php-ext-install -j$(nproc) mcrypt intl xsl gd zip pdo_mysql opcache soap bcmath json iconv \
     && curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer \
     && pecl install xdebug && docker-php-ext-enable xdebug \
-    && echo "xdebug.remote_enable=1" >> /usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini \
-    && echo "xdebug.remote_port=9000" >> /usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini \
-    && echo "xdebug.remote_connect_back=1" >> /usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini \
-    && echo "xdebug.idekey=PHPSTORM" >> /usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini \
-    && echo "xdebug.max_nesting_level=1000" >> /usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini \
+ && echo "# change xdebug config in /usr/local/etc/php/php.ini" >> /usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini \
     && chmod 666 /usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini \
     && mkdir /var/run/sshd \
     && apt-get clean && apt-get update && apt-get install -y nodejs \
@@ -83,9 +80,25 @@ RUN chmod +x /usr/local/bin/unison.sh && chmod +x /usr/local/bin/entrypoint.sh
 ENV PATH $PATH:/home/magento2/scripts/:/home/magento2/.magento-cloud/bin
 ENV PATH $PATH:/var/www/magento2/bin
 
-ENV USE_SHARED_WEBROOT 1
+ENV USE_SHARED_WEBROOT = 1
 ENV SHARED_CODE_PATH="/var/www/magento2"
 ENV WEBROOT_PATH="/var/www/magento2"
+
+RUN mkdir /windows \
+ && cd /windows \
+ && curl -L -o unison-windows.zip https://www.irif.fr/~vouillon/unison/unison%202.48.4.zip \
+ && unzip unison-windows.zip \
+ && rm unison-windows.zip \
+ && mv 'unison 2.48.4 text.exe' unison.exe \
+ && rm 'unison 2.48.4 GTK.exe' \
+ && chown -R magento2:magento2 .
+
+RUN mkdir /mac-osx \
+ && cd /mac-osx \
+ && curl -L -o unison-mac-osx.zip http://unison-binaries.inria.fr/files/Unison-OS-X-2.48.15.zip \
+ && unzip unison-mac-osx.zip \
+ && rm unison-mac-osx.zip \
+ && chown -R magento2:magento2 .
 
 #ENV USE_RABBITMQ 0
 #ENV USE_REDIS_FULL_PAGE_CACHE 0
@@ -108,11 +121,11 @@ ENV WEBROOT_PATH="/var/www/magento2"
 #ENV MAGENTO_SAMPLE_DATA_INSTALL 0
 
 #ENV MAGENTO_DOWNLOAD_SOURCES_CLOUD 0
-#ENV MAGENTO_CLOUD_USERNAME=""
-#ENV MAGENTO_CLOUD_PASSWORD=""
-#ENV MAGENTO_CLOUD_GENERATE_NEW_TOKEN 0
-#ENV MAGENTO_CLOUD_PROJECT=""
-#ENV MAGENTO_CLOUD_BRANCH=""
+#ENV MCLOUD_USERNAME=""
+#ENV MCLOUD_PASSWORD=""
+#ENV MCLOUD_GENERATE_NEW_TOKEN 0
+#ENV MCLOUD_PROJECT=""
+#ENV MCLOUD_BRANCH=""
 
 #ENV MAGENTO_CRON_RUN 1
 #ENV MAGENTO_DI_COMPILE 0
