@@ -36,14 +36,15 @@ class Magento extends AbstractOptions
             static::SOURCES_REUSE => [
                 'initial' => true,
                 'boolean' => true,
-                'default' => (boolean)getenv('MAGENTO_USE_SOURCES_IN_HOST'),
+                'default' => strlen(getenv('MAGENTO_USE_SOURCES_IN_HOST')) > 0 ?
+                    (boolean)getenv('MAGENTO_USE_SOURCES_IN_HOST') : false,
                 'description' => 'Whether to use existing sources.',
                 'question' => 'Do you want to use existing sources? %default%'
             ],
             static::INSTALL_FROM_COMPOSER => [
                 'boolean' => true,
-                'default' => strlen(getenv('MAGENTO_DOWNLOAD_SOURCES_COMPOSER')) > 0
-                    ? (boolean)getenv('MAGENTO_DOWNLOAD_SOURCES_COMPOSER') : true,
+                'default' => strlen(getenv('MAGENTO_DOWNLOAD_SOURCES_COMPOSER')) > 0 ?
+                    (boolean)getenv('MAGENTO_DOWNLOAD_SOURCES_COMPOSER') : true,
                 'description' => 'Whether to use composer create-project.',
                 'question' => 'Do you want to use composer installation? %default%'
             ],
@@ -88,31 +89,36 @@ class Magento extends AbstractOptions
             ],
             static::SAMPLE_DATA_INSTALL => [
                 'boolean' => true,
-                'default' => (boolean)getenv('MAGENTO_SAMPLE_DATA_INSTALL'),
+                'default' => strlen(getenv('MAGENTO_SAMPLE_DATA_INSTALL')) > 0 ?
+                    (boolean)getenv('MAGENTO_SAMPLE_DATA_INSTALL') : false,
                 'description' => 'Whether to install Sample Data.',
                 'question' => 'Do you want to install Sample Data? %default%'
             ],
             static::STATIC_CONTENTS_DEPLOY => [
                 'boolean' => true,
-                'default' => (boolean)getenv('MAGENTO_STATIC_CONTENTS_DEPLOY'),
+                'default' => strlen(getenv('MAGENTO_STATIC_CONTENTS_DEPLOY')) > 0 ?
+                    (boolean)getenv('MAGENTO_STATIC_CONTENTS_DEPLOY') : false,
                 'description' => 'Whether to pre-deploy all static contents.',
                 'question' => 'Do you want to pre-deploy all static assets? %default%'
             ],
             static::GRUNT_COMPILE => [
                 'boolean' => true,
-                'default' => (boolean)getenv('MAGENTO_GRUNT_COMPILE'),
+                'default' => strlen(getenv('MAGENTO_GRUNT_COMPILE')) > 0 ?
+                    (boolean)getenv('MAGENTO_GRUNT_COMPILE') : false,
                 'description' => 'Whether to compile CSS out of LESS via Grunt.',
                 'question' => 'Do you want to compile CSS out of LESS via Grunt? %default%'
             ],
             static::DI_COMPILE => [
                 'boolean' => true,
-                'default' => (boolean)getenv('MAGENTO_DI_COMPILE'),
+                'default' => strlen(getenv('MAGENTO_DI_COMPILE')) > 0 ?
+                    (boolean)getenv('MAGENTO_DI_COMPILE') : false,
                 'description' => 'Whether to create generated files beforehand.',
                 'question' => 'Do you want to create generated files beforehand? %default%'
             ],
             static::CRON_RUN => [
                 'boolean' => true,
-                'default' => (boolean)getenv('MAGENTO_CRON_RUN'),
+                'default' => strlen(getenv('MAGENTO_CRON_RUN')) > 0 ?
+                    (boolean)getenv('MAGENTO_CRON_RUN') : false,
                 'description' => 'Whether to generate crontab file for Magento.',
                 'question' => 'Do you want to generate crontab file for Magento? %default%'
             ],
