@@ -64,15 +64,8 @@ class MagentoSetupVarnish extends AbstractCommand
         );
         
         $varnishHost = $this->requestOption(VarnishOptions::HOST, $input, $output);
-        $this->executeCommands(
-            sprintf(
-                'cd %s && php bin/magento setup:config:set --http-cache-hosts=%s:6081',
-                $this->requestOption(MagentoOptions::PATH, $input, $output),
-                $varnishHost
-            ),
-            $output
-        );
 
+        $this->setHttpCacheHost($input, $output, $varnishHost);
         $this->saveConfig($input, $output);
 
         require_once sprintf('%s/app/bootstrap.php', $this->requestOption('magento-path', $input, $output));
@@ -221,5 +214,25 @@ class MagentoSetupVarnish extends AbstractCommand
             MagentoOptions::HOST => MagentoOptions::get(MagentoOptions::HOST),
             MagentoOptions::PATH => MagentoOptions::get(MagentoOptions::PATH)
         ];
+    }
+
+    /**
+     * Set HTTP cache host
+     *
+     * Command php bin/magento setup:config:set --http-cache-hosts=%s:6081' is not used by intense
+     * because of bug in 2.0.0 branch which corrupt structure of env.php
+     *
+     * @param InputInterface $input
+     * @param OutputInterface $output
+     */
+    private function setHttpCacheHost(InputInterface $input, OutputInterface $output, $varnishHost)
+    {
+        $envPath = sprintf('%s/app/etc/env.php', $this->requestOption(MagentoOptions::PATH, $input, $output));
+        $env = include $envPath;
+        $env['http_cache_hosts'][] = [
+            'host' => $varnishHost,
+            'port' => '6081',
+        ];
+        file_put_contents($envPath, sprintf("<?php\n return %s;", var_export($env, true)));
     }
 }
