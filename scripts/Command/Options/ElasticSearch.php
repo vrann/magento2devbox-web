@@ -24,7 +24,7 @@ class ElasticSearch extends AbstractOptions
             static::ES_SETUP => [
                 'initial' => true,
                 'boolean' => true,
-                'default' => strlen(getenv('USE_ELASTICSEARCH')) > 0 ? (boolean)getenv('USE_ELASTICSEARCH') : true,
+                'default' => strlen(getenv('USE_ELASTICSEARCH')) > 0 ? (boolean)getenv('USE_ELASTICSEARCH') : false,
                 'description' => 'Whether to use ElasticSearch as the search engine.',
                 'question' => 'Do you want to use ElasticSearch as the Magento search engine? %default%'
             ],
