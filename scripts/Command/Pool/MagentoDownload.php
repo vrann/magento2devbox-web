@@ -57,6 +57,13 @@ class MagentoDownload extends AbstractCommand
         $installFromCloud = $this->requestOption(MagentoCloudOptions::INSTALL, $input, $output);
         $installFromComposer = $this->requestOption(MagentoOptions::INSTALL_FROM_COMPOSER, $input, $output);
 
+        $statePath = $input->getOption(MagentoOptions::STATE_PATH);
+        $enableSyncMarker = $input->getOption(MagentoOptions::ENABLE_SYNC_MARKER);
+        $syncMarkerPath =  $statePath . '/' . $enableSyncMarker;
+        if ($enableSyncMarker && file_exists($syncMarkerPath)) {
+            $this->executeCommands(sprintf('unlink %s', $syncMarkerPath), $output);
+        }
+
         $magentoPath = $input->getOption(MagentoOptions::PATH);
         $authFile = '/home/magento2/.composer/auth.json';
         $rootAuth = sprintf('%s/auth.json', $magentoPath);
@@ -248,7 +255,9 @@ class MagentoDownload extends AbstractCommand
             MagentoCloudOptions::BRANCH => MagentoCloudOptions::get(MagentoCloudOptions::BRANCH),
             MagentoCloudOptions::BRANCH_SKIP => MagentoCloudOptions::get(MagentoCloudOptions::BRANCH_SKIP),
             ComposerOptions::PUBLIC_KEY => ComposerOptions::get(ComposerOptions::PUBLIC_KEY),
-            ComposerOptions::PRIVATE_KEY => ComposerOptions::get(ComposerOptions::PRIVATE_KEY)
+            ComposerOptions::PRIVATE_KEY => ComposerOptions::get(ComposerOptions::PRIVATE_KEY),
+            MagentoOptions::STATE_PATH => MagentoOptions::get(MagentoOptions::STATE_PATH),
+            MagentoOptions::ENABLE_SYNC_MARKER => MagentoOptions::get(MagentoOptions::ENABLE_SYNC_MARKER)
         ];
     }
 

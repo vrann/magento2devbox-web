@@ -26,6 +26,8 @@ class Magento extends AbstractOptions
     const CRON_RUN = 'magento-cron-run';
     const VERSION = 'magento-version';
     const WARM_UP_STOREFRONT = 'magento-warm-up-storefront';
+    const STATE_PATH = 'magento-state-path';
+    const ENABLE_SYNC_MARKER = 'magento-enable-sync-marker';
 
     /**
      * {@inheritdoc}
@@ -128,6 +130,18 @@ class Magento extends AbstractOptions
                     (boolean)getenv('MAGENTO_WARM_UP_STOREFRONT') : true,
                 'description' => 'Whether to warm up storefront for Magento.',
                 'question' => 'Do you want to warm up storefront for Magento to speed up first page load? %default%'
+            ],
+            static::STATE_PATH => [
+                'default' => strlen(getenv('MAGENTO_STATE_PATH')) > 0 ?
+                    getenv('MAGENTO_STATE_PATH') : '/home/magento2/state',
+                'description' => 'Magento state storage path.',
+                'question' => 'Please enter state storage path %default%'
+            ],
+            static::ENABLE_SYNC_MARKER => [
+                'default' => strlen(getenv('MAGENTO_ENABLE_SYNC_MARKER')) > 0 ?
+                    getenv('MAGENTO_ENABLE_SYNC_MARKER') : false,
+                'description' => 'Magento sync state marker file.',
+                'question' => 'Please enter sync state marker file %default%'
             ]
         ];
     }

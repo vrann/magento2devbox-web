@@ -54,6 +54,7 @@ RUN apt-get update && apt-get install -y \
     && touch /etc/sudoers.d/privacy \
     && echo "Defaults        lecture = never" >> /etc/sudoers.d/privacy \
     && mkdir /home/magento2/magento2 && mkdir /var/www/magento2 \
+    && mkdir /home/magento2/state \
     && curl -sS https://accounts.magento.cloud/cli/installer -o /home/magento2/installer \
     && rm -r /usr/local/etc/php-fpm.d/* \
     && sed -i 's/www-data/magento2/g' /etc/apache2/envvars
@@ -116,7 +117,7 @@ RUN chown -R magento2:magento2 /home/magento2 && \
 # Delete user password to connect with ssh with empty password
 RUN passwd magento2 -d
 
-EXPOSE 80 22 44100
+EXPOSE 80 22 5000 44100
 WORKDIR /home/magento2
 
 USER root
