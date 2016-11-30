@@ -26,7 +26,7 @@ class Varnish extends AbstractOptions
             static::FPC_SETUP => [
                 'initial' => true,
                 'boolean' => true,
-                'default' => strlen(getenv('USE_VARNISH')) > 0 ? (boolean)getenv('USE_VARNISH') : true,
+                'default' => static::getDefaultValue('USE_VARNISH', true),
                 'description' => 'Whether to use Varnish as Magento full page cache.',
                 'question' => 'Do you want to use Varnish as Magento full page cache? %default%'
             ],
