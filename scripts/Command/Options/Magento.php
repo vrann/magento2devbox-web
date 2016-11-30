@@ -11,7 +11,6 @@ namespace MagentoDevBox\Command\Options;
 class Magento extends AbstractOptions
 {
     const SOURCES_REUSE = 'magento-sources-reuse';
-    const INSTALL_FROM_COMPOSER = 'install-from-composer';
     const HOST = 'magento-host';
     const PORT = 'magento-port';
     const PATH = 'magento-path';
@@ -40,13 +39,6 @@ class Magento extends AbstractOptions
                     (boolean)getenv('MAGENTO_USE_SOURCES_IN_HOST') : false,
                 'description' => 'Whether to use existing sources.',
                 'question' => 'Do you want to use existing sources? %default%'
-            ],
-            static::INSTALL_FROM_COMPOSER => [
-                'boolean' => true,
-                'default' => strlen(getenv('MAGENTO_DOWNLOAD_SOURCES_COMPOSER')) > 0 ?
-                    (boolean)getenv('MAGENTO_DOWNLOAD_SOURCES_COMPOSER') : true,
-                'description' => 'Whether to use composer create-project.',
-                'question' => 'Do you want to use composer installation? %default%'
             ],
             static::HOST => [
                 'default' => '127.0.0.1',
