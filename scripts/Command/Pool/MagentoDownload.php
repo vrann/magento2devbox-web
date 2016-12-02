@@ -10,7 +10,7 @@ use MagentoDevBox\Command\Options\Magento as MagentoOptions;
 use MagentoDevBox\Command\Options\MagentoCloud as MagentoCloudOptions;
 use MagentoDevBox\Command\Options\Composer as ComposerOptions;
 use MagentoDevBox\Library\Registry;
-use MagentoDevBox\Library\xDebugSwitcher;
+use MagentoDevBox\Library\XDebugSwitcher;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
@@ -73,20 +73,20 @@ class MagentoDownload extends AbstractCommand
 
 
         if ($useExistingSources) {
-            xDebugSwitcher::switchOff();
+            XDebugSwitcher::switchOff();
             $composerJsonExists = file_exists(sprintf('%s/composer.json', $magentoPath));
             if ($composerJsonExists) {
                 $this->executeCommands(sprintf('cd %s && composer install', $magentoPath), $output);
             }
-            xDebugSwitcher::switchOn();
+            XDebugSwitcher::switchOn();
         } else if ($installFromCloud) {
-            xDebugSwitcher::switchOff();
+            XDebugSwitcher::switchOff();
             $this->installFromCloud($input, $output);
             $composerJsonExists = file_exists(sprintf('%s/composer.json', $magentoPath));
             if ($composerJsonExists) {
                 $this->executeCommands(sprintf('cd %s && composer install', $magentoPath), $output);
             }
-            xDebugSwitcher::switchOn();
+            XDebugSwitcher::switchOn();
         } else if ($installFromComposer) {
             $edition = strtolower($this->requestOption(MagentoOptions::EDITION, $input, $output)) == 'ee'
                 ? 'enterprise'
@@ -94,7 +94,7 @@ class MagentoDownload extends AbstractCommand
             $version = $this->requestOption(MagentoOptions::VERSION, $input, $output);
             $version = strlen($version) > 0 ? ':' . $version : '';
 
-            xDebugSwitcher::switchOff();
+            XDebugSwitcher::switchOff();
             $this->executeCommands(
                 [
                     sprintf(
@@ -107,7 +107,7 @@ class MagentoDownload extends AbstractCommand
                 ],
                 $output
             );
-            xDebugSwitcher::switchOn();
+            XDebugSwitcher::switchOn();
         } else {
             throw new \Exception(
                 'You should select where to get Magento sources: from Composer, from Cloud '

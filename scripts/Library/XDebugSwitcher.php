@@ -8,7 +8,7 @@ namespace MagentoDevBox\Library;
 /**
  * Class for switch xDebug for cli
  */
-class xDebugSwitcher
+class XDebugSwitcher
 {
     /**
      * xDebug .ini file path
