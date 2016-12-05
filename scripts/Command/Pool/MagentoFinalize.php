@@ -131,10 +131,10 @@ class MagentoFinalize extends AbstractCommand
             );
         }
 
-        $statePath = $input->getOption(MagentoOptions::STATE_PATH);
-        $enableSyncMarker = $this->requestOption(MagentoOptions::ENABLE_SYNC_MARKER, $input, $output);
+        $enableSyncMarker = $input->getOption(MagentoOptions::ENABLE_SYNC_MARKER);
 
-        if ($enableSyncMarker) {
+        if ((boolean)$enableSyncMarker) {
+            $statePath = $input->getOption(MagentoOptions::STATE_PATH);
             $syncMarkerPath =  $statePath . '/' . $enableSyncMarker;
 
             if (!file_exists($syncMarkerPath)) {

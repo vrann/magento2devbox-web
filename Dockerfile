@@ -88,6 +88,7 @@ ENV PATH $PATH:/var/www/magento2/bin
 ENV USE_SHARED_WEBROOT 1
 ENV SHARED_CODE_PATH /var/www/magento2
 ENV WEBROOT_PATH /var/www/magento2
+ENV MAGENTO_ENABLE_SYNC_MARKER 0
 
 RUN mkdir /windows \
  && cd /windows \

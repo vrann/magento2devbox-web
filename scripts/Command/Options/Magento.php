@@ -122,7 +122,7 @@ class Magento extends AbstractOptions
                 'question' => 'Please enter state storage path %default%'
             ],
             static::ENABLE_SYNC_MARKER => [
-                'default' => static::getDefaultValue('MAGENTO_ENABLE_SYNC_MARKER', ''),
+                'default' => static::getDefaultValue('MAGENTO_ENABLE_SYNC_MARKER', 0),
                 'description' => 'Magento sync state marker file.',
                 'question' => 'Please enter sync state marker file %default%'
             ]
