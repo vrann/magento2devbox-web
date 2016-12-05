@@ -11,6 +11,7 @@ namespace MagentoDevBox\Command\Options;
 class Magento extends AbstractOptions
 {
     const SOURCES_REUSE = 'magento-sources-reuse';
+    const INSTALL_FROM_COMPOSER = 'install-from-composer';
     const HOST = 'magento-host';
     const PORT = 'magento-port';
     const PATH = 'magento-path';
