@@ -132,10 +132,14 @@ class MagentoFinalize extends AbstractCommand
         }
 
         $statePath = $input->getOption(MagentoOptions::STATE_PATH);
-        $enableSyncMarker = $input->getOption(MagentoOptions::ENABLE_SYNC_MARKER);
-        $syncMarkerPath =  $statePath . '/' . $enableSyncMarker;
-        if ($enableSyncMarker && !file_exists($syncMarkerPath)) {
-            $this->executeCommands(sprintf('touch %s', $syncMarkerPath), $output);
+        $enableSyncMarker = $this->requestOption(MagentoOptions::ENABLE_SYNC_MARKER, $input, $output);
+
+        if ($enableSyncMarker) {
+            $syncMarkerPath =  $statePath . '/' . $enableSyncMarker;
+
+            if (!file_exists($syncMarkerPath)) {
+                $this->executeCommands(sprintf('touch %s', $syncMarkerPath), $output);
+            }
         }
 
         // setup configs for integration tests
@@ -171,8 +175,7 @@ class MagentoFinalize extends AbstractCommand
             DbOptions::USER => DbOptions::get(DbOptions::USER),
             DbOptions::PASSWORD => DbOptions::get(DbOptions::PASSWORD),
             DbOptions::NAME => DbOptions::get(DbOptions::NAME),
-            MagentoOptions::STATE_PATH => MagentoOptions::get(MagentoOptions::STATE_PATH),
-            MagentoOptions::ENABLE_SYNC_MARKER => MagentoOptions::get(MagentoOptions::ENABLE_SYNC_MARKER)
+            MagentoOptions::STATE_PATH => MagentoOptions::get(MagentoOptions::STATE_PATH)
         ];
     }
 

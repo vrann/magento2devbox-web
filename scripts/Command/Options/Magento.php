@@ -139,7 +139,7 @@ class Magento extends AbstractOptions
             ],
             static::ENABLE_SYNC_MARKER => [
                 'default' => strlen(getenv('MAGENTO_ENABLE_SYNC_MARKER')) > 0 ?
-                    getenv('MAGENTO_ENABLE_SYNC_MARKER') : false,
+                    getenv('MAGENTO_ENABLE_SYNC_MARKER') : '',
                 'description' => 'Magento sync state marker file.',
                 'question' => 'Please enter sync state marker file %default%'
             ]

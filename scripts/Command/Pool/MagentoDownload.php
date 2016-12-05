@@ -58,10 +58,13 @@ class MagentoDownload extends AbstractCommand
         $installFromComposer = $this->requestOption(MagentoOptions::INSTALL_FROM_COMPOSER, $input, $output);
 
         $statePath = $input->getOption(MagentoOptions::STATE_PATH);
-        $enableSyncMarker = $input->getOption(MagentoOptions::ENABLE_SYNC_MARKER);
-        $syncMarkerPath =  $statePath . '/' . $enableSyncMarker;
-        if ($enableSyncMarker && file_exists($syncMarkerPath)) {
-            $this->executeCommands(sprintf('unlink %s', $syncMarkerPath), $output);
+        $enableSyncMarker = $this->requestOption(MagentoOptions::ENABLE_SYNC_MARKER, $input, $output);
+        if ($enableSyncMarker) {
+            $syncMarkerPath =  $statePath . '/' . $enableSyncMarker;
+
+            if (!file_exists($syncMarkerPath)) {
+                $this->executeCommands(sprintf('unlink %s', $syncMarkerPath), $output);
+            }
         }
 
         $magentoPath = $input->getOption(MagentoOptions::PATH);
