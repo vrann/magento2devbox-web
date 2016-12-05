@@ -131,8 +131,8 @@ class MagentoFinalize extends AbstractCommand
             );
         }
 
-        $statePath = $input->getOption(MagentoOptions::STATE_PATH);
-        $enableSyncMarker = $input->getOption(MagentoOptions::ENABLE_SYNC_MARKER);
+        $statePath = $this->requestOption(MagentoOptions::STATE_PATH, $input, $output);
+        $enableSyncMarker = $this->requestOption(MagentoOptions::ENABLE_SYNC_MARKER, $input, $output);
         $syncMarkerPath =  $statePath . '/' . $enableSyncMarker;
         if ($enableSyncMarker && !file_exists($syncMarkerPath)) {
             $this->executeCommands(sprintf('touch %s', $syncMarkerPath), $output);
