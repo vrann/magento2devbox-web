@@ -39,48 +39,23 @@ class MagentoSetupVarnish extends AbstractCommand
      */
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-        $markerFile = $input->getOption(VarnishOptions::MARKER_FILE);
-        if (Registry::get(VarnishOptions::FPC_INSTALLED)
-            || !$this->requestOption(VarnishOptions::FPC_SETUP, $input, $output)) {
-
-            if (file_exists($markerFile)) {
-                $this->executeCommands(
-                    sprintf(
-                        'unlink %s',
-                        $markerFile
-                    ),
-                    $output
-                );
-            }
-            return;
-        }
-
-        $this->executeCommands(
-            sprintf(
-                'touch %s',
-                $markerFile
-            ),
-            $output
-        );
-        
         $varnishHost = $this->requestOption(VarnishOptions::HOST, $input, $output);
 
         $this->setHttpCacheHost($input, $output, $varnishHost);
         $this->saveConfig($input, $output);
 
-        require_once sprintf('%s/app/bootstrap.php', $this->requestOption('magento-path', $input, $output));
+        if ($input->getOption(VarnishOptions::GENERATE_CONFIG)) {
+            $markerFile = $input->getOption(VarnishOptions::MARKER_FILE);
+            if (!$this->requestOption(VarnishOptions::FPC_SETUP, $input, $output)) {
+                if (file_exists($markerFile)) {
+                    unlink($markerFile);
+                }
+                return;
+            }
 
-        $bootstrap = Bootstrap::create(BP, $_SERVER);
-        $objectManager = $bootstrap->getObjectManager();
-        /** @var Config $config */
-        $config = $objectManager->get(Config::class);
-        $content = $config->getVclFile(Config::VARNISH_4_CONFIGURATION_PATH);
-        $content = $this->customizeTimeOut($content);
-        file_put_contents($this->requestOption(VarnishOptions::CONFIG_PATH, $input, $output), $content);
-
-        Registry::set(MagentoOptions::PORT, $this->requestOption(VarnishOptions::HOME_PORT, $input, $output));
-        Registry::set(VarnishOptions::FPC_INSTALLED, true);
-        Registry::set(VarnishOptions::HOST, $varnishHost);
+            touch($markerFile);
+            $this->generateConfig($input, $output, $varnishHost);
+        }
     }
 
     /**
@@ -212,7 +187,8 @@ class MagentoSetupVarnish extends AbstractCommand
             DbOptions::PASSWORD => DbOptions::get(DbOptions::PASSWORD),
             DbOptions::NAME => DbOptions::get(DbOptions::NAME),
             MagentoOptions::HOST => MagentoOptions::get(MagentoOptions::HOST),
-            MagentoOptions::PATH => MagentoOptions::get(MagentoOptions::PATH)
+            MagentoOptions::PATH => MagentoOptions::get(MagentoOptions::PATH),
+            VarnishOptions::GENERATE_CONFIG => VarnishOptions::get(VarnishOptions::GENERATE_CONFIG)
         ];
     }
 
@@ -234,5 +210,29 @@ class MagentoSetupVarnish extends AbstractCommand
             'port' => '6081',
         ];
         file_put_contents($envPath, sprintf("<?php\n return %s;", var_export($env, true)));
+    }
+
+    /**
+     * Generate varnish config
+     *
+     * @param InputInterface $input
+     * @param OutputInterface $output
+     * @param $varnishHost
+     */
+    private function generateConfig(InputInterface $input, OutputInterface $output, $varnishHost)
+    {
+        require_once sprintf('%s/app/bootstrap.php', $this->requestOption('magento-path', $input, $output));
+
+        $bootstrap = Bootstrap::create(BP, $_SERVER);
+        $objectManager = $bootstrap->getObjectManager();
+        /** @var Config $config */
+        $config = $objectManager->get(Config::class);
+        $content = $config->getVclFile(Config::VARNISH_4_CONFIGURATION_PATH);
+        $content = $this->customizeTimeOut($content);
+        file_put_contents($this->requestOption(VarnishOptions::CONFIG_PATH, $input, $output), $content);
+
+        Registry::set(MagentoOptions::PORT, $this->requestOption(VarnishOptions::HOME_PORT, $input, $output));
+        Registry::set(VarnishOptions::FPC_INSTALLED, true);
+        Registry::set(VarnishOptions::HOST, $varnishHost);
     }
 }

@@ -47,13 +47,23 @@ class MagentoDownload extends AbstractCommand
     }
 
     /**
+     * Define whether dir is empty
+     *
+     * @param $dir
+     * @return bool
+     */
+    private function isEmptyDir($dir)
+    {
+        return !count(glob("/$dir/*"));
+    }
+
+    /**
      * {@inheritdoc}
      *
      * @throws \Exception
      */
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-
         $enableSyncMarker = $input->getOption(MagentoOptions::ENABLE_SYNC_MARKER);
 
         if ($enableSyncMarker) {
@@ -72,15 +82,16 @@ class MagentoDownload extends AbstractCommand
             $this->generateAuthFile($authFile, $input, $output);
         }
 
-        $useExistingSources = false;
-        if ($this->requestOption(MagentoOptions::SOURCES_REUSE, $input, $output)) {
+        $useExistingSources = $this->requestOption(MagentoOptions::SOURCES_REUSE, $input, $output)
+            || !$this->isEmptyDir($magentoPath);
+
+        if ($useExistingSources) {
             XDebugSwitcher::switchOff();
             $composerJsonExists = file_exists(sprintf('%s/composer.json', $magentoPath));
             if ($composerJsonExists) {
                 $this->executeCommands(sprintf('cd %s && composer install', $magentoPath), $output);
             }
             XDebugSwitcher::switchOn();
-            $useExistingSources = true;
         } else if ($this->requestOption(MagentoCloudOptions::INSTALL, $input, $output)) {
             XDebugSwitcher::switchOff();
             $this->installFromCloud($input, $output);

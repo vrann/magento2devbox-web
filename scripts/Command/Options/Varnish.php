@@ -16,6 +16,7 @@ class Varnish extends AbstractOptions
     const HOME_PORT = 'varnish-home-port';
     const HOST = 'varnish-host';
     const MARKER_FILE = 'varnish-marker-file';
+    const GENERATE_CONFIG = 'generate-varnish-config';
 
     /**
      * {@inheritdoc}
@@ -50,6 +51,12 @@ class Varnish extends AbstractOptions
                 'default' => 'varnish',
                 'description' => 'Varnish host',
                 'question' => 'Please enter Varnish host %default%'
+            ],
+            static::GENERATE_CONFIG => [
+                'boolean' => true,
+                'default' => static::getDefaultValue('GENERATE_VARNISH_CONFIG', false),
+                'description' => 'Generate Varnish config.',
+                'question' => 'Do you wish to generate varnish config? %default%'
             ]
         ];
     }
