@@ -314,17 +314,19 @@ abstract class AbstractCommand extends Command
      * Get configuration for input options
      *
      * Config parameters:
-     * - virtual        virtual options are not added into the list of supported options for this command and their
-     *                  values are not stored
-     * - initial        whether to request for option automatically before command execution (ignored for virtual
-     *                  options)
-     * - requireValue   whether to allow this option to be passed as argument with empty value (e.g. "--option" or
-     *                  "--option=")
-     * - boolean        whether this option is of boolean type (boolean option values are converted into boolean type)
-     * - default        default value for this option if not requested or left empty
-     * - shortcut       argument shortcut (e.g. -h for --help)
-     * - description    argument description
-     * - question       default question for interactive option request
+     * - virtual            virtual options are not added into the list of supported options for this command and their
+     *                      values are not stored
+     * - initial            whether to request for option automatically before command execution (ignored for virtual
+     *                      options)
+     * - requireValue       whether to allow this option to be passed as argument with empty value (e.g. "--option" or
+     *                      "--option=")
+     * - boolean            whether this option is of boolean type (boolean option values are converted into boolean type)
+     * - default            default value for this option if not requested or left empty
+     * - shortcut           argument shortcut (e.g. -h for --help)
+     * - description        argument description
+     * - question           default question for interactive option request
+     * - validationPattern  pattern to validate value, leave empty if no validation required
+     * - validationAttempts number of attempts to get user input for the value if validation fails
      *
      * @return array
      */
