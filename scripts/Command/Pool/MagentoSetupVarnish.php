@@ -39,23 +39,30 @@ class MagentoSetupVarnish extends AbstractCommand
      */
     protected function execute(InputInterface $input, OutputInterface $output)
     {
+        $markerFile = $input->getOption(VarnishOptions::MARKER_FILE);
+        $generateConfig = $input->getOption(VarnishOptions::GENERATE_CONFIG);
+        if (Registry::get(VarnishOptions::FPC_INSTALLED)
+            || !$this->requestOption(VarnishOptions::FPC_SETUP, $input, $output)) {
+
+            if ($markerFile && file_exists($markerFile) && $generateConfig) {
+                unlink($markerFile);
+            }
+            return;
+        }
+
         $varnishHost = $this->requestOption(VarnishOptions::HOST, $input, $output);
 
         $this->setHttpCacheHost($input, $output, $varnishHost);
         $this->saveConfig($input, $output);
 
-        if ($input->getOption(VarnishOptions::GENERATE_CONFIG)) {
-            $markerFile = $input->getOption(VarnishOptions::MARKER_FILE);
-            if (!$this->requestOption(VarnishOptions::FPC_SETUP, $input, $output)) {
-                if (file_exists($markerFile)) {
-                    unlink($markerFile);
-                }
-                return;
-            }
-
+        if ($markerFile && $generateConfig) {
             touch($markerFile);
             $this->generateConfig($input, $output, $varnishHost);
         }
+
+        Registry::set(MagentoOptions::PORT, $this->requestOption(VarnishOptions::HOME_PORT, $input, $output));
+        Registry::set(VarnishOptions::FPC_INSTALLED, true);
+        Registry::set(VarnishOptions::HOST, $varnishHost);
     }
 
     /**
