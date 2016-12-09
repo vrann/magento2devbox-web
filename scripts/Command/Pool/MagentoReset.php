@@ -82,7 +82,7 @@ class MagentoReset extends AbstractCommand
             MagentoOptions::PATH => MagentoOptions::get(MagentoOptions::PATH),
             WebServerOptions::HOME_PORT => WebServerOptions::get(WebServerOptions::HOME_PORT),
             MagentoOptions::HOST => MagentoOptions::get(MagentoOptions::HOST),
-            Varnish::HOME_PORT => MagentoOptions::get(Varnish::HOME_PORT),
+            Varnish::HOME_PORT => Varnish::get(Varnish::HOME_PORT),
             DbOptions::HOST => DbOptions::get(DbOptions::HOST),
             DbOptions::USER => DbOptions::get(DbOptions::USER),
             DbOptions::PASSWORD => DbOptions::get(DbOptions::PASSWORD),
