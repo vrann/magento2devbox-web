@@ -22,6 +22,7 @@ RUN apt-get update && apt-get install -y \
     supervisor \
     mysql-client \
     ocaml \
+    expect \
     && curl -L https://github.com/bcpierce00/unison/archive/2.48.4.tar.gz | tar zxv -C /tmp && \
              cd /tmp/unison-2.48.4 && \
              sed -i -e 's/GLIBC_SUPPORT_INOTIFY 0/GLIBC_SUPPORT_INOTIFY 1/' src/fsmonitor/linux/inotify_stubs.c && \
@@ -113,7 +114,8 @@ RUN sed -i 's/^/;/' /usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini \
     && sed -i 's/^;;*//' /usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini
 
 RUN chown -R magento2:magento2 /home/magento2 && \
-    chown -R magento2:magento2 /var/www/magento2
+    chown -R magento2:magento2 /var/www/magento2 && \
+    chmod 755 /home/magento2/scripts/bin/magento-cloud-login
 
 # Delete user password to connect with ssh with empty password
 RUN passwd magento2 -d

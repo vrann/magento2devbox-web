@@ -84,6 +84,8 @@ class MagentoDownload extends AbstractCommand
 
         $useExistingSources = $this->requestOption(MagentoOptions::SOURCES_REUSE, $input, $output)
             || !$this->isEmptyDir($magentoPath);
+        $installFromCloud = $input->getOption(MagentoCloudOptions::SILENT_INSTALL)
+            || $this->requestOption(MagentoCloudOptions::INSTALL, $input, $output);
 
         if ($useExistingSources) {
             XDebugSwitcher::switchOff();
@@ -92,9 +94,13 @@ class MagentoDownload extends AbstractCommand
                 $this->executeCommands(sprintf('cd %s && composer install', $magentoPath), $output);
             }
             XDebugSwitcher::switchOn();
-        } else if ($this->requestOption(MagentoCloudOptions::INSTALL, $input, $output)) {
+        } else if ($installFromCloud) {
             XDebugSwitcher::switchOff();
-            $this->installFromCloud($input, $output);
+            $this->installFromCloud(
+                $input,
+                $output,
+                $input->getOption(MagentoCloudOptions::SILENT_INSTALL)
+            );
             $composerJsonExists = file_exists(sprintf('%s/composer.json', $magentoPath));
             if ($composerJsonExists) {
                 $this->executeCommands(sprintf('cd %s && composer install', $magentoPath), $output);
@@ -135,19 +141,27 @@ class MagentoDownload extends AbstractCommand
      *
      * @param InputInterface $input
      * @param OutputInterface $output
+     * @param boolean $silentInstall
      * @return void
      * @throws \Exception
      */
-    private function installFromCloud(InputInterface $input, OutputInterface $output)
+    private function installFromCloud(InputInterface $input, OutputInterface $output, $silentInstall = false)
     {
         if (!$this->commandExist('magento-cloud')) {
             $this->executeCommands('php /home/magento2/installer', $output);
         }
 
-        $this->executeCommands('magento-cloud', $output);
+        $command = ($silentInstall) ? '/home/magento2/scripts/bin/magento-cloud-login' : 'magento-cloud';
+        $this->executeCommands($command, $output);
 
-        $project = $this->requestProjectName($input, $output);
-        $branch = $this->requestBranchName($input, $output, $project);
+        if ($silentInstall) {
+            $project = $input->getOption(MagentoCloudOptions::PROJECT);
+            $branch = $input->getOption(MagentoCloudOptions::BRANCH);
+        } else {
+            $project = $this->requestProjectName($input, $output);
+            $branch = $this->requestBranchName($input, $output, $project);
+        }
+
         $keyName = $this->getSshKey($input, $output);
 
         chmod(sprintf('/home/magento2/.ssh/%s', $keyName), 0600);
@@ -160,7 +174,7 @@ class MagentoDownload extends AbstractCommand
         if ($this->sshKeyIsNew || $this->requestOption(MagentoCloudOptions::KEY_ADD, $input, $output)) {
             $this->executeCommands(
                 [
-                    sprintf('magento-cloud ssh-key:add /home/magento2/.ssh/%s.pub', $keyName),
+                    sprintf('magento-cloud ssh-key:add --yes /home/magento2/.ssh/%s.pub', $keyName),
                     'magento-cloud ssh-key:list'
                 ],
                 $output
@@ -251,6 +265,7 @@ class MagentoDownload extends AbstractCommand
             MagentoOptions::EDITION => MagentoOptions::get(MagentoOptions::EDITION),
             MagentoOptions::VERSION => MagentoOptions::get(MagentoOptions::VERSION),
             MagentoCloudOptions::INSTALL => MagentoCloudOptions::get(MagentoCloudOptions::INSTALL),
+            MagentoCloudOptions::SILENT_INSTALL => MagentoCloudOptions::get(MagentoCloudOptions::SILENT_INSTALL),
             MagentoCloudOptions::KEY_REUSE => MagentoCloudOptions::get(MagentoCloudOptions::KEY_REUSE),
             MagentoCloudOptions::KEY_CREATE => MagentoCloudOptions::get(MagentoCloudOptions::KEY_CREATE),
             MagentoCloudOptions::KEY_NAME => MagentoCloudOptions::get(MagentoCloudOptions::KEY_NAME),
