@@ -78,7 +78,7 @@ class MagentoDownload extends AbstractCommand
         $magentoPath = $input->getOption(MagentoOptions::PATH);
         $authFile = '/home/magento2/.composer/auth.json';
         $rootAuth = sprintf('%s/auth.json', $magentoPath);
-        $auth = $this->generateAuthValue($input, $output);
+        $auth = $this->generateAuthConfig($input, $output);
         $customAuth = '';
 
         if (!file_exists($authFile) && !(file_exists($rootAuth))) {
@@ -246,11 +246,10 @@ class MagentoDownload extends AbstractCommand
      * @param OutputInterface $output
      * @return string
      */
-    private function generateAuthValue(InputInterface $input, OutputInterface $output)
+    private function generateAuthConfig(InputInterface $input, OutputInterface $output)
     {
         $publicKey = $this->requestOption(ComposerOptions::PUBLIC_KEY, $input, $output);
         $privateKey = $this->requestOption(ComposerOptions::PRIVATE_KEY, $input, $output);
-        $output->writeln('Writing auth.json');
         return sprintf(
             '{"http-basic": {"repo.magento.com": {"username": "%s", "password": "%s"}}}',
             $publicKey,
