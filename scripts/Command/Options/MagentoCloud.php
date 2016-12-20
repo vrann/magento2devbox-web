@@ -37,7 +37,7 @@ class MagentoCloud extends AbstractOptions
             static::SILENT_INSTALL => [
                 'boolean' => true,
                 'default' => static::getDefaultValue('MAGENTO_DOWNLOAD_SOURCES_CLOUD', false),
-                'description' => 'Whether to get sources from Magento Cloud silently.',
+                'description' => 'Whether to get sources from Magento Cloud silently (without interaction).',
                 'question' => 'Do you want to initialize from Magento Cloud silently (without interaction)? %default%'
             ],
             static::KEY_REUSE => [

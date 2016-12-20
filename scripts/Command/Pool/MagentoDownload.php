@@ -147,7 +147,7 @@ class MagentoDownload extends AbstractCommand
      *
      * @param InputInterface $input
      * @param OutputInterface $output
-     * @param boolean $silentInstall
+     * @param bool $silentInstall
      * @return void
      * @throws \Exception
      */
@@ -157,7 +157,7 @@ class MagentoDownload extends AbstractCommand
             $this->executeCommands('php /home/magento2/installer', $output);
         }
 
-        $command = ($silentInstall) ? '/home/magento2/scripts/bin/magento-cloud-login' : 'magento-cloud';
+        $command = $silentInstall ? '/home/magento2/scripts/bin/magento-cloud-login' : 'magento-cloud';
         $this->executeCommands($command, $output);
 
         if ($silentInstall) {
