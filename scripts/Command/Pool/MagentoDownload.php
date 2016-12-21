@@ -135,6 +135,8 @@ class MagentoDownload extends AbstractCommand
             XDebugSwitcher::switchOn();
         }
 
+        file_put_contents($magentoPath . '/auth.json', $auth);
+
         if (!Registry::get(static::CHAINED_EXECUTION_FLAG)) {
             $output->writeln('To setup magento run <info>m2init magento:setup</info> command next');
         }
