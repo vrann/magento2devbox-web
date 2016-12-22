@@ -1,5 +1,14 @@
 #!/usr/bin/env bash
 
+run_unison () {
+    local status=1
+
+    while [ $status != 0 ]; do
+        su - magento2 -c 'unison magento2'
+        status=$?
+    done
+}
+
 rm -rf /var/www/magento2/status.html
 rm -rf /home/magento2/magento2/status.html
 if [ -n $USE_SHARED_WEBROOT ]
@@ -35,7 +44,7 @@ then
 
             echo "[IN PROGRESS] Unison sync started" > /var/www/magento2/status.html
 
-            (su - magento2 -c 'unison magento2') || (su - magento2 -c 'unison magento2')
+            run_unison
 
             chmod +x /var/www/magento2/bin/magento
 
@@ -44,9 +53,9 @@ then
             sed -i 's/^\(\s*DirectoryIndex\s*\).*$/\1index.php/' /var/www/magento2/.htaccess
             rm -rf /var/www/magento2/status.html
             rm -rf /home/magento2/magento2/status.html
-            su - magento2 -c 'unison -repeat=watch magento2' &
+            /usr/local/bin/check-unison.sh &
         else
-            ((su - magento2 -c 'unison magento2') || (su - magento2 -c 'unison magento2'); (su - magento2 -c 'unison -repeat=watch magento2')) &
+            (run_unison; /usr/local/bin/check-unison.sh) &
         fi
     fi
 fi

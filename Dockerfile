@@ -81,7 +81,9 @@ ADD conf/.unison/magento2.prf /home/magento2/.unison/magento2.prf
 
 ADD conf/unison.sh /usr/local/bin/unison.sh
 ADD conf/entrypoint.sh /usr/local/bin/entrypoint.sh
-RUN chmod +x /usr/local/bin/unison.sh && chmod +x /usr/local/bin/entrypoint.sh
+ADD conf/check-unison.sh /usr/local/bin/check-unison.sh
+RUN chmod +x /usr/local/bin/unison.sh && chmod +x /usr/local/bin/entrypoint.sh \
+    && chmod +x /usr/local/bin/check-unison.sh
 
 ENV PATH $PATH:/home/magento2/scripts/:/home/magento2/.magento-cloud/bin
 ENV PATH $PATH:/var/www/magento2/bin
