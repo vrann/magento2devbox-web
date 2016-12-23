@@ -53,7 +53,7 @@ then
             sed -i 's/^\(\s*DirectoryIndex\s*\).*$/\1index.php/' /var/www/magento2/.htaccess
             rm -rf /var/www/magento2/status.html
             rm -rf /home/magento2/magento2/status.html
-            /usr/local/bin/check-unison.sh
+            /usr/local/bin/check-unison.sh &
         else
             (run_unison; /usr/local/bin/check-unison.sh) &
         fi
