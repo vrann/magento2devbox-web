@@ -78,13 +78,16 @@ class MagentoDownload extends AbstractCommand
         $magentoPath = $input->getOption(MagentoOptions::PATH);
         $authFile = '/home/magento2/.composer/auth.json';
         $rootAuth = sprintf('%s/auth.json', $magentoPath);
-        $auth = $this->generateAuthConfig($input, $output);
         $customAuth = '';
 
-        if (!file_exists($authFile) && !(file_exists($rootAuth))) {
+        if (!file_exists($authFile) && !file_exists($rootAuth)) {
+            $auth = $this->generateAuthConfig($input, $output);
             file_put_contents($authFile, $auth);
         } else {
-            $customAuth = sprintf(' COMPOSER_AUTH="%s" ', addslashes($auth));
+            $auth = $this->generateAuthConfig($input, $output, true);
+            if ($auth) {
+                $customAuth = sprintf(' COMPOSER_AUTH="%s" ', addslashes($auth));
+            }
         }
 
         $useExistingSources = $this->requestOption(MagentoOptions::SOURCES_REUSE, $input, $output)
@@ -135,7 +138,9 @@ class MagentoDownload extends AbstractCommand
             XDebugSwitcher::switchOn();
         }
 
-        file_put_contents($magentoPath . '/auth.json', $auth);
+        if ($auth) {
+            file_put_contents($magentoPath . '/auth.json', $auth);
+        }
 
         if (!Registry::get(static::CHAINED_EXECUTION_FLAG)) {
             $output->writeln('To setup magento run <info>m2init magento:setup</info> command next');
@@ -246,17 +251,26 @@ class MagentoDownload extends AbstractCommand
      *
      * @param InputInterface $input
      * @param OutputInterface $output
+     * @param bool $silentInstall
      * @return string
      */
-    private function generateAuthConfig(InputInterface $input, OutputInterface $output)
+    private function generateAuthConfig(InputInterface $input, OutputInterface $output, $silentInstall = false)
     {
-        $publicKey = $this->requestOption(ComposerOptions::PUBLIC_KEY, $input, $output);
-        $privateKey = $this->requestOption(ComposerOptions::PRIVATE_KEY, $input, $output);
-        return sprintf(
-            '{"http-basic": {"repo.magento.com": {"username": "%s", "password": "%s"}}}',
-            $publicKey,
-            $privateKey
-        );
+        $config = '';
+        $publicKey = $silentInstall
+            ? $input->getOption(ComposerOptions::PUBLIC_KEY)
+            : $this->requestOption(ComposerOptions::PUBLIC_KEY, $input, $output);
+        $privateKey = $silentInstall
+            ? $input->getOption(ComposerOptions::PRIVATE_KEY)
+            : $this->requestOption(ComposerOptions::PRIVATE_KEY, $input, $output);
+        if ($publicKey && $privateKey) {
+            $config = sprintf(
+                '{"http-basic": {"repo.magento.com": {"username": "%s", "password": "%s"}}}',
+                $publicKey,
+                $privateKey
+            );
+        }
+        return $config;
     }
 
     /**
