@@ -44,9 +44,7 @@ class MagentoReset extends AbstractCommand
             $input->getOption(DbOptions::NAME)
         );
         $magentoPath = $input->getOption(MagentoOptions::PATH);
-        $port = $this->requestOption(Varnish::HOME_PORT, $input, $output) ?
-            $this->requestOption(Varnish::HOME_PORT, $input, $output):
-            $this->requestOption(WebServerOptions::HOME_PORT, $input, $output);
+        $port = $this->requestOption(WebServerOptions::HOME_PORT, $input, $output);
         $magentoUrl = sprintf(
             'http://%s:%s',
             $this->requestOption(MagentoOptions::HOST, $input, $output),
