@@ -96,11 +96,11 @@ ENV MAGENTO_ENABLE_SYNC_MARKER 0
 
 RUN mkdir /windows \
  && cd /windows \
- && curl -L -o unison-windows.zip https://www.irif.fr/~vouillon/unison/unison%202.48.4.zip \
+ && curl -L -o unison-windows.zip https://www.irif.fr/~vouillon/unison/unison%202.48.3.zip \
  && unzip unison-windows.zip \
  && rm unison-windows.zip \
- && mv 'unison 2.48.4 text.exe' unison.exe \
- && rm 'unison 2.48.4 GTK.exe' \
+ && mv 'unison 2.48.3 text.exe' unison.exe \
+ && rm 'unison 2.48.3 GTK.exe' \
  && chown -R magento2:magento2 .
 
 RUN mkdir /mac-osx \
