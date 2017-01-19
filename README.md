@@ -1,6 +1,6 @@
 # Intro
 
-This repository is part of Magento DevBox, an a simple way to install a Magento 2 development environment. 
+This repository is part of Magento DevBox, a simple way to install a Magento 2 development environment. 
 The repository contains a Dockerfile for the Web container which includes Apache web server, PHP and a set of scripts to install Magento. The repository is used to automatically create an image https://hub.docker.com/r/magento/magento2devbox-web/, which is used for creating the development environment which you can create here https://magento.com/tech-resources/download.
 You can find DevBox documentation here http://devdocs.magento.com/guides/v2.1/install-gde/docker/docker-over.html.
 
