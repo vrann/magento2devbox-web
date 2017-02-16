@@ -60,7 +60,7 @@ then
     fi
 fi
 
-if [ $USE_UNISON_SYNC == "1" ]
+if [ "$USE_UNISON_SYNC" == "1" ]
 then
     sudo -u magento2 sh -c '/usr/local/bin/unison -socket 5000 2>&1 >/dev/null' &
 fi
