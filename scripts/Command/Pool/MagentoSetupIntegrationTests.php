@@ -82,11 +82,11 @@ class MagentoSetupIntegrationTests extends AbstractCommand
     /**
      * Replace database credentials in the config file
      *
-     * @param $sourceFileName
-     * @param $dbHost
-     * @param $dbName
-     * @param $dbUser
-     * @param $dbPassword
+     * @param string $sourceFileName
+     * @param string $dbHost
+     * @param string $dbName
+     * @param string $dbUser
+     * @param string $dbPassword
      * @return void
      */
     private function updateDbCredetials($sourceFileName, $dbHost, $dbName, $dbUser, $dbPassword)
