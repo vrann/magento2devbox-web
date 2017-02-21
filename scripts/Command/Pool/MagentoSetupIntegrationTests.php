@@ -75,7 +75,7 @@ class MagentoSetupIntegrationTests extends AbstractCommand
     private function createConfigurationFile($sourceFileName, $targetFileName)
     {
         if (file_exists($sourceFileName) && !file_exists($targetFileName)) {
-            $this->executeCommands(sprintf('cp %s %s', $sourceFileName, $sourceFileName));
+            $this->executeCommands(sprintf('cp %s %s', $sourceFileName, $targetFileName));
         }
     }
 
