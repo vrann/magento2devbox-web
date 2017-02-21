@@ -113,7 +113,7 @@ class MagentoSetupIntegrationTests extends AbstractCommand
     private function replaceOptionValues($values, $config)
     {
         foreach ($values as $name => $value) {
-            $config = preg_replace("~'$name' => '.+',~", "'$name' => '$value',", $config);
+            $config = preg_replace("~'$name'\\s+=>\\s+'.*',~", "'$name' => '$value',", $config);
         }
 
         return $config;
