@@ -56,12 +56,12 @@ class MagentoSetupIntegrationTests extends AbstractCommand
         $sourceFile = sprintf('%s/dev/tests/integration/etc/install-config-mysql.php.dist', $magentoPath);
         $targetFile = sprintf('%s/dev/tests/integration/etc/install-config-mysql.php', $magentoPath);
         $this->createConfigurationFile($sourceFile, $targetFile);
-        $this->updateDbCredetials($targetFile, $dbHost, $dbName, $dbUser, $dbPassword);
+        $this->updateDbCredentials($targetFile, $dbHost, $dbName, $dbUser, $dbPassword);
 
         $sourceFile = sprintf('%s/dev/tests/integration/etc/install-config-mysql.travis.php.dist', $magentoPath);
         $targetFile = sprintf('%s/dev/tests/integration/etc/install-config-mysql.travis.php', $magentoPath);
         $this->createConfigurationFile($sourceFile, $targetFile);
-        $this->updateDbCredetials($targetFile, $dbHost, $dbName, $dbUser, $dbPassword);
+        $this->updateDbCredentials($targetFile, $dbHost, $dbName, $dbUser, $dbPassword);
     }
 
     /**
@@ -75,7 +75,7 @@ class MagentoSetupIntegrationTests extends AbstractCommand
     private function createConfigurationFile($sourceFileName, $targetFileName)
     {
         if (file_exists($sourceFileName) && !file_exists($targetFileName)) {
-            copy($sourceFileName, $sourceFileName);
+            $this->executeCommands(sprintf('cp %s %s', $sourceFileName, $sourceFileName));
         }
     }
 
@@ -89,16 +89,34 @@ class MagentoSetupIntegrationTests extends AbstractCommand
      * @param string $dbPassword
      * @return void
      */
-    private function updateDbCredetials($sourceFileName, $dbHost, $dbName, $dbUser, $dbPassword)
+    private function updateDbCredentials($sourceFileName, $dbHost, $dbName, $dbUser, $dbPassword)
     {
-        $config = require_once($sourceFileName);
+        $config = file_get_contents($sourceFileName);
+        $values = [
+            'db-host' => $dbHost,
+            'db-user' => $dbUser,
+            'db-password' => $dbPassword,
+            'db-name' => $dbName,
+            'backend-frontname' => 'admin'
+        ];
+        $config = $this->replaceOptionValues($values, $config);
+        file_put_contents($sourceFileName, $config);
+    }
 
-        $config['db-host'] = $dbHost;
-        $config['db-user'] = $dbUser;
-        $config['db-password'] = $dbPassword;
-        $config['db-name'] = $dbName;
+    /**
+     * Replace option values in config
+     *
+     * @param array $values
+     * @param string $config
+     * @return string
+     */
+    private function replaceOptionValues($values, $config)
+    {
+        foreach ($values as $name => $value) {
+            $config = preg_replace("~'$name' => '.+',~", "'$name' => '$value',", $config);
+        }
 
-        file_put_contents($sourceFileName, "<?php\n\nreturn " . var_export($config, true) . ";");
+        return $config;
     }
 
     /**
