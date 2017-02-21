@@ -33,6 +33,11 @@ class MagentoSetupIntegrationTests extends AbstractCommand
      */
     protected function execute(InputInterface $input, OutputInterface $output)
     {
+        require_once sprintf(
+            '%s/dev/tests/integration/framework/autoload.php',
+            $this->requestOption('magento-path', $input, $output)
+        );
+
         $dbName = 'magento_integration_tests';
         $dbUser = $input->getOption(DbOptions::USER);
         $dbPassword = $input->getOption(DbOptions::PASSWORD);
@@ -91,32 +96,15 @@ class MagentoSetupIntegrationTests extends AbstractCommand
      */
     private function updateDbCredentials($sourceFileName, $dbHost, $dbName, $dbUser, $dbPassword)
     {
-        $config = file_get_contents($sourceFileName);
-        $values = [
-            'db-host' => $dbHost,
-            'db-user' => $dbUser,
-            'db-password' => $dbPassword,
-            'db-name' => $dbName,
-            'backend-frontname' => 'admin'
-        ];
-        $config = $this->replaceOptionValues($values, $config);
-        file_put_contents($sourceFileName, $config);
-    }
+        $config = include $sourceFileName;
 
-    /**
-     * Replace option values in config
-     *
-     * @param array $values
-     * @param string $config
-     * @return string
-     */
-    private function replaceOptionValues($values, $config)
-    {
-        foreach ($values as $name => $value) {
-            $config = preg_replace("~'$name'\\s+=>\\s+'.*',~", "'$name' => '$value',", $config);
-        }
+        $config['db-host'] = $dbHost;
+        $config['db-user'] = $dbUser;
+        $config['db-password'] = $dbPassword;
+        $config['db-name'] = $dbName;
+        $config['backend-frontname'] = 'admin';
 
-        return $config;
+        file_put_contents($sourceFileName, sprintf("<?php\n return %s;", var_export($config, true)));
     }
 
     /**
