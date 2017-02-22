@@ -102,7 +102,6 @@ class MagentoSetupIntegrationTests extends AbstractCommand
         $config['db-user'] = $dbUser;
         $config['db-password'] = $dbPassword;
         $config['db-name'] = $dbName;
-        $config['backend-frontname'] = 'admin';
 
         file_put_contents($sourceFileName, sprintf("<?php\n return %s;", var_export($config, true)));
     }
