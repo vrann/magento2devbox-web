@@ -20,6 +20,7 @@ class MagentoCloud extends AbstractOptions
     const PROJECT_SKIP = 'magento-cloud-project-skip';
     const BRANCH = 'magento-cloud-branch';
     const BRANCH_SKIP = 'magento-cloud-branch-skip';
+    const SILENT_INSTALL = 'magento-cloud-silent-install';
 
     /**
      * {@inheritdoc}
@@ -33,20 +34,26 @@ class MagentoCloud extends AbstractOptions
                 'description' => 'Whether to get sources from Magento Cloud.',
                 'question' => 'Do you want to initialize from Magento Cloud? %default%'
             ],
+            static::SILENT_INSTALL => [
+                'boolean' => true,
+                'default' => static::getDefaultValue('MAGENTO_DOWNLOAD_SOURCES_CLOUD', false),
+                'description' => 'Whether to get sources from Magento Cloud silently (without interaction).',
+                'question' => 'Do you want to initialize from Magento Cloud silently (without interaction)? %default%'
+            ],
             static::KEY_REUSE => [
                 'boolean' => true,
-                'default' => true,
+                'default' => !static::getDefaultValue('MCLOUD_GENERATE_NEW_TOKEN', false),
                 'description' => 'Whether to use existing SSH key from a local file.',
                 'question' => 'Do you want to use existing SSH key from a local file? %default%'
             ],
             static::KEY_CREATE => [
                 'boolean' => true,
-                'default' => true,
+                'default' => static::getDefaultValue('MCLOUD_GENERATE_NEW_TOKEN', true),
                 'description' => 'Do you want to create new SSH key?',
                 'question' => 'Do you want to create new SSH key? %default%'
             ],
             static::KEY_NAME => [
-                'default' => 'id_rsa',
+                'default' => static::getDefaultValue('MCLOUD_KEY_NAME', 'id_rsa'),
                 'description' => 'Name of the local file with SSH key to use with Magento Cloud.',
                 'question' => 'What is the name of the local file with SSH key to use with Magento Cloud? %default%'
             ],
@@ -64,6 +71,7 @@ class MagentoCloud extends AbstractOptions
                     . ' %default%'
             ],
             static::PROJECT => [
+                'default' => static::getDefaultValue('MCLOUD_PROJECT', ''),
                 'description' => 'Magento Cloud project to clone.',
                 'question' => 'Please select project to clone'
             ],
@@ -74,7 +82,7 @@ class MagentoCloud extends AbstractOptions
                 'question' => 'You haven\'t entered project name. Do you want to continue? %default%'
             ],
             static::BRANCH => [
-                'default' => 'master',
+                'default' => static::getDefaultValue('MCLOUD_BRANCH', 'master'),
                 'description' => 'Magento Cloud branch to clone from.',
                 'question' => 'What branch do you want to clone from? %default%'
             ],

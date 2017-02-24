@@ -8,6 +8,7 @@ namespace MagentoDevBox\Command\Pool;
 use MagentoDevBox\Command\AbstractCommand;
 use MagentoDevBox\Command\Options\Magento as MagentoOptions;
 use MagentoDevBox\Command\Options\Db as DbOptions;
+use MagentoDevBox\Command\Options\Varnish;
 use MagentoDevBox\Command\Options\WebServer as WebServerOptions;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -43,10 +44,11 @@ class MagentoReset extends AbstractCommand
             $input->getOption(DbOptions::NAME)
         );
         $magentoPath = $input->getOption(MagentoOptions::PATH);
+        $port = $this->requestOption(WebServerOptions::HOME_PORT, $input, $output);
         $magentoUrl = sprintf(
             'http://%s:%s',
             $this->requestOption(MagentoOptions::HOST, $input, $output),
-            $this->requestOption(WebServerOptions::HOME_PORT, $input, $output)
+            $port
         );
         $dbConnection->exec(
             sprintf(

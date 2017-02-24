@@ -33,4 +33,21 @@ abstract class AbstractOptions
      * @return array
      */
     protected static abstract function getOptions();
+
+    /**
+     * Check environment variable for value and return it if exists, otherwise return $value
+     *
+     * @param string $envName
+     * @param mixed $default
+     *
+     * @return mixed
+     */
+    public static function getDefaultValue($envName, $default)
+    {
+        $ret = $default;
+        if (strlen(getenv($envName)) > 0) {
+            $ret = (is_bool($default)) ? (boolean)getenv($envName) : getenv($envName);
+        }
+        return $ret;
+    }
 }

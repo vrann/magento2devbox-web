@@ -39,24 +39,54 @@ class MagentoSetupVarnish extends AbstractCommand
      */
     protected function execute(InputInterface $input, OutputInterface $output)
     {
+        $markerFile = $input->getOption(VarnishOptions::MARKER_FILE);
+        $generateConfig = $input->getOption(VarnishOptions::GENERATE_CONFIG);
         if (Registry::get(VarnishOptions::FPC_INSTALLED)
             || !$this->requestOption(VarnishOptions::FPC_SETUP, $input, $output)) {
+
+            if ($markerFile && file_exists($markerFile) && $generateConfig) {
+                unlink($markerFile);
+            }
             return;
         }
 
+        $varnishHost = $this->requestOption(VarnishOptions::HOST, $input, $output);
+
+        $this->setHttpCacheHost($input, $output, $varnishHost);
         $this->saveConfig($input, $output);
 
-        require_once sprintf('%s/app/bootstrap.php', $this->requestOption('magento-path', $input, $output));
-
-        $bootstrap = Bootstrap::create(BP, $_SERVER);
-        $objectManager = $bootstrap->getObjectManager();
-        /** @var Config $config */
-        $config = $objectManager->get(Config::class);
-        $content = $config->getVclFile(Config::VARNISH_4_CONFIGURATION_PATH);
-        file_put_contents($this->requestOption(VarnishOptions::CONFIG_PATH, $input, $output), $content);
+        if ($markerFile && $generateConfig) {
+            touch($markerFile);
+            $this->generateConfig($input, $output, $varnishHost);
+        }
 
         Registry::set(MagentoOptions::PORT, $this->requestOption(VarnishOptions::HOME_PORT, $input, $output));
         Registry::set(VarnishOptions::FPC_INSTALLED, true);
+        Registry::set(VarnishOptions::HOST, $varnishHost);
+    }
+
+    /**
+     * Customize varnish timeout
+     *
+     * @param $content
+     * @return string
+     */
+    private function customizeTimeOut($content)
+    {
+        $content = preg_replace(
+            "/(\.port\s\=\s\"80\"\;\n\})/",
+            "$1\n\nbackend web_setup {\n    .host = \"web\";\n    .port = \"80\";\n    .first_byte_timeout = 600s;\n}",
+            $content
+        );
+
+        $content = preg_replace(
+            '/(sub vcl_recv\s\{)/',
+            "$1\n    set req.backend_hint = default;\n    if (req.url ~ \"/setup\") {\n"
+            . "        set req.backend_hint = web_setup;\n    }",
+            $content
+        );
+
+        return $content;
     }
 
     /**
@@ -78,7 +108,7 @@ class MagentoSetupVarnish extends AbstractCommand
         $dbConnection->exec(
             'DELETE FROM core_config_data'
                 . ' WHERE path = "system/full_page_cache/caching_application" '
-                . ' OR path like "system/full_page_cache/varnish/%";'
+                . ' OR path LIKE "system/full_page_cache/varnish/%";'
         );
 
         $config = [
@@ -123,7 +153,7 @@ class MagentoSetupVarnish extends AbstractCommand
         $this->executeCommands(
             sprintf(
                 'cd %s && php bin/magento cache:clean config',
-                $this->requestOption('magento-path', $input, $output)
+                $this->requestOption(MagentoOptions::PATH, $input, $output)
             ),
             $output
         );
@@ -154,6 +184,8 @@ class MagentoSetupVarnish extends AbstractCommand
             VarnishOptions::FPC_SETUP => VarnishOptions::get(VarnishOptions::FPC_SETUP),
             VarnishOptions::CONFIG_PATH => VarnishOptions::get(VarnishOptions::CONFIG_PATH),
             VarnishOptions::HOME_PORT => VarnishOptions::get(VarnishOptions::HOME_PORT),
+            VarnishOptions::HOST => VarnishOptions::get(VarnishOptions::HOST),
+            VarnishOptions::MARKER_FILE => VarnishOptions::get(VarnishOptions::MARKER_FILE),
             WebServerOptions::HOST => WebServerOptions::get(WebServerOptions::HOST),
             WebServerOptions::PORT => WebServerOptions::get(WebServerOptions::PORT),
             DbOptions::HOST => DbOptions::get(DbOptions::HOST),
@@ -162,7 +194,48 @@ class MagentoSetupVarnish extends AbstractCommand
             DbOptions::PASSWORD => DbOptions::get(DbOptions::PASSWORD),
             DbOptions::NAME => DbOptions::get(DbOptions::NAME),
             MagentoOptions::HOST => MagentoOptions::get(MagentoOptions::HOST),
-            MagentoOptions::PATH => MagentoOptions::get(MagentoOptions::PATH)
+            MagentoOptions::PATH => MagentoOptions::get(MagentoOptions::PATH),
+            VarnishOptions::GENERATE_CONFIG => VarnishOptions::get(VarnishOptions::GENERATE_CONFIG)
         ];
+    }
+
+    /**
+     * Set HTTP cache host
+     *
+     * Command php bin/magento setup:config:set --http-cache-hosts=%s:6081' is not used by intense
+     * because of bug in 2.0.0 branch which corrupt structure of env.php
+     *
+     * @param InputInterface $input
+     * @param OutputInterface $output
+     */
+    private function setHttpCacheHost(InputInterface $input, OutputInterface $output, $varnishHost)
+    {
+        $envPath = sprintf('%s/app/etc/env.php', $this->requestOption(MagentoOptions::PATH, $input, $output));
+        $env = include $envPath;
+        $env['http_cache_hosts'][] = [
+            'host' => $varnishHost,
+            'port' => '6081',
+        ];
+        file_put_contents($envPath, sprintf("<?php\n return %s;", var_export($env, true)));
+    }
+
+    /**
+     * Generate varnish config
+     *
+     * @param InputInterface $input
+     * @param OutputInterface $output
+     * @param $varnishHost
+     */
+    private function generateConfig(InputInterface $input, OutputInterface $output, $varnishHost)
+    {
+        require_once sprintf('%s/app/bootstrap.php', $this->requestOption('magento-path', $input, $output));
+
+        $bootstrap = Bootstrap::create(BP, $_SERVER);
+        $objectManager = $bootstrap->getObjectManager();
+        /** @var Config $config */
+        $config = $objectManager->get(Config::class);
+        $content = $config->getVclFile(Config::VARNISH_4_CONFIGURATION_PATH);
+        $content = $this->customizeTimeOut($content);
+        file_put_contents($this->requestOption(VarnishOptions::CONFIG_PATH, $input, $output), $content);
     }
 }

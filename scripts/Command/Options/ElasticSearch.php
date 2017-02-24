@@ -13,6 +13,7 @@ class ElasticSearch extends AbstractOptions
     const ES_SETUP = 'elastic-setup';
     const HOST = 'elastic-host';
     const PORT = 'elastic-port';
+    const ELASTIC_MODULE_NAME = 'Magento_Elasticsearch';
 
     /**
      * {@inheritdoc}
@@ -23,7 +24,7 @@ class ElasticSearch extends AbstractOptions
             static::ES_SETUP => [
                 'initial' => true,
                 'boolean' => true,
-                'default' => (boolean)getenv('USE_ELASTICSEARCH'),
+                'default' => static::getDefaultValue('USE_ELASTICSEARCH', false),
                 'description' => 'Whether to use ElasticSearch as the search engine.',
                 'question' => 'Do you want to use ElasticSearch as the Magento search engine? %default%'
             ],

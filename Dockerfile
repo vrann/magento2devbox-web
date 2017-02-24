@@ -1,9 +1,13 @@
 FROM php:7.0.12-fpm
 MAINTAINER "Magento"
 
+ENV PHP_EXTRA_CONFIGURE_ARGS="--enable-fpm --with-fpm-user=magento2 --with-fpm-group=magento2"
+
 RUN apt-get update && apt-get install -y \
     apt-utils \
     sudo \
+    wget \
+    unzip \
     cron \
     curl \
     libmcrypt-dev \
@@ -18,6 +22,7 @@ RUN apt-get update && apt-get install -y \
     supervisor \
     mysql-client \
     ocaml \
+    expect \
     && curl -L https://github.com/bcpierce00/unison/archive/2.48.4.tar.gz | tar zxv -C /tmp && \
              cd /tmp/unison-2.48.4 && \
              sed -i -e 's/GLIBC_SUPPORT_INOTIFY 0/GLIBC_SUPPORT_INOTIFY 1/' src/fsmonitor/linux/inotify_stubs.c && \
@@ -31,9 +36,11 @@ RUN apt-get update && apt-get install -y \
     && pecl install xdebug && docker-php-ext-enable xdebug \
     && echo "xdebug.remote_enable=1" >> /usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini \
     && echo "xdebug.remote_port=9000" >> /usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini \
-    && echo "xdebug.remote_connect_back=1" >> /usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini \
+    && echo "xdebug.remote_connect_back=0" >> /usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini \
     && echo "xdebug.idekey=PHPSTORM" >> /usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini \
     && echo "xdebug.max_nesting_level=1000" >> /usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini \
+    && echo "xdebug.remote_host = 10.254.254.254" >> /usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini \
+    && chmod 666 /usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini \
     && mkdir /var/run/sshd \
     && apt-get clean && apt-get update && apt-get install -y nodejs \
     && ln -s /usr/bin/nodejs /usr/bin/node \
@@ -45,11 +52,30 @@ RUN apt-get update && apt-get install -y \
     && a2enmod proxy \
     && a2enmod proxy_fcgi \
     && rm -f /etc/apache2/sites-enabled/000-default.conf \
-    && useradd -m -d /home/magento2 magento2 && adduser magento2 sudo \
+    && useradd -m -d /home/magento2 -s /bin/bash magento2 && adduser magento2 sudo \
+    && touch /etc/sudoers.d/privacy \
+    && echo "Defaults        lecture = never" >> /etc/sudoers.d/privacy \
     && mkdir /home/magento2/magento2 && mkdir /var/www/magento2 \
+    && mkdir /home/magento2/state \
     && curl -sS https://accounts.magento.cloud/cli/installer -o /home/magento2/installer \
     && rm -r /usr/local/etc/php-fpm.d/* \
     && sed -i 's/www-data/magento2/g' /etc/apache2/envvars
+
+RUN mkdir /windows \
+ && cd /windows \
+ && curl -L -o unison-windows.zip https://www.irif.fr/~vouillon/unison/unison%202.48.4.zip \
+ && unzip unison-windows.zip \
+ && rm unison-windows.zip \
+ && mv 'unison 2.48.4 text.exe' unison.exe \
+ && rm 'unison 2.48.4 GTK.exe' \
+ && chown -R magento2:magento2 .
+
+RUN mkdir /mac-osx \
+ && cd /mac-osx \
+ && curl -L -o unison-mac-osx.zip http://unison-binaries.inria.fr/files/Unison-OS-X-2.48.15.zip \
+ && unzip unison-mac-osx.zip \
+ && rm unison-mac-osx.zip \
+ && chown -R magento2:magento2 .
 
 # PHP config
 ADD conf/php.ini /usr/local/etc/php
@@ -68,66 +94,36 @@ ADD conf/php-fpm-magento2.conf /usr/local/etc/php-fpm.d/php-fpm-magento2.conf
 ADD conf/apache-default.conf /etc/apache2/sites-enabled/apache-default.conf
 
 # unison script
-ADD conf/.unison/magento2.prf /home/magento2/.unison/magento2.prf
-RUN chown -R magento2:magento2 /home/magento2 && \
-    chown -R magento2:magento2 /var/www/magento2
+ADD conf/.unison/magento2-var.prf /home/magento2/.unison/magento2-var.prf
+ADD conf/.unison/magento2-code.prf /home/magento2/.unison/magento2-code.prf
 
-ADD conf/unison.sh /usr/local/bin/unison.sh
 ADD conf/entrypoint.sh /usr/local/bin/entrypoint.sh
-RUN chmod +x /usr/local/bin/unison.sh && chmod +x /usr/local/bin/entrypoint.sh
+ADD conf/unison.sh /usr/local/bin/unison.sh
+RUN chmod +x /usr/local/bin/entrypoint.sh \
+    && chmod +x /usr/local/bin/unison.sh
 
 ENV PATH $PATH:/home/magento2/scripts/:/home/magento2/.magento-cloud/bin
 ENV PATH $PATH:/var/www/magento2/bin
-ENV PHP_EXTRA_CONFIGURE_ARGS="--enable-fpm --with-fpm-user=magento2 --with-fpm-group=magento2"
 
-ENV USE_SHARED_WEBROOT = 1
-ENV SHARED_CODE_PATH="/var/www/magento2"
-ENV WEBROOT_PATH="/var/www/magento2"
-
-#ENV USE_RABBITMQ 0
-#ENV USE_REDIS_FULL_PAGE_CACHE 0
-#ENV USE_REDIS_CACHE 0
-#ENV USE_REDIS_SESSIONS 0
-#ENV USE_VARNISH 0
-#ENV USE_ELASTICSEARCH 0
-
-#ENV MAGENTO_PUBLIC_KEY=""
-#ENV MAGENTO_PRIVATE_KEY=""
-
-#ENV MAGENTO_USE_SOURCES_IN_HOST 0
-#ENV CREATE_SYMLINK_EE 0
-#ENV HOST_CE_PATH=""
-#ENV EE_DIRNAME=""
-
-#ENV MAGENTO_DOWNLOAD_SOURCES_COMPOSER 1
-#ENV MAGENTO_EDITION="CE"
-#ENV MAGENTO_VERSION="2.1.2"
-#ENV MAGENTO_SAMPLE_DATA_INSTALL 0
-
-#ENV MAGENTO_DOWNLOAD_SOURCES_CLOUD 0
-#ENV MCLOUD_USERNAME=""
-#ENV MCLOUD_PASSWORD=""
-#ENV MCLOUD_GENERATE_NEW_TOKEN 0
-#ENV MCLOUD_PROJECT=""
-#ENV MCLOUD_BRANCH=""
-
-#ENV MAGENTO_CRON_RUN 1
-#ENV MAGENTO_DI_COMPILE 0
-#ENV MAGENTO_GRUNT_COMPILE 0
-#ENV MAGENTO_STATIC_CONTENTS_DEPLOY 0
-
-#ENV MAGENTO_BACKEND_PATH="admin"
-#ENV MAGENTO_ADMIN_USER="admin"
-#ENV MAGENTO_ADMIN_PASSWORD="admin123"
+ENV USE_SHARED_WEBROOT 1
+ENV SHARED_CODE_PATH /var/www/magento2
+ENV WEBROOT_PATH /var/www/magento2
+ENV MAGENTO_ENABLE_SYNC_MARKER 0
 
 # Initial scripts
 COPY scripts/ /home/magento2/scripts/
-RUN cd /home/magento2/scripts && composer install && chmod +x /home/magento2/scripts/m2init
+RUN sed -i 's/^/;/' /usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini \
+    && cd /home/magento2/scripts && composer install && chmod +x /home/magento2/scripts/m2init \
+    && sed -i 's/^;;*//' /usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini
+
+RUN chown -R magento2:magento2 /home/magento2 && \
+    chown -R magento2:magento2 /var/www/magento2 && \
+    chmod 755 /home/magento2/scripts/bin/magento-cloud-login
 
 # Delete user password to connect with ssh with empty password
 RUN passwd magento2 -d
 
-EXPOSE 80 22 44100
+EXPOSE 80 22 5000 44100
 WORKDIR /home/magento2
 
 USER root

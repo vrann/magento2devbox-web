@@ -64,7 +64,7 @@ class MagentoInstall extends AbstractCommand
                 'magento:setup:redis',
                 'magento:setup:elasticsearch',
                 'magento:setup:integration-tests',
-                'magento:finalize'
+                'magento:finalize',
             ],
             $input,
             $output

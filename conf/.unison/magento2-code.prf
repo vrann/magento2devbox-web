@@ -1,0 +1,23 @@
+# Roots of the synchronization
+root = /home/magento2
+root = /var/www
+
+# Paths to synchronize 
+#path = magento2/app bin dev lib vendor
+path = magento2
+#ignore = Path pub
+ignore = Path var
+
+# Params
+fastercheckUNSAFE = true
+ignorelocks = true
+numericids = false
+log = true
+logfile = /home/magento2/unison.code.log
+batch = true
+fastcheck = true
+confirmbigdel = false
+ignore = Path */.git
+ignore = Path */.idea
+ignore = Path */update/vendor/composer/composer/tests/Composer/Test/Autoload/Fixtures/classmap/LargeClass.php
+prefer = /home/magento2
