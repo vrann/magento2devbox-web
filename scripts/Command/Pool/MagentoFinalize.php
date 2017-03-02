@@ -142,20 +142,6 @@ class MagentoFinalize extends AbstractCommand
             }
         }
 
-        // setup configs for integration tests
-        copy(
-            sprintf('%s/dev/tests/integration/phpunit.xml.dist', $magentoPath),
-            sprintf('%s/dev/tests/integration/phpunit.xml', $magentoPath)
-        );
-        copy(
-            sprintf('%s/dev/tests/integration/etc/config-global.php.dist', $magentoPath),
-            sprintf('%s/dev/tests/integration/etc/config-global.php', $magentoPath)
-        );
-        copy(
-            sprintf('%s/dev/tests/integration/etc/install-config-mysql.travis.php.dist', $magentoPath),
-            sprintf('%s/dev/tests/integration/etc/install-config-mysql.travis.php', $magentoPath)
-        );
-
         chmod(sprintf('%s/bin/magento', $magentoPath), 0750);
     }
 

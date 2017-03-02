@@ -1,6 +1,6 @@
 <?php
 /**
- * Copyright © 2016 Magento. All rights reserved.
+ * Copyright © 2013-2017 Magento, Inc. All rights reserved.
  * See COPYING.txt for license details.
  */
 namespace MagentoDevBox\Command\Pool;
@@ -33,9 +33,15 @@ class MagentoSetupIntegrationTests extends AbstractCommand
      */
     protected function execute(InputInterface $input, OutputInterface $output)
     {
+        require_once sprintf(
+            '%s/dev/tests/integration/framework/autoload.php',
+            $this->requestOption('magento-path', $input, $output)
+        );
+
         $dbName = 'magento_integration_tests';
         $dbUser = $input->getOption(DbOptions::USER);
         $dbPassword = $input->getOption(DbOptions::PASSWORD);
+        $dbHost = $input->getOption(DbOptions::HOST);
 
         $this->executeCommands(
             sprintf('mysql -h db -u %s -p%s -e "CREATE DATABASE IF NOT EXISTS %s;"', $dbUser, $dbPassword, $dbName),
@@ -43,39 +49,61 @@ class MagentoSetupIntegrationTests extends AbstractCommand
         );
 
         $magentoPath = $input->getOption(MagentoOptions::PATH);
+
+        $sourceFile = sprintf('%s/dev/tests/integration/phpunit.xml.dist', $magentoPath);
+        $targetFile = sprintf('%s/dev/tests/integration/phpunit.xml', $magentoPath);
+        $this->createConfigurationFile($sourceFile, $targetFile);
+
+        $sourceFile = sprintf('%s/dev/tests/integration/etc/config-global.php.dist', $magentoPath);
+        $targetFile = sprintf('%s/dev/tests/integration/etc/config-global.php', $magentoPath);
+        $this->createConfigurationFile($sourceFile, $targetFile);
+
         $sourceFile = sprintf('%s/dev/tests/integration/etc/install-config-mysql.php.dist', $magentoPath);
         $targetFile = sprintf('%s/dev/tests/integration/etc/install-config-mysql.php', $magentoPath);
+        $this->createConfigurationFile($sourceFile, $targetFile);
+        $this->updateDbCredentials($targetFile, $dbHost, $dbName, $dbUser, $dbPassword);
 
-        if (file_exists($sourceFile) && !file_exists($targetFile)) {
-            $config = file_get_contents($sourceFile);
-            $config = $this->replaceOptionValues(
-                [
-                    'db-host' => $input->getOption(DbOptions::HOST),
-                    'db-user' => $dbUser,
-                    'db-password' => $dbPassword,
-                    'db-name' => $dbName,
-                    'backend-frontname' => 'admin'
-                ],
-                $config
-            );
-            file_put_contents($targetFile, $config);
+        $sourceFile = sprintf('%s/dev/tests/integration/etc/install-config-mysql.travis.php.dist', $magentoPath);
+        $targetFile = sprintf('%s/dev/tests/integration/etc/install-config-mysql.travis.php', $magentoPath);
+        $this->createConfigurationFile($sourceFile, $targetFile);
+        $this->updateDbCredentials($targetFile, $dbHost, $dbName, $dbUser, $dbPassword);
+    }
+
+    /**
+     * Create configuration file from *.dist source
+     * In case if configuration file don't exists
+     *
+     * @param string $sourceFileName
+     * @param string $targetFileName
+     * @return void
+     */
+    private function createConfigurationFile($sourceFileName, $targetFileName)
+    {
+        if (file_exists($sourceFileName) && !file_exists($targetFileName)) {
+            $this->executeCommands(sprintf('cp %s %s', $sourceFileName, $targetFileName));
         }
     }
 
     /**
-     * Replace option values in config
+     * Replace database credentials in the config file
      *
-     * @param array $values
-     * @param string $config
-     * @return string
+     * @param string $sourceFileName
+     * @param string $dbHost
+     * @param string $dbName
+     * @param string $dbUser
+     * @param string $dbPassword
+     * @return void
      */
-    private function replaceOptionValues($values, $config)
+    private function updateDbCredentials($sourceFileName, $dbHost, $dbName, $dbUser, $dbPassword)
     {
-        foreach ($values as $name => $value) {
-            $config = preg_replace("~'$name' => '.+',~", "'$name' => '$value',", $config);
-        }
+        $config = include $sourceFileName;
 
-        return $config;
+        $config['db-host'] = $dbHost;
+        $config['db-user'] = $dbUser;
+        $config['db-password'] = $dbPassword;
+        $config['db-name'] = $dbName;
+
+        file_put_contents($sourceFileName, sprintf("<?php\n return %s;", var_export($config, true)));
     }
 
     /**
