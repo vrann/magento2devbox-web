@@ -119,6 +119,8 @@ class MagentoFinalize extends AbstractCommand
             $this->executeCommands(sprintf('cd %s && php bin/magento indexer:reindex', $magentoPath), $output);
         }
 
+        $this->executeCommands(sprintf('cd %s && php bin/magento cache:clean', $magentoPath), $output);
+
         if ($this->requestOption(MagentoOptions::WARM_UP_STOREFRONT, $input, $output)) {
             $storeFrontUrl = $this->getMagentoUrl($input);
             $this->updateApacheConfig($storeFrontUrl);
