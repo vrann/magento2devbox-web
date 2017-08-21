@@ -1,4 +1,5 @@
-FROM php:7.0.12-fpm
+FROM php:7.0.16-fpm
+
 MAINTAINER "Magento"
 
 ENV PHP_EXTRA_CONFIGURE_ARGS="--enable-fpm --with-fpm-user=magento2 --with-fpm-group=magento2"
