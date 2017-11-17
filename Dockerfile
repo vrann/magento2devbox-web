@@ -106,7 +106,7 @@ RUN sed -i 's/^/;/' /usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini \
     && sed -i 's/^;;*//' /usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini
 
 RUN chown -R magento2:magento2 /home/magento2 && \
-    chown -R magento2:magento2 /var/www/magento2 && \
+    chown -R magento2:magento2 /var/www && \
     chmod 755 /home/magento2/scripts/bin/magento-cloud-login
 
 # Delete user password to connect with ssh with empty password
