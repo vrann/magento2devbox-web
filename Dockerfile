@@ -96,24 +96,11 @@ ENV SHARED_CODE_PATH /var/www/magento2
 ENV WEBROOT_PATH /var/www/magento2
 ENV MAGENTO_ENABLE_SYNC_MARKER 0
 
-RUN mkdir /windows \
- && cd /windows \
- && curl -L -o unison-windows.zip https://www.irif.fr/~vouillon/unison/unison%202.48.3.zip \
- && unzip unison-windows.zip \
- && rm unison-windows.zip \
- && mv 'unison 2.48.3 text.exe' unison.exe \
- && rm 'unison 2.48.3 GTK.exe' \
- && chown -R magento2:magento2 .
-
-RUN mkdir /mac-osx \
- && cd /mac-osx \
- && curl -L -o unison-mac-osx.zip http://unison-binaries.inria.fr/files/Unison-OS-X-2.48.15.zip \
- && unzip unison-mac-osx.zip \
- && rm unison-mac-osx.zip \
- && chown -R magento2:magento2 .
 
 # Initial scripts
 COPY scripts/ /home/magento2/scripts/
+RUN chmod +x /home/magento2/scripts/gitclone.sh \
+        && chmod +x /home/magento2/scripts/install.sh
 RUN sed -i 's/^/;/' /usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini \
     && cd /home/magento2/scripts && composer install && chmod +x /home/magento2/scripts/m2init \
     && sed -i 's/^;;*//' /usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini
